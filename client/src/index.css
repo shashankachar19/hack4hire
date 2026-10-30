@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #070b14;
+    --bg-surface: #0e1526;
+    --bg-surface-elevated: #131c31;
+    --border-subtle: rgba(51, 65, 85, 0.45);
+    --border-accent: rgba(99, 102, 241, 0.35);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    background-image: 
+      radial-gradient(ellipse 90% 60% at 50% -15%, rgba(30, 58, 138, 0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 85% 10%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+    background-attachment: fixed;
+    color: #f8fafc;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Sleek Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(10, 15, 29, 0.8);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(51, 65, 85, 0.6);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(99, 102, 241, 0.7);
+}
+
+/* Keyframe Animations */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 16px rgba(99, 102, 241, 0.18), 0 0 32px rgba(99, 102, 241, 0.06);
+  }
+  50% {
+    box-shadow: 0 0 28px rgba(99, 102, 241, 0.38), 0 0 52px rgba(99, 102, 241, 0.16);
+  }
+}
+
+@keyframes radarPing {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.15;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.85;
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Reusable Animation Classes */
+.animate-pulse-glow {
+  animation: pulseGlow 3s infinite ease-in-out;
+}
+
+.animate-radar-ping {
+  animation: radarPing 2.5s infinite ease-in-out;
+}
+
+.animate-float-slow {
+  animation: floatSlow 4s infinite ease-in-out;
+}
+
+.shimmer-gradient {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0) 100%);
+  background-size: 200% 100%;
+  animation: shimmerSlide 3s infinite;
+}
+
+/* Glassmorphism & Enterprise Surface Classes */
+.glass-panel {
+  background: rgba(14, 21, 38, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(51, 65, 85, 0.55);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4);
+}
+
+.glass-panel-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+.glow-pill-emerald {
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.28);
+}
+
+.glow-pill-indigo {
+  box-shadow: 0 0 14px rgba(99, 102, 241, 0.28);
+}
+
+.glow-pill-cyan {
+  box-shadow: 0 0 14px rgba(6, 182, 212, 0.28);
+}
+
+.glow-pill-rose {
+  box-shadow: 0 0 14px rgba(244, 63, 94, 0.28);
+}
+
+.glow-pill-amber {
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.28);
+}

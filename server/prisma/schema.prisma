@@ -1,0 +1,195 @@
+// DispatchGrid — Prisma Schema (SQLite)
+// All tables for: Jobs, Technicians, Assignments, Schedule Runs, Audit, Idempotency
+// NOTE: Using SQLite for hackathon simplicity. Concurrency safety is enforced via
+//       serialized transactions (IMMEDIATE mode) which provides equivalent safety
+//       to PostgreSQL's SELECT ... FOR UPDATE for our use case.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// MODULE A: Technician Management
+// ============================================================================
+
+model Technician {
+  id            String   @id @default(uuid())
+  name          String
+  skills        String   // JSON array stored as string: '["plumbing","electrical"]'
+  serviceZones  String   // JSON array stored as string: '["zone-A","zone-B"]'
+  shiftStart    String   // HH:mm format, e.g., "08:00"
+  shiftEnd      String   // HH:mm format, e.g., "17:00"
+  isAvailable   Boolean  @default(true)
+  latitude      Float    @default(0) // Home/base location
+  longitude     Float    @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  assignments   Assignment[]
+
+  @@map("technicians")
+}
+
+// ============================================================================
+// MODULE A: Job Management (State Machine)
+// Valid transitions: pending -> assigned -> in_progress -> completed
+//                    pending -> cancelled
+//                    assigned -> unassigned (back to pending pool)
+//                    assigned -> cancelled
+// ============================================================================
+
+model Job {
+  id              String   @id @default(uuid())
+  title           String
+  description     String?
+  priority        String   @default("MEDIUM") // CRITICAL, HIGH, MEDIUM, LOW
+  status          String   @default("PENDING") // PENDING, ASSIGNED, IN_PROGRESS, COMPLETED, CANCELLED, UNASSIGNED
+  durationMinutes Int      // How long the job takes
+  requiredSkills  String   // JSON array stored as string
+  serviceZone     String   // Which zone the job is in
+  latitude        Float    // Job location
+  longitude       Float
+  
+  // Time constraints
+  windowStart     DateTime // Earliest the job can start
+  windowEnd       DateTime // Latest the job can start
+  slaDeadline     DateTime // Must be COMPLETED by this time
+  
+  // Tracking
+  idempotencyKey  String?  @unique // For duplicate prevention (Module G)
+  customerId      String?  // Linked registered customer
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  customer        Customer? @relation(fields: [customerId], references: [id])
+  assignments     Assignment[]
+
+  @@map("jobs")
+}
+
+// ============================================================================
+// MODULES B/C: Assignments (linking jobs to technicians with time slots)
+// ============================================================================
+
+model Assignment {
+  id              String   @id @default(uuid())
+  jobId           String
+  technicianId    String
+  scheduledStart  DateTime
+  scheduledEnd    DateTime
+  travelTimeMin   Float    @default(0)
+  isLocked        Boolean  @default(false) // Locked = in_progress or completed, immutable
+  runId           String   // Which schedule run created this assignment
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  job             Job        @relation(fields: [jobId], references: [id])
+  technician      Technician @relation(fields: [technicianId], references: [id])
+
+  @@unique([jobId, runId])
+  @@map("assignments")
+}
+
+// ============================================================================
+// MODULE E: Schedule Runs (Audit Trail)
+// ============================================================================
+
+model ScheduleRun {
+  id               String    @id @default(uuid())
+  runType          String    // INITIAL, RE_OPTIMIZATION, DISRUPTION_RECOVERY
+  triggerReason    String?
+  timestamp        DateTime  @default(now())
+  
+  // Metrics
+  totalJobs        Int       @default(0)
+  assignedJobs     Int       @default(0)
+  unassignedJobs   Int       @default(0)
+  infeasibleJobs   Int       @default(0)
+  impossibleJobs   Int       @default(0)
+  objectiveScore   Float     @default(0)
+  totalTravelTime  Float     @default(0)
+  slaViolations    Int       @default(0)
+  
+  // Diff from previous run
+  jobsReassigned   Int       @default(0)
+  jobsNewlyAssigned Int      @default(0)
+  jobsUnchanged    Int       @default(0)
+  
+  details          RunDetail[]
+
+  @@map("schedule_runs")
+}
+
+// ============================================================================
+// MODULE E: Run Details (per-job explanation)
+// ============================================================================
+
+model RunDetail {
+  id              String     @id @default(uuid())
+  runId           String
+  jobId           String
+  outcome         String     // ASSIGNED, INFEASIBLE, IMPOSSIBLE, LOCKED
+  
+  // Assignment info (if assigned)
+  technicianId    String?
+  scheduledStart  DateTime?
+  scheduledEnd    DateTime?
+  travelTimeMin   Float?
+  costScore       Float?
+  
+  // Explanation
+  explanation     String     // MUST be actionable, never generic
+  reasons         String     // JSON array stored as string
+  
+  // Diff info
+  previousTechId  String?
+  changeType      String?    // new_assignment, reassigned, unchanged, unassigned
+  
+  run             ScheduleRun @relation(fields: [runId], references: [id])
+
+  @@map("run_details")
+}
+
+// ============================================================================
+// MODULE G: Idempotency Keys
+// ============================================================================
+
+model IdempotencyKey {
+  key         String   @id
+  response    String   // JSON cached response body
+  statusCode  Int
+  createdAt   DateTime @default(now())
+  expiresAt   DateTime
+
+  @@map("idempotency_keys")
+}
+
+// ============================================================================
+// MODULE H: Customers (User Accounts & Booking History)
+// ============================================================================
+
+model Customer {
+  id           String    @id @default(uuid())
+  name         String
+  phone        String    @unique
+  email        String    @unique
+  passwordHash String?
+  address      String
+  age          Int       @default(25)
+  isVerified   Boolean   @default(false)
+  otpCode      String?
+  otpExpiresAt DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  jobs         Job[]
+
+  @@map("customers")
+}
+
