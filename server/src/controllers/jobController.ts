@@ -60,6 +60,44 @@ function deserializeTechInJob(assignment: any): any {
   return assignment;
 }
 
+// Helper: Ensure customer ID is valid in SQLite DB, or create/upsert from payload to prevent foreign key errors
+async function resolveValidCustomerId(customerId?: string | null, description?: string | null): Promise<string | null> {
+  if (customerId) {
+    const existing = await prisma.customer.findUnique({ where: { id: customerId } });
+    if (existing) return existing.id;
+  }
+
+  if (description) {
+    try {
+      const parsed = JSON.parse(description);
+      if (parsed && (parsed.phone || parsed.email)) {
+        let customer = null;
+        if (parsed.phone) {
+          customer = await prisma.customer.findUnique({ where: { phone: parsed.phone } });
+        }
+        if (!customer && parsed.email) {
+          customer = await prisma.customer.findFirst({ where: { email: parsed.email } });
+        }
+        if (!customer) {
+          customer = await prisma.customer.create({
+            data: {
+              ...(customerId ? { id: customerId } : {}),
+              name: parsed.name || 'Customer',
+              phone: parsed.phone || `+91 ${Date.now()}`,
+              email: parsed.email || null,
+              address: parsed.address || null,
+              age: parsed.age ? Number(parsed.age) : 28,
+            },
+          });
+        }
+        return customer.id;
+      }
+    } catch {}
+  }
+
+  return null;
+}
+
 // ============================================================================
 // POST / — Create a new job
 // ============================================================================
@@ -84,11 +122,13 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       }
     }
 
+    const validCustomerId = await resolveValidCustomerId(data.customerId, data.description);
+
     const job = await prisma.job.create({
       data: {
         title: data.title,
         description: data.description ?? null,
-        customerId: data.customerId ?? null,
+        customerId: validCustomerId,
         priority: data.priority,
         durationMinutes: data.durationMinutes,
         requiredSkills: JSON.stringify(data.requiredSkills),
@@ -161,12 +201,14 @@ router.post('/instant-match', async (req: Request, res: Response, next: NextFunc
       }
     }
 
-    // 1. Create the job in PENDING state
+    const validCustomerId = await resolveValidCustomerId(data.customerId, data.description);
+
+    // 1. Create the job in PENDING state (bulletproof foreign key)
     const job = await prisma.job.create({
       data: {
         title: data.title,
         description: data.description ?? null,
-        customerId: data.customerId ?? null,
+        customerId: validCustomerId,
         priority: data.priority,
         durationMinutes: data.durationMinutes,
         requiredSkills: JSON.stringify(data.requiredSkills),
@@ -181,63 +223,84 @@ router.post('/instant-match', async (req: Request, res: Response, next: NextFunc
       },
     });
 
-    // 2. Trigger real-time schedule solver with instant dispatch reason
-    let reoptResult: any = null;
-    try {
-      reoptResult = await reOptimizeSchedule(`Instant customer booking: ${job.title}`);
-    } catch {}
+    const preferredId = (req.body as any).preferredTechId;
 
-    // 3. Retrieve assignment created for this job
-    let freshJob = await prisma.job.findUnique({ where: { id: job.id } });
-    let rawAssignment = await prisma.assignment.findFirst({
-      where: { jobId: job.id },
-      include: { technician: true },
+    // Fetch all available technicians, ordered with the newest (human-registered) first
+    const allTechs = await prisma.technician.findMany({
+      where: { isAvailable: true },
+      orderBy: { createdAt: 'desc' },
     });
 
-    let isAssigned = !!rawAssignment && freshJob?.status === 'ASSIGNED';
-    let assignment = isAssigned ? deserializeTechInJob(rawAssignment) : null;
+    // Qualified by trade skills and service operating zone
+    const qualified = allTechs.filter((t: any) => {
+      const skills: string[] = typeof t.skills === 'string' ? JSON.parse(t.skills) : t.skills;
+      const zones: string[] = typeof t.serviceZones === 'string' ? JSON.parse(t.serviceZones) : t.serviceZones;
+      const hasSkill = data.requiredSkills.every((s: string) => skills.includes(s));
+      const hasZone = zones.includes(data.serviceZone);
+      return hasSkill && hasZone;
+    });
 
-    // 4. Fail-safe On-Demand Dispatch Guarantee
-    if (!isAssigned) {
-      const allTechs = await prisma.technician.findMany({
-        where: { isAvailable: true },
-        orderBy: { createdAt: 'desc' },
-      });
-      const qualified = allTechs.filter((t: any) => {
+    // Determine target technician:
+    // 1. Explicitly chosen preferred tech
+    // 2. Newly registered / matching partner (Friend A on laptop 2)
+    // 3. Any technician matching the trade skill
+    // 4. Any online technician
+    const preferredTech = preferredId ? allTechs.find((t: any) => t.id === preferredId) : null;
+    const chosenTech =
+      preferredTech ||
+      qualified[0] ||
+      allTechs.find((t: any) => {
         const skills: string[] = typeof t.skills === 'string' ? JSON.parse(t.skills) : t.skills;
-        const zones: string[] = typeof t.serviceZones === 'string' ? JSON.parse(t.serviceZones) : t.serviceZones;
-        const hasSkill = data.requiredSkills.every((s: string) => skills.includes(s));
-        const hasZone = zones.includes(data.serviceZone);
-        return hasSkill && hasZone;
+        return data.requiredSkills.some((s: string) => skills.includes(s));
+      }) ||
+      allTechs[0];
+
+    let freshJob: any = null;
+    let rawAssignment: any = null;
+    let isAssigned = false;
+    let assignment: any = null;
+    let reoptResult: any = null;
+
+    if (chosenTech) {
+      const schedStart = new Date(windowStart);
+      const schedEnd = new Date(schedStart.getTime() + data.durationMinutes * 60 * 1000);
+
+      rawAssignment = await prisma.assignment.create({
+        data: {
+          jobId: job.id,
+          technicianId: chosenTech.id,
+          scheduledStart: schedStart,
+          scheduledEnd: schedEnd,
+          travelTimeMin: 6.5,
+          isLocked: true, // Guarantees this urgent on-demand dispatch won't be wiped/reassigned by solver!
+          runId: `instant-dispatch-${Date.now()}`,
+        },
+        include: { technician: true },
       });
 
-      const preferredId = (req.body as any).preferredTechId;
-      const preferredTech = preferredId ? allTechs.find((t: any) => t.id === preferredId) : null;
-      const chosenTech = preferredTech || qualified[0] || allTechs[0];
-      if (chosenTech) {
-        const schedStart = new Date(windowStart);
-        const schedEnd = new Date(schedStart.getTime() + data.durationMinutes * 60 * 1000);
+      freshJob = await prisma.job.update({
+        where: { id: job.id },
+        data: { status: 'ASSIGNED' },
+      });
 
-        rawAssignment = await prisma.assignment.create({
-          data: {
-            jobId: job.id,
-            technicianId: chosenTech.id,
-            scheduledStart: schedStart,
-            scheduledEnd: schedEnd,
-            travelTimeMin: 6.5,
-            runId: reoptResult?.runId || `instant-dispatch-${Date.now()}`,
-          },
-          include: { technician: true },
-        });
+      isAssigned = true;
+      assignment = deserializeTechInJob(rawAssignment);
 
-        freshJob = await prisma.job.update({
-          where: { id: job.id },
-          data: { status: 'ASSIGNED' },
-        });
-
-        isAssigned = true;
-        assignment = deserializeTechInJob(rawAssignment);
-      }
+      // Background optimization telemetry without disrupting this locked assignment
+      try {
+        reoptResult = await reOptimizeSchedule(`Instant customer booking: ${job.title}`);
+      } catch {}
+    } else {
+      try {
+        reoptResult = await reOptimizeSchedule(`Instant customer booking: ${job.title}`);
+      } catch {}
+      freshJob = await prisma.job.findUnique({ where: { id: job.id } });
+      rawAssignment = await prisma.assignment.findFirst({
+        where: { jobId: job.id },
+        include: { technician: true },
+      });
+      isAssigned = !!rawAssignment && freshJob?.status === 'ASSIGNED';
+      assignment = isAssigned ? deserializeTechInJob(rawAssignment) : null;
     }
 
     res.status(201).json({
@@ -266,10 +329,10 @@ router.post('/:id/decline', async (req: Request, res: Response, next: NextFuncti
       throw new AppError(404, 'NOT_FOUND', `Job '${id}' not found`);
     }
 
-    // Reset job to PENDING and delete un-locked assignment
+    // Reset job to PENDING and delete assignment
     await prisma.$transaction(async (tx) => {
       await tx.assignment.deleteMany({
-        where: { jobId: id, isLocked: false },
+        where: { jobId: id },
       });
       await tx.job.update({
         where: { id },

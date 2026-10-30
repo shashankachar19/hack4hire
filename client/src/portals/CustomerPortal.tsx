@@ -1764,11 +1764,18 @@ export default function CustomerPortal() {
               className="w-full bg-slate-900/80 border border-slate-700 text-white text-xs rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none cursor-pointer font-medium"
             >
               <option value="">Smart Auto-Match Nearest Qualified Specialist (Recommended)</option>
-              {availableTechnicians.map((t: any) => (
-                <option key={t.id} value={t.id}>
-                  {t.isAvailable ? '[ONLINE]' : '[STANDBY]'} — Captain {t.name} (Skills: {Array.isArray(t.skills) ? t.skills.join(', ') : t.skills})
-                </option>
-              ))}
+              {availableTechnicians
+                .slice()
+                .sort((a, b) => {
+                  const aMatch = Array.isArray(a.skills) && a.skills.includes(selectedCategory.skill) ? 1 : 0
+                  const bMatch = Array.isArray(b.skills) && b.skills.includes(selectedCategory.skill) ? 1 : 0
+                  return bMatch - aMatch
+                })
+                .map((t: any) => (
+                  <option key={t.id} value={t.id}>
+                    {t.isAvailable ? '[ONLINE]' : '[STANDBY]'} — Captain {t.name} (Skills: {Array.isArray(t.skills) ? t.skills.join(', ') : t.skills})
+                  </option>
+                ))}
             </select>
           </div>
 
