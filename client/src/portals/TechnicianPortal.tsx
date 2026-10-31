@@ -178,6 +178,18 @@ export default function TechnicianPortal() {
     }
   }
 
+  // Prevent background scrolling while any modal is open
+  useEffect(() => {
+    if (showProfileModal || showPinModal || showCompletionModal || showDelayModal || showMailFeed) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showProfileModal, showPinModal, showCompletionModal, showDelayModal, showMailFeed])
+
   const showToast = (msg: string) => {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(null), 4500)
@@ -606,13 +618,13 @@ export default function TechnicianPortal() {
             <button
               type="button"
               onClick={handleOpenMailFeed}
-              className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 text-cyan-200 hover:text-white border border-cyan-600/70 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+              className="btn-solid-secondary w-full sm:w-auto px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 whitespace-nowrap shadow-md"
               title="Inspect dispatched real transactional emails & verification PINs"
             >
-              <IconMail className="w-3.5 h-3.5 text-cyan-400" />
+              <IconMail className="w-3.5 h-3.5 text-[#DFB6B2]" />
               <span>Mails Feed</span>
               {recentEmails.length > 0 && (
-                <span className="bg-cyan-500 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-mono font-black">
+                <span className="bg-[#522959] text-[#FAE5D8] border border-[#824D69] text-[10px] px-1.5 py-0.2 rounded-full font-mono font-black">
                   {recentEmails.length}
                 </span>
               )}
@@ -623,7 +635,7 @@ export default function TechnicianPortal() {
                 setProfileTab('REGISTER')
                 setShowProfileModal(true)
               }}
-              className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+              className="btn-solid-primary w-full sm:w-auto px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md whitespace-nowrap"
             >
               <span>+ Register Partner Profile</span>
             </button>
@@ -633,9 +645,9 @@ export default function TechnicianPortal() {
                 setProfileTab('BADGE')
                 setShowProfileModal(true)
               }}
-              className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+              className="btn-solid-secondary w-full sm:w-auto px-3.5 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md whitespace-nowrap"
             >
-              <IconShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
+              <IconShieldCheck className="w-3.5 h-3.5 text-[#DFB6B2]" />
               <span>KYC Credentials</span>
             </button>
           </div>
@@ -961,9 +973,9 @@ export default function TechnicianPortal() {
                   href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(custAddress + ', Bengaluru')}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-md glow-pill-blue flex items-center justify-center gap-2 transition-all cursor-pointer active:scale-95"
+                  className="btn-solid-blue w-full sm:w-auto px-4 py-2.5 rounded-xl text-xs flex items-center justify-center gap-2"
                 >
-                  <IconCompass className="w-4 h-4 text-cyan-300" />
+                  <IconCompass className="w-4 h-4 text-[#FAE5D8]" />
                   <span>Open in Google Maps Navigation</span>
                 </a>
               </div>
@@ -1007,7 +1019,7 @@ export default function TechnicianPortal() {
                           type="button"
                           onClick={handleAcceptJob}
                           disabled={actionLoading === 'accept'}
-                          className="flex-1 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md glow-pill-emerald flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                          className="btn-solid-success flex-1 text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2"
                         >
                           <IconCheckCircle className="w-4 h-4 text-white" />
                           <span>ACCEPT JOB OFFER</span>
@@ -1016,7 +1028,7 @@ export default function TechnicianPortal() {
                           type="button"
                           onClick={() => handleDeclineJob(activeAssignment.job.id)}
                           disabled={actionLoading?.startsWith('decline')}
-                          className="bg-slate-900 hover:bg-rose-950 border border-slate-700 hover:border-rose-600 text-slate-300 hover:text-rose-300 font-bold text-xs py-3 px-4 rounded-xl transition-all cursor-pointer active:scale-95"
+                          className="btn-solid-danger text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-1.5"
                         >
                           <IconX className="w-4 h-4" />
                           <span>Decline</span>
@@ -1058,7 +1070,7 @@ export default function TechnicianPortal() {
                           <button
                             type="button"
                             onClick={handleMarkEnRoute}
-                            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition-all shadow-md glow-pill-indigo flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+                            className="btn-solid-blue flex-1 text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 whitespace-nowrap"
                           >
                             <IconTruck className="w-4 h-4 text-white" />
                             <span>Start Transit (En Route)</span>
@@ -1069,7 +1081,7 @@ export default function TechnicianPortal() {
                           <button
                             type="button"
                             onClick={handleMarkArrivedAtGate}
-                            className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition-all shadow-md glow-pill-amber flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+                            className="btn-solid-amber flex-1 text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 whitespace-nowrap"
                           >
                             <IconMapPin className="w-4 h-4 text-white" />
                             <span>Mark Arrived at Gate</span>
@@ -1107,7 +1119,7 @@ export default function TechnicianPortal() {
                             type="button"
                             onClick={handleVerifyPinAndStart}
                             disabled={enteredPin.length < 4 || actionLoading !== null}
-                            className="w-full sm:flex-1 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md glow-pill-emerald flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
+                            className="btn-solid-success w-full sm:flex-1 text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
                           >
                             <IconShieldCheck className="w-4 h-4 text-white" />
                             <span>{actionLoading === 'verify-pin' ? 'Verifying PIN...' : 'Verify PIN & Start Work'}</span>
@@ -1228,7 +1240,7 @@ export default function TechnicianPortal() {
                       <button
                         type="button"
                         onClick={() => handleAddExtraTask(customTaskName, parseFloat(customTaskPrice))}
-                        className="px-3.5 py-2 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold text-xs rounded-xl cursor-pointer whitespace-nowrap active:scale-95"
+                        className="btn-solid-primary px-3.5 py-2 text-xs rounded-xl whitespace-nowrap"
                       >
                         + Add Extra Job
                       </button>
@@ -1254,7 +1266,7 @@ export default function TechnicianPortal() {
                       type="button"
                       onClick={handleConfirmCompletion}
                       disabled={actionLoading !== null}
-                      className="w-full sm:flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black text-xs sm:text-sm py-3.5 px-6 rounded-xl transition-all shadow-xl glow-pill-emerald flex items-center justify-center gap-2 active:scale-95 cursor-pointer disabled:opacity-50"
+                      className="btn-solid-success w-full sm:flex-1 text-xs sm:text-sm py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
                     >
                       <IconCheckCircle className="w-5 h-5 text-white" />
                       <span>MARK TASK & SERVICE COMPLETED {extraTasksTotal > 0 ? `(+₹${extraTasksTotal} Extra)` : ''}</span>
@@ -1263,7 +1275,7 @@ export default function TechnicianPortal() {
                       type="button"
                       onClick={handleOpenDelayModal}
                       disabled={actionLoading !== null}
-                      className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-400 hover:text-cyan-300 font-bold text-xs py-3 px-4 rounded-xl transition-all active:scale-95 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 whitespace-nowrap"
+                      className="btn-solid-secondary w-full sm:w-auto text-[#DFB6B2] text-xs py-3 px-4 rounded-xl disabled:opacity-50 flex items-center justify-center gap-1.5 whitespace-nowrap"
                       title="Report on-site complication (+45m)"
                     >
                       <IconAlertTriangle className="w-3.5 h-3.5 text-amber-400" />
@@ -1400,14 +1412,14 @@ export default function TechnicianPortal() {
                 type="button"
                 disabled={enteredPin.length < 4 || actionLoading !== null}
                 onClick={handleVerifyPinAndStart}
-                className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-md glow-pill-emerald cursor-pointer disabled:opacity-50"
+                className="btn-solid-success flex-1 text-xs py-3 rounded-xl disabled:opacity-50"
               >
                 {actionLoading ? 'Verifying PIN...' : 'Confirm PIN & Start Work'}
               </button>
               <button
                 type="button"
                 onClick={() => setShowPinModal(false)}
-                className="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-slate-400 text-xs font-semibold rounded-xl cursor-pointer"
+                className="btn-solid-secondary px-4 py-3 text-xs rounded-xl"
               >
                 Cancel
               </button>
@@ -1515,7 +1527,7 @@ export default function TechnicianPortal() {
                 type="button"
                 disabled={actionLoading !== null}
                 onClick={handleConfirmCompletion}
-                className="flex-1 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-md glow-pill-emerald flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="btn-solid-success flex-1 text-xs py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {actionLoading ? (
                   <>
@@ -1528,6 +1540,13 @@ export default function TechnicianPortal() {
                     <span>Complete Order & Issue Digital Invoice</span>
                   </>
                 )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowCompletionModal(false)}
+                className="btn-solid-secondary px-4 py-3 text-xs rounded-xl"
+              >
+                Close
               </button>
             </div>
           </div>
@@ -1622,9 +1641,16 @@ export default function TechnicianPortal() {
                 type="button"
                 disabled={actionLoading !== null}
                 onClick={handleConfirmDelay}
-                className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs py-3 rounded-xl transition-all shadow-md glow-pill-amber flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="btn-solid-amber flex-1 text-xs py-3 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {actionLoading ? 'Triggering Recovery Engine...' : 'Submit Delay & Protect Downstream Schedule'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowDelayModal(false)}
+                className="btn-solid-secondary px-4 py-3 text-xs rounded-xl"
+              >
+                Cancel
               </button>
             </div>
           </div>
@@ -1634,55 +1660,61 @@ export default function TechnicianPortal() {
       {/* MODAL 4: Partner Profile & Verification Modal (Urban Company Captain & ID Badge Standard) */}
       {showProfileModal && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4"
+          className="fixed inset-0 z-50 overflow-y-auto bg-black/85 backdrop-blur-md p-3 sm:p-6 flex items-center justify-center min-h-screen"
           onClick={() => setShowProfileModal(false)}
         >
           <div
-            className="glass-panel border-indigo-500/50 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative animate-float-slow"
+            className="glass-panel border-[#824D69]/60 rounded-3xl max-w-xl w-full max-h-[92vh] flex flex-col shadow-2xl relative my-auto animate-scale-in overflow-hidden bg-[#2A114B]/95"
             onClick={(e) => e.stopPropagation()}
           >
-            <button
-              type="button"
-              onClick={() => setShowProfileModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800"
-            >
-              <IconX className="w-5 h-5" />
-            </button>
-
-            {/* Modal Header */}
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white text-xl font-black shadow-md">
-                <IconShieldCheck className="w-6 h-6" />
+            {/* Modal Header: Fixed at top */}
+            <div className="p-5 pb-3 border-b border-[#824D69]/30 flex items-center justify-between shrink-0 bg-[#2A114B]/95">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-2xl bg-[#522959] border border-[#824D69] flex items-center justify-center text-[#FAE5D8] text-xl font-black shadow-md">
+                  <IconShieldCheck className="w-6 h-6 text-[#DFB6B2]" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-[#FAE5D8]">Technician Profile & Fleet Verification</h3>
+                  <p className="text-xs text-[#DFB6B2]">Urban Company & Police Clearance Standard</p>
+                </div>
               </div>
-              <div>
-                <h3 className="text-lg font-bold text-white">Technician Profile & Fleet Verification</h3>
-                <p className="text-xs text-slate-400">Urban Company & Police Clearance Standard</p>
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowProfileModal(false)}
+                className="text-[#DFB6B2] hover:text-[#FAE5D8] p-1.5 rounded-xl hover:bg-[#522959]/60 transition cursor-pointer"
+              >
+                <IconX className="w-5 h-5" />
+              </button>
             </div>
 
             {/* Tabs: Digital ID Badge vs Register New Fleet Partner */}
-            <div className="flex border-b border-slate-800 gap-2">
+            <div className="px-5 pt-3 border-b border-[#824D69]/30 flex gap-2 shrink-0 bg-[#2A114B]/80">
               <button
                 type="button"
                 onClick={() => setProfileTab('BADGE')}
-                className={`pb-2 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${profileTab === 'BADGE'
-                  ? 'border-indigo-500 text-indigo-300'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-                  }`}
+                className={`pb-2.5 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+                  profileTab === 'BADGE'
+                    ? 'border-[#DFB6B2] text-[#FAE5D8]'
+                    : 'border-transparent text-[#DFB6B2]/70 hover:text-[#FAE5D8]'
+                }`}
               >
                 Digital Partner ID Badge
               </button>
               <button
                 type="button"
                 onClick={() => setProfileTab('REGISTER')}
-                className={`pb-2 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${profileTab === 'REGISTER'
-                  ? 'border-indigo-500 text-indigo-300'
-                  : 'border-transparent text-slate-400 hover:text-slate-200'
-                  }`}
+                className={`pb-2.5 px-3 text-xs font-bold border-b-2 transition-all cursor-pointer ${
+                  profileTab === 'REGISTER'
+                    ? 'border-[#DFB6B2] text-[#FAE5D8]'
+                    : 'border-transparent text-[#DFB6B2]/70 hover:text-[#FAE5D8]'
+                }`}
               >
                 + Onboard New Partner Profile
               </button>
             </div>
+
+            {/* Modal Body: Scrollable with custom scrollbar */}
+            <div className="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-4">
 
             {profileTab === 'BADGE' ? (
               <div className="space-y-4">
@@ -1733,15 +1765,15 @@ export default function TechnicianPortal() {
                   </div>
                 </div>
 
-                <div className="text-center pt-1">
-                  <button
-                    type="button"
-                    onClick={() => setShowProfileModal(false)}
-                    className="w-full bg-slate-900 hover:bg-slate-800 text-slate-300 font-bold text-xs py-2.5 rounded-xl border border-slate-700 transition-all cursor-pointer"
-                  >
-                    Close Badge View
-                  </button>
-                </div>
+                  <div className="text-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowProfileModal(false)}
+                      className="btn-solid-secondary w-full py-2.5 rounded-xl text-xs font-bold"
+                    >
+                      Close Badge View
+                    </button>
+                  </div>
               </div>
             ) : (
               /* Onboarding Form for Friend A */
@@ -1770,7 +1802,7 @@ export default function TechnicianPortal() {
                       })
                       showToast('Pre-filled specialist profile with all trade skills & zones!')
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-[11px] font-mono shadow-md cursor-pointer active:scale-95 transition-all whitespace-nowrap"
+                    className="btn-solid-cream px-3 py-1.5 rounded-lg text-[11px] font-mono whitespace-nowrap shadow-md"
                   >
                     Auto-Fill Preset
                   </button>
@@ -1935,14 +1967,14 @@ export default function TechnicianPortal() {
                   <button
                     type="button"
                     onClick={() => setShowProfileModal(false)}
-                    className="w-1/3 bg-slate-900 hover:bg-slate-800 text-slate-400 font-bold py-2.5 rounded-xl border border-slate-700 cursor-pointer"
+                    className="btn-solid-secondary w-1/3 py-2.5 rounded-xl text-xs font-bold"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={actionLoading === 'register-tech'}
-                    className="w-2/3 bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold py-2.5 rounded-xl shadow-md glow-pill-indigo active:scale-95 cursor-pointer disabled:opacity-50"
+                    className="btn-solid-primary w-2/3 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50"
                   >
                     {actionLoading === 'register-tech' ? 'Registering...' : 'Register & Activate As Partner'}
                   </button>
@@ -1951,7 +1983,8 @@ export default function TechnicianPortal() {
             )}
           </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* DISPATCHED MAILS & ALERTS LIVE FEED DRAWER / MODAL */}
       {showMailFeed && (

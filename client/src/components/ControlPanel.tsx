@@ -65,7 +65,7 @@ export default function ControlPanel({ onRefresh, onShowToast, onShowDiff }: Pro
       <button
         onClick={handleGenerate}
         disabled={!!loading}
-        className="bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 disabled:opacity-50 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-md shadow-emerald-950/40 glow-pill-emerald flex items-center gap-1.5 active:scale-95 cursor-pointer"
+        className="btn-solid-success disabled:opacity-50 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-md flex items-center gap-1.5 active:scale-95 cursor-pointer"
         title="Compute deterministic multi-objective schedule for full pool"
       >
         {loading === 'generate' ? (

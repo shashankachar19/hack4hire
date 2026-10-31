@@ -623,7 +623,7 @@ export const FleetDisruptionConsole: React.FC<DisruptionConsoleProps> = ({
               <button
                 type="button"
                 onClick={() => executeTechDropout(availableTechs[0].id, availableTechs[0].name)}
-                className="w-full my-3 bg-gradient-to-r from-rose-950/80 to-rose-900/60 hover:from-rose-900 hover:to-rose-800 border border-rose-700/60 rounded-xl p-3 text-left text-xs text-rose-200 transition-all flex items-center justify-between shadow-md"
+                className="w-full my-3 bg-[#881337] hover:bg-[#9f1239] border border-rose-600/80 rounded-xl p-3 text-left text-xs text-rose-100 transition-all flex items-center justify-between shadow-md active:scale-95 cursor-pointer"
               >
                 <div>
                   <div className="font-bold text-white flex items-center gap-1.5">

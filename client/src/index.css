@@ -2,20 +2,26 @@
 
 @layer base {
   :root {
-    --bg-primary: #070b14;
-    --bg-surface: #0e1526;
-    --bg-surface-elevated: #131c31;
-    --border-subtle: rgba(51, 65, 85, 0.45);
-    --border-accent: rgba(99, 102, 241, 0.35);
+    /* Mindazzle Luxury Obsidian-Plum Palette */
+    --bg-primary: #180018;             /* Obsidian Violet Base */
+    --bg-surface: #2A114B;             /* Midnight Plum Surface */
+    --bg-surface-elevated: #3b1864;    /* Elevated Royal Plum */
+    --brand-berry: #522959;            /* Deep Berry Primary */
+    --brand-rose: #824D69;             /* Plum Rose Accent & Border */
+    --brand-dusty: #DFB6B2;            /* Dusty Rose Secondary Text */
+    --brand-cream: #FAE5D8;            /* Warm Cream Primary Text */
+    --border-subtle: rgba(130, 77, 105, 0.4);
+    --border-accent: rgba(223, 182, 178, 0.5);
   }
 
   body {
-    background-color: var(--bg-primary);
+    background-color: #180018;
     background-image: 
-      radial-gradient(ellipse 90% 60% at 50% -15%, rgba(30, 58, 138, 0.18) 0%, transparent 70%),
-      radial-gradient(ellipse 60% 40% at 85% 10%, rgba(99, 102, 241, 0.08) 0%, transparent 60%);
+      radial-gradient(ellipse 90% 60% at 50% -15%, rgba(82, 41, 89, 0.38) 0%, transparent 70%),
+      radial-gradient(ellipse 70% 50% at 90% 25%, rgba(42, 17, 75, 0.45) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 10% 75%, rgba(130, 77, 105, 0.22) 0%, transparent 60%);
     background-attachment: fixed;
-    color: #f8fafc;
+    color: #FAE5D8;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -23,29 +29,65 @@
   }
 }
 
-/* Custom Sleek Scrollbars */
+/* Custom Sleek Scrollbars in Mindazzle Plum */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: rgba(10, 15, 29, 0.8);
+  background: rgba(24, 0, 24, 0.85);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(51, 65, 85, 0.6);
+  background: rgba(130, 77, 105, 0.55);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(99, 102, 241, 0.7);
+  background: #DFB6B2;
 }
 
-/* Keyframe Animations */
-@keyframes pulseGlow {
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(130, 77, 105, 0.7);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #DFB6B2;
+}
+
+/* ==========================================================================
+   DYNAMIC KEYFRAME ANIMATIONS
+   ========================================================================== */
+
+@keyframes scaleIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlowPlum {
   0%, 100% {
-    box-shadow: 0 0 16px rgba(99, 102, 241, 0.18), 0 0 32px rgba(99, 102, 241, 0.06);
+    box-shadow: 0 0 16px rgba(130, 77, 105, 0.25), 0 0 32px rgba(82, 41, 89, 0.15);
   }
   50% {
-    box-shadow: 0 0 28px rgba(99, 102, 241, 0.38), 0 0 52px rgba(99, 102, 241, 0.16);
+    box-shadow: 0 0 28px rgba(223, 182, 178, 0.4), 0 0 48px rgba(130, 77, 105, 0.3);
   }
 }
 
@@ -78,13 +120,30 @@
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
   }
 }
 
-/* Reusable Animation Classes */
+@keyframes borderGlowPulse {
+  0%, 100% {
+    border-color: rgba(130, 77, 105, 0.5);
+  }
+  50% {
+    border-color: rgba(223, 182, 178, 0.85);
+  }
+}
+
+/* Reusable Animation Utility Classes */
+.animate-scale-in {
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 .animate-pulse-glow {
-  animation: pulseGlow 3s infinite ease-in-out;
+  animation: pulseGlowPlum 3s infinite ease-in-out;
 }
 
 .animate-radar-ping {
@@ -95,46 +154,191 @@
   animation: floatSlow 4s infinite ease-in-out;
 }
 
-.shimmer-gradient {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0) 100%);
-  background-size: 200% 100%;
-  animation: shimmerSlide 3s infinite;
+.animate-border-glow {
+  animation: borderGlowPulse 2.5s infinite ease-in-out;
 }
 
-/* Glassmorphism & Enterprise Surface Classes */
+/* ==========================================================================
+   GLASSMORPHISM & MINDAZZLE SURFACE CLASSES
+   ========================================================================== */
+
 .glass-panel {
-  background: rgba(14, 21, 38, 0.78);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(51, 65, 85, 0.55);
-  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.4);
+  background: rgba(42, 17, 75, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(130, 77, 105, 0.45);
+  box-shadow: 0 8px 32px -4px rgba(24, 0, 24, 0.65);
 }
 
-.glass-panel-hover {
+.glass-panel-elevated {
+  background: rgba(59, 24, 100, 0.88);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(223, 182, 178, 0.4);
+  box-shadow: 0 12px 36px -4px rgba(24, 0, 24, 0.75);
+}
+
+.card-interactive {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: rgba(223, 182, 178, 0.6);
+  box-shadow: 0 14px 34px -4px rgba(24, 0, 24, 0.75), 0 0 20px rgba(130, 77, 105, 0.3);
+}
+
+/* ==========================================================================
+   STRICT SOLID BUTTON SYSTEM (NO GRADIENT BUTTONS ALLOWED)
+   With Dynamic Hover & Active Micro-Interactions
+   ========================================================================== */
+
+.btn-solid-primary {
+  background-color: #522959;
+  color: #FAE5D8;
+  border: 1px solid #824D69;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(42, 17, 75, 0.45);
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
 }
-.glass-panel-hover:hover {
-  border-color: rgba(99, 102, 241, 0.5);
-  transform: translateY(-1px);
-  box-shadow: 0 12px 30px -5px rgba(0, 0, 0, 0.5), 0 0 20px rgba(99, 102, 241, 0.15);
+.btn-solid-primary:hover:not(:disabled) {
+  background-color: #824D69;
+  color: #ffffff;
+  border-color: #DFB6B2;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(130, 77, 105, 0.5);
+}
+.btn-solid-primary:active:not(:disabled) {
+  transform: translateY(0px) scale(0.97);
 }
 
+.btn-solid-cream {
+  background-color: #FAE5D8;
+  color: #180018;
+  font-weight: 800;
+  border: 1px solid #DFB6B2;
+  box-shadow: 0 4px 14px rgba(250, 229, 216, 0.25);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.btn-solid-cream:hover:not(:disabled) {
+  background-color: #DFB6B2;
+  color: #180018;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(223, 182, 178, 0.45);
+}
+.btn-solid-cream:active:not(:disabled) {
+  transform: translateY(0px) scale(0.97);
+}
+
+.btn-solid-secondary {
+  background-color: #2A114B;
+  color: #DFB6B2;
+  border: 1px solid rgba(130, 77, 105, 0.5);
+  font-weight: 600;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.btn-solid-secondary:hover:not(:disabled) {
+  background-color: #522959;
+  color: #FAE5D8;
+  border-color: #824D69;
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 16px rgba(42, 17, 75, 0.4);
+}
+.btn-solid-secondary:active:not(:disabled) {
+  transform: translateY(0px) scale(0.97);
+}
+
+.btn-solid-success {
+  background-color: #065f46;
+  color: #ecfdf5;
+  border: 1px solid #10b981;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(6, 95, 70, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.btn-solid-success:hover:not(:disabled) {
+  background-color: #047857;
+  border-color: #34d399;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+.btn-solid-success:active:not(:disabled) {
+  transform: translateY(0px) scale(0.97);
+}
+
+.btn-solid-danger {
+  background-color: #881337;
+  color: #ffe4e6;
+  border: 1px solid #f43f5e;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(136, 19, 55, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.btn-solid-danger:hover:not(:disabled) {
+  background-color: #9f1239;
+  border-color: #fb7185;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(244, 63, 94, 0.4);
+}
+.btn-solid-danger:active:not(:disabled) {
+  transform: translateY(0px) scale(0.97);
+}
+
+.btn-solid-amber {
+  background-color: #92400e;
+  color: #fef3c7;
+  border: 1px solid #f59e0b;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(146, 64, 14, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.btn-solid-amber:hover:not(:disabled) {
+  background-color: #b45309;
+  border-color: #fbbf24;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+.btn-solid-amber:active:not(:disabled) {
+  transform: translateY(0px) scale(0.97);
+}
+
+.btn-solid-blue {
+  background-color: #1e3a8a;
+  color: #eff6ff;
+  border: 1px solid #3b82f6;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgba(30, 58, 138, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+.btn-solid-blue:hover:not(:disabled) {
+  background-color: #1d4ed8;
+  border-color: #60a5fa;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+}
+.btn-solid-blue:active:not(:disabled) {
+  transform: translateY(0px) scale(0.97);
+}
+
+/* Glow Pill Classes styled for Mindazzle */
 .glow-pill-emerald {
   box-shadow: 0 0 14px rgba(16, 185, 129, 0.28);
 }
-
-.glow-pill-indigo {
-  box-shadow: 0 0 14px rgba(99, 102, 241, 0.28);
+.glow-pill-plum {
+  box-shadow: 0 0 16px rgba(130, 77, 105, 0.4);
 }
-
-.glow-pill-cyan {
-  box-shadow: 0 0 14px rgba(6, 182, 212, 0.28);
+.glow-pill-cream {
+  box-shadow: 0 0 14px rgba(250, 229, 216, 0.3);
 }
-
 .glow-pill-rose {
   box-shadow: 0 0 14px rgba(244, 63, 94, 0.28);
 }
-
 .glow-pill-amber {
   box-shadow: 0 0 14px rgba(245, 158, 11, 0.28);
 }

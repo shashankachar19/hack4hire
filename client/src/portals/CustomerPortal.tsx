@@ -291,6 +291,7 @@ export default function CustomerPortal() {
       setMailFeedLoading(false)
     }
   }
+
   const [profile, setProfile] = useState<CustomerProfile | null>(null)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [pendingBookingAfterAuth, setPendingBookingAfterAuth] = useState(false)
@@ -329,6 +330,18 @@ export default function CustomerPortal() {
     setToastMsg(msg)
     setTimeout(() => setToastMsg(null), 4000)
   }
+
+  // Prevent background scrolling while any modal is open
+  useEffect(() => {
+    if (showAuthModal || showDrawer || showCancelModal || showAssignedPopup || showMailFeed) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [showAuthModal, showDrawer, showCancelModal, showAssignedPopup, showMailFeed])
 
   // Load customer profile and bookings from database & localStorage on mount
   useEffect(() => {
@@ -1196,16 +1209,16 @@ export default function CustomerPortal() {
             <button
               type="button"
               onClick={() => openAuthModal('LOGIN')}
-              className="bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs sm:text-sm px-6 py-3 rounded-xl transition-all shadow-lg glow-pill-indigo flex items-center gap-2 active:scale-95 cursor-pointer"
+              className="btn-solid-cream text-xs sm:text-sm px-6 py-3 rounded-xl flex items-center gap-2 shadow-lg"
             >
-              <IconMail className="w-4 h-4 text-white" />
+              <IconMail className="w-4 h-4 text-[#180018]" />
               <span>Sign In / Register with Email OTP</span>
             </button>
 
             <button
               type="button"
               onClick={() => showToast('Connecting to 24/7 Dispatch Control Room: +91 74839 59021 (Simulated Call)')}
-              className="bg-slate-900/90 hover:bg-slate-800 text-slate-200 border border-slate-700 hover:border-slate-600 font-bold text-xs sm:text-sm px-5 py-3 rounded-xl transition-all flex items-center gap-2 cursor-pointer shadow-sm active:scale-95"
+              className="btn-solid-secondary text-xs sm:text-sm px-5 py-3 rounded-xl flex items-center gap-2 shadow-sm"
             >
               <IconPhone className="w-4 h-4 text-emerald-400" />
               <span>Call Fleet Desk +91 74839 59021</span>
@@ -1902,10 +1915,10 @@ export default function CustomerPortal() {
                     key={cat.id}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    className={`p-4 rounded-2xl border text-left transition-all cursor-pointer flex flex-col justify-between card-interactive ${
                       isSelected
-                        ? 'bg-gradient-to-b from-indigo-950/80 to-slate-900 border-indigo-500 shadow-lg glow-pill-indigo scale-[1.02]'
-                        : 'glass-panel border-slate-800 hover:border-slate-700 hover:bg-slate-900/60'
+                        ? 'bg-[#522959] border-[#DFB6B2] text-[#FAE5D8] shadow-lg glow-pill-plum scale-[1.02]'
+                        : 'glass-panel border-[#824D69]/40 hover:border-[#824D69] hover:bg-[#2A114B]/70'
                     }`}
                   >
                     <div>
@@ -1946,10 +1959,10 @@ export default function CustomerPortal() {
                       key={addr.id}
                       type="button"
                       onClick={() => handleSelectSavedAddress(addr)}
-                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer ${
+                      className={`p-2 rounded-xl border text-left transition-all cursor-pointer card-interactive ${
                         isSelected
-                          ? 'bg-gradient-to-r from-indigo-950 to-slate-900 border-indigo-500 text-white shadow-md glow-pill-indigo'
-                          : 'bg-slate-900/60 border-slate-800 text-slate-400 hover:text-slate-200 hover:border-slate-700'
+                          ? 'bg-[#522959] border-[#DFB6B2] text-[#FAE5D8] shadow-md'
+                          : 'bg-[#2A114B]/70 border-[#824D69]/40 text-[#DFB6B2] hover:text-[#FAE5D8] hover:border-[#824D69]'
                       }`}
                     >
                       <div className="flex items-center justify-between">
@@ -2141,7 +2154,7 @@ export default function CustomerPortal() {
                 type="button"
                 onClick={handleInstantBook}
                 disabled={isMatching}
-                className="w-full sm:w-auto bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-sm px-7 py-3.5 rounded-xl transition-all shadow-lg glow-pill-emerald flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50 cursor-pointer"
+                className="btn-solid-success w-full sm:w-auto text-sm px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg"
               >
                 {isMatching ? (
                   <>
@@ -2560,22 +2573,22 @@ export default function CustomerPortal() {
 
       {/* CUSTOMER AUTHENTICATION & EMAIL OTP MODAL */}
       {showAuthModal && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-indigo-500/50 rounded-2xl p-6 max-w-lg w-full space-y-4 shadow-2xl relative animate-float-slow">
-            {/* Header */}
-            <div className="flex items-start justify-between pb-3 border-b border-slate-800">
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 overflow-y-auto">
+          <div className="bg-[#2A114B] border border-[#824D69]/60 rounded-3xl p-5 sm:p-6 max-w-lg w-full max-h-[92vh] flex flex-col shadow-2xl relative animate-scaleIn">
+            {/* Pinned Header */}
+            <div className="flex items-start justify-between pb-3 border-b border-[#824D69]/40 flex-shrink-0">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="p-1.5 rounded-xl bg-indigo-950/80 border border-indigo-700/60 flex items-center justify-center">
+                  <span className="p-1.5 rounded-xl bg-[#522959] border border-[#824D69]/60 flex items-center justify-center">
                     {authMode === 'VERIFY_OTP' ? (
-                      <IconMail className="w-5 h-5 text-cyan-400" />
+                      <IconMail className="w-5 h-5 text-[#FAE5D8]" />
                     ) : authMode === 'FORGOT_PASSWORD' ? (
-                      <IconKey className="w-5 h-5 text-amber-400" />
+                      <IconKey className="w-5 h-5 text-[#FAE5D8]" />
                     ) : (
-                      <IconUser className="w-5 h-5 text-indigo-400" />
+                      <IconUser className="w-5 h-5 text-[#FAE5D8]" />
                     )}
                   </span>
-                  <h3 className="font-bold text-white text-base">
+                  <h3 className="font-bold text-[#FAE5D8] text-base">
                     {authMode === 'VERIFY_OTP'
                       ? 'Verify Email OTP Code'
                       : authMode === 'FORGOT_PASSWORD'
@@ -2584,11 +2597,11 @@ export default function CustomerPortal() {
                       ? 'Register Customer Profile'
                       : 'Customer Sign In'}
                   </h3>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-700 font-mono">
+                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#180018] text-[#DFB6B2] border border-[#824D69]/60 font-mono">
                     SQLite Verified
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-[#DFB6B2]/80 mt-1">
                   {authMode === 'VERIFY_OTP'
                     ? `Enter the 6-digit verification code sent to ${authEmail}.`
                     : authMode === 'FORGOT_PASSWORD'
@@ -2605,11 +2618,14 @@ export default function CustomerPortal() {
                   setPendingBookingAfterAuth(false)
                   setAuthError(null)
                 }}
-                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                className="text-[#DFB6B2] hover:text-[#FAE5D8] p-1 rounded-lg cursor-pointer transition-colors"
               >
                 <IconX className="w-5 h-5" />
               </button>
             </div>
+
+            {/* Scrollable Body */}
+            <div className="overflow-y-auto custom-scrollbar flex-1 space-y-4 pt-3 pr-1">
 
             {/* Mode Switcher Tabs (when not verifying OTP) */}
             {authMode !== 'VERIFY_OTP' && (
@@ -2729,7 +2745,7 @@ export default function CustomerPortal() {
                       <button
                         type="submit"
                         disabled={authLoading}
-                        className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 rounded-xl shadow-md glow-pill-indigo cursor-pointer active:scale-95 disabled:opacity-50"
+                        className="btn-solid-primary px-5 py-2.5 text-xs rounded-xl disabled:opacity-50"
                       >
                         {authLoading ? 'Sending OTP...' : 'Send Verification OTP'}
                       </button>
@@ -2783,7 +2799,7 @@ export default function CustomerPortal() {
                       <button
                         type="submit"
                         disabled={authLoading}
-                        className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 rounded-xl shadow-md glow-pill-indigo cursor-pointer active:scale-95 disabled:opacity-50"
+                        className="btn-solid-primary px-5 py-2.5 text-xs rounded-xl disabled:opacity-50"
                       >
                         {authLoading ? 'Signing in...' : 'Sign In with Password'}
                       </button>
@@ -2825,7 +2841,7 @@ export default function CustomerPortal() {
                       setAuthEmail('pooja.hegde@dispatchgrid.in')
                       showToast('Pre-filled verified customer credentials!')
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-[11px] font-mono shadow-md cursor-pointer active:scale-95 transition-all whitespace-nowrap"
+                    className="btn-solid-cream px-3 py-1.5 rounded-lg text-[11px] font-mono whitespace-nowrap"
                   >
                     Auto-Fill Preset
                   </button>
@@ -2911,7 +2927,7 @@ export default function CustomerPortal() {
                   <button
                     type="submit"
                     disabled={authLoading}
-                    className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 rounded-xl shadow-md glow-pill-indigo cursor-pointer active:scale-95 disabled:opacity-50"
+                    className="btn-solid-primary px-5 py-2.5 text-xs rounded-xl disabled:opacity-50"
                   >
                     {authLoading ? 'Sending OTP...' : 'Send Verification OTP & Register'}
                   </button>
@@ -2998,7 +3014,7 @@ export default function CustomerPortal() {
                   <button
                     type="submit"
                     disabled={authLoading}
-                    className="px-6 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-xl shadow-md glow-pill-emerald cursor-pointer active:scale-95 disabled:opacity-50"
+                    className="btn-solid-success px-6 py-2.5 text-xs rounded-xl disabled:opacity-50"
                   >
                     {authLoading ? 'Verifying...' : 'Verify Code & Continue'}
                   </button>
@@ -3047,7 +3063,7 @@ export default function CustomerPortal() {
                       <button
                         type="submit"
                         disabled={authLoading}
-                        className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-indigo-600 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 rounded-xl shadow-md glow-pill-indigo cursor-pointer active:scale-95 disabled:opacity-50"
+                        className="btn-solid-primary px-5 py-2.5 text-xs rounded-xl disabled:opacity-50"
                       >
                         {authLoading ? 'Dispatching PIN...' : 'Send Password Reset OTP'}
                       </button>
@@ -3149,7 +3165,7 @@ export default function CustomerPortal() {
                       <button
                         type="submit"
                         disabled={authLoading}
-                        className="px-5 py-2.5 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 rounded-xl shadow-md glow-pill-emerald cursor-pointer active:scale-95 disabled:opacity-50"
+                        className="btn-solid-success px-5 py-2.5 text-xs rounded-xl disabled:opacity-50"
                       >
                         {authLoading ? 'Updating Database...' : 'Save New Password & Login'}
                       </button>
@@ -3158,57 +3174,58 @@ export default function CustomerPortal() {
                 )}
               </div>
             )}
+            </div>
           </div>
         </div>
       )}
       {/* TECHNICIAN ASSIGNED POPUP MODAL (Urban Company / Uber Style) */}
       {showAssignedPopup && activeOrder && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 max-w-md w-full space-y-5 shadow-2xl relative overflow-hidden">
-            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400" />
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-scaleIn">
+          <div className="bg-[#2A114B] border border-[#824D69]/80 rounded-3xl p-6 max-w-md w-full space-y-5 shadow-2xl relative overflow-hidden text-[#FAE5D8]">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#824D69]" />
 
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-md">
+                <div className="w-12 h-12 rounded-2xl bg-[#522959] border border-[#824D69] flex items-center justify-center text-[#FAE5D8] shadow-md">
                   <IconCheckCircle className="w-7 h-7" />
                 </div>
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-400 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-700/60">
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-[#DFB6B2] font-bold bg-[#180018] px-2 py-0.5 rounded border border-[#824D69]/60">
                     Fleet Specialist Assigned
                   </span>
-                  <h3 className="text-lg font-black text-white mt-0.5">Technician Dispatched!</h3>
+                  <h3 className="text-lg font-black text-[#FAE5D8] mt-0.5">Technician Dispatched!</h3>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowAssignedPopup(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+                className="text-[#DFB6B2] hover:text-[#FAE5D8] p-1 rounded-lg cursor-pointer transition-colors"
               >
                 <IconX className="w-5 h-5" />
               </button>
             </div>
 
             {/* Specialist Card */}
-            <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-3">
+            <div className="p-4 rounded-2xl bg-[#180018]/90 border border-[#824D69]/40 space-y-3">
               <div className="flex items-center gap-3.5">
-                <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white text-lg font-black shadow-lg">
+                <div className="w-13 h-13 rounded-2xl bg-[#522959] border border-[#824D69] flex items-center justify-center text-[#FAE5D8] text-lg font-black shadow-lg">
                   {(activeOrder.assignment?.technician?.name || 'CP').slice(0, 2).toUpperCase()}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-bold text-white">
+                    <span className="text-base font-bold text-[#FAE5D8]">
                       Captain {activeOrder.assignment?.technician?.name || 'Alex Martinez'}
                     </span>
-                    <span className="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-700 px-1.5 py-0.2 rounded font-mono">
+                    <span className="text-[9px] bg-[#522959] text-[#DFB6B2] border border-[#824D69] px-1.5 py-0.2 rounded font-mono">
                       VERIFIED
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-amber-400 font-bold mt-0.5">
+                  <div className="flex items-center gap-2 text-xs text-amber-300 font-bold mt-0.5">
                     <span className="flex items-center gap-1">
                       <IconStar className="w-3.5 h-3.5 fill-amber-400" /> 4.9 Rating
                     </span>
-                    <span className="text-slate-500">•</span>
-                    <span className="text-slate-300 font-normal">
+                    <span className="text-[#824D69]">•</span>
+                    <span className="text-[#DFB6B2] font-normal">
                       {Array.isArray(activeOrder.assignment?.technician?.skills)
                         ? activeOrder.assignment.technician.skills.join(', ')
                         : 'Trade Specialist'}
@@ -3217,37 +3234,37 @@ export default function CustomerPortal() {
                 </div>
               </div>
 
-              <div className="text-xs text-slate-300 pt-1 border-t border-slate-800/80">
-                Assigned to service your <strong>{activeOrder.job?.title || 'Urgent Service'}</strong> in{' '}
-                <strong className="text-cyan-300">{activeOrder.job?.serviceZone || 'Central Hub'}</strong>.
+              <div className="text-xs text-[#DFB6B2] pt-1 border-t border-[#824D69]/30">
+                Assigned to service your <strong className="text-[#FAE5D8]">{activeOrder.job?.title || 'Urgent Service'}</strong> in{' '}
+                <strong className="text-[#DFB6B2]">{activeOrder.job?.serviceZone || 'Central Hub'}</strong>.
               </div>
             </div>
 
             {/* Doorstep Security PIN Notification */}
-            <div className="p-4 bg-gradient-to-r from-indigo-950/70 via-slate-900 to-cyan-950/70 border border-indigo-500/50 rounded-2xl text-center space-y-2 shadow-inner">
-              <div className="text-[10px] text-indigo-300 uppercase font-mono font-bold tracking-widest">
+            <div className="p-4 bg-[#180018]/90 border border-[#824D69]/60 rounded-2xl text-center space-y-2 shadow-inner">
+              <div className="text-[10px] text-[#DFB6B2] uppercase font-mono font-bold tracking-widest">
                 Your Doorstep Security PIN
               </div>
-              <div className="font-mono text-3xl font-black text-cyan-300 tracking-[0.2em] py-0.5">
+              <div className="font-mono text-3xl font-black text-[#FAE5D8] tracking-[0.2em] py-0.5">
                 {activeOrder.otp || '4829'}
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-[#DFB6B2]/80">
                 Share this 4-digit code with Captain {activeOrder.assignment?.technician?.name || 'Partner'} when they arrive at your door to authorize entrance & start work.
               </p>
             </div>
 
             {/* Email Confirmation Notice */}
-            <div className="p-3 bg-emerald-950/50 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 flex items-center gap-2.5">
-              <IconMail className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+            <div className="p-3 bg-[#522959]/60 border border-[#824D69] rounded-xl text-xs text-[#FAE5D8] flex items-center gap-2.5">
+              <IconMail className="w-4 h-4 text-[#DFB6B2] flex-shrink-0" />
               <span>
-                Assignment confirmation email with Security PIN sent to <strong>{profile?.email || 'your registered email'}</strong>!
+                Assignment confirmation email with Security PIN sent to <strong className="text-white">{profile?.email || 'your registered email'}</strong>!
               </span>
             </div>
 
             <button
               type="button"
               onClick={() => setShowAssignedPopup(false)}
-              className="w-full bg-gradient-to-r from-indigo-600 via-cyan-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-bold text-xs py-3.5 rounded-xl shadow-lg glow-pill-indigo cursor-pointer transition-all active:scale-95"
+              className="btn-solid-primary w-full py-3.5 text-xs rounded-xl font-bold"
             >
               Track Live on Radar
             </button>

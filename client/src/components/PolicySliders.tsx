@@ -261,7 +261,7 @@ export const PolicySliders: React.FC<PolicySlidersProps> = ({
                 type="button"
                 disabled={loading}
                 onClick={() => onApplyGenerate(weights)}
-                className="text-xs bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-bold px-4 py-2 rounded-xl shadow-lg glow-pill-indigo transition-all flex items-center gap-1.5"
+                className="btn-solid-primary text-xs font-bold px-4 py-2 rounded-xl shadow-lg transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer disabled:opacity-50"
               >
                 <IconPlay className="w-3.5 h-3.5" />
                 <span>Apply & Full Re-Solve</span>
