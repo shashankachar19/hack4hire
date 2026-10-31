@@ -7,14 +7,18 @@ import prisma from '../utils/db';
 import { createTechnicianSchema, updateTechnicianSchema } from '../utils/validation';
 import { ApiResponse } from '../types';
 import { AppError } from '../middleware/errorHandler';
+import { saveTechContact, getTechContact } from '../utils/techContacts';
 
 const router = Router();
 
 function deserializeTechnician(tech: any): any {
+  const contact = getTechContact(tech.id);
   return {
     ...tech,
     skills: typeof tech.skills === 'string' ? JSON.parse(tech.skills) : tech.skills,
     serviceZones: typeof tech.serviceZones === 'string' ? JSON.parse(tech.serviceZones) : tech.serviceZones,
+    email: contact.email,
+    phone: contact.phone,
   };
 }
 
@@ -33,6 +37,14 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         longitude: data.longitude,
       },
     });
+
+    // Save contact info for live job email alerts
+    saveTechContact(technician.id, {
+      name: data.name,
+      email: (req.body as any).email,
+      phone: (req.body as any).phone,
+    });
+
     res.status(201).json({ success: true, data: deserializeTechnician(technician) } as ApiResponse);
   } catch (err) { next(err); }
 });

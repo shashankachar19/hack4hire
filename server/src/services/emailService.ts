@@ -237,6 +237,9 @@ export interface SendAssignmentEmailOptions {
   serviceZone: string;
   pin: string;
   totalAmount?: number;
+  scheduledArrival?: string;
+  customerAddress?: string;
+  distanceKm?: number;
 }
 
 export async function sendAssignmentEmail({
@@ -248,9 +251,16 @@ export async function sendAssignmentEmail({
   serviceZone,
   pin,
   totalAmount,
+  scheduledArrival,
+  customerAddress,
+  distanceKm,
 }: SendAssignmentEmailOptions): Promise<{ delivered: boolean; error?: string }> {
   const gmailUser = process.env.GMAIL_USER || process.env.SMTP_USER;
   const gmailPass = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
+
+  const arrivalText = scheduledArrival ? `Coming by ${scheduledArrival}` : 'En route to your location';
+  const addressText = customerAddress || serviceZone;
+  const distText = distanceKm !== undefined ? `(${distanceKm.toFixed(1)} km from worksite)` : '';
 
   if (gmailUser && gmailPass) {
     try {
@@ -265,8 +275,8 @@ export async function sendAssignmentEmail({
       const mailOptions = {
         from: `"DispatchGrid Fleet" <${gmailUser}>`,
         to,
-        subject: `[DispatchGrid] Captain ${techName} Assigned to Your Order (${jobTitle})`,
-        text: `Hello ${customerName},\n\nGreat news! Captain ${techName} has been assigned to your order: "${jobTitle}".\n\nYour Doorstep Security PIN is: ${pin}\n\nPlease share this 4-digit PIN with Captain ${techName} upon arrival at your doorstep to authorize and begin repairs.\n\nTechnician Details:\n- Name: Captain ${techName}\n- Contact: ${techPhone || '+91 98450 12345'}\n- Service Zone: ${serviceZone}\n${totalAmount ? `- Estimated Total: ₹${totalAmount}\n` : ''}\nYou can track Captain ${techName}'s transit radar in real-time on your customer portal.\n\nThank you for choosing DispatchGrid!`,
+        subject: `[DispatchGrid] Captain ${techName} is coming by ${scheduledArrival || 'soon'} (${jobTitle})`,
+        text: `Hello ${customerName},\n\nGreat news! Captain ${techName} has been assigned to your order: "${jobTitle}".\n\nScheduled Arrival: Captain ${techName} is coming by ${scheduledArrival || '30-45 minutes'} to ${addressText} ${distText}.\n\nYour Doorstep Security PIN is: ${pin}\n\nPlease share this 4-digit PIN with Captain ${techName} upon arrival to authorize work.\n\nTechnician Details:\n- Name: Captain ${techName}\n- Contact: ${techPhone || '+91 98450 12345'}\n- Service Zone: ${serviceZone}\n${totalAmount ? `- Total Fare: ₹${totalAmount}\n` : ''}\nThank you for choosing DispatchGrid!`,
         html: `
           <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; background: #090d16; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; color: #f8fafc;">
             <div style="background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%); padding: 26px; text-align: center;">
@@ -276,12 +286,25 @@ export async function sendAssignmentEmail({
             
             <div style="padding: 32px 28px;">
               <div style="display: inline-block; background: #042f2e; border: 1px solid #0d9488; color: #2dd4bf; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
-                Specialist Dispatched & Assigned
+                Specialist Dispatched & Scheduled
               </div>
-              <h2 style="margin: 0 0 12px 0; color: #ffffff; font-size: 20px; font-weight: 800;">Captain ${techName} is on the way!</h2>
+              <h2 style="margin: 0 0 8px 0; color: #ffffff; font-size: 20px; font-weight: 800;">Captain ${techName} is coming by ${scheduledArrival || 'soon'}!</h2>
               <p style="margin: 0 0 20px 0; color: #94a3b8; font-size: 14px; line-height: 1.5;">
-                Hello <strong>${customerName}</strong>, your request for <strong>${jobTitle}</strong> in ${serviceZone} has been matched with our top-rated certified specialist.
+                Hello <strong>${customerName}</strong>, your request for <strong>${jobTitle}</strong> has been assigned to Captain ${techName}.
               </p>
+
+              <!-- Arrival Schedule Banner -->
+              <div style="background: linear-gradient(135deg, #064e3b 0%, #022c22 100%); border: 1px solid #059669; border-radius: 12px; padding: 16px 20px; margin-bottom: 22px; text-align: center;">
+                <div style="font-size: 11px; font-weight: 800; color: #6ee7b7; text-transform: uppercase; letter-spacing: 1px;">
+                  Confirmed Arrival Schedule
+                </div>
+                <div style="font-size: 22px; font-weight: 900; color: #ffffff; margin: 4px 0;">
+                  Arriving by ${scheduledArrival || '30-45 minutes'}
+                </div>
+                <div style="font-size: 12px; color: #a7f3d0;">
+                  Destination: ${addressText} ${distText}
+                </div>
+              </div>
               
               <!-- Doorstep PIN Card -->
               <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 2px solid #6366f1; border-radius: 14px; padding: 22px; text-align: center; margin-bottom: 24px;">
@@ -315,9 +338,15 @@ export async function sendAssignmentEmail({
                     <td style="padding: 6px 0; font-weight: 600;">${jobTitle}</td>
                   </tr>
                   <tr>
-                    <td style="padding: 6px 0; color: #64748b;">Operating Zone:</td>
-                    <td style="padding: 6px 0; font-weight: 600;">${serviceZone}</td>
+                    <td style="padding: 6px 0; color: #64748b;">Delivery Address:</td>
+                    <td style="padding: 6px 0; font-weight: 600;">${addressText}</td>
                   </tr>
+                  ${distanceKm !== undefined ? `
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">GPS Distance:</td>
+                    <td style="padding: 6px 0; font-weight: 600; color: #38bdf8;">${distanceKm.toFixed(1)} km away</td>
+                  </tr>
+                  ` : ''}
                   ${totalAmount ? `
                   <tr>
                     <td style="padding: 6px 0; color: #64748b;">Estimated Bill:</td>
@@ -327,17 +356,8 @@ export async function sendAssignmentEmail({
                 </table>
               </div>
 
-              <div style="background: #0b1120; border: 1px solid #1e293b; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;">
-                <div style="font-size: 12px; font-weight: 600; color: #f1f5f9; margin-bottom: 4px;">Next Steps:</div>
-                <div style="font-size: 12px; color: #94a3b8; line-height: 1.6;">
-                  1. Watch live radar transit updates on your customer dashboard.<br />
-                  2. Verify the captain's ID badge when they ring your doorbell.<br />
-                  3. Share PIN <strong>${pin}</strong> to start the stopwatch.
-                </div>
-              </div>
-
               <p style="margin: 0; color: #64748b; font-size: 12px; line-height: 1.4;">
-                Need assistance or want to reschedule? Use your DispatchGrid portal.
+                Need assistance? Open your DispatchGrid Customer Portal at any time.
               </p>
             </div>
             
@@ -355,8 +375,9 @@ export async function sendAssignmentEmail({
       console.log(`[ASSIGNMENT EMAIL DELIVERED TO GMAIL]`);
       console.log(`   To: ${to}`);
       console.log(`   Captain: ${techName}`);
+      console.log(`   Arrival Time: ${scheduledArrival || 'En route'}`);
+      console.log(`   Distance: ${distanceKm ? distanceKm.toFixed(1) + ' km' : 'N/A'}`);
       console.log(`   PIN: ${pin}`);
-      console.log(`   Subject: ${mailOptions.subject}`);
       console.log(`   Dispatched via: ${gmailUser}`);
       console.log(`======================================================\n`);
       return { delivered: true };
@@ -371,8 +392,161 @@ export async function sendAssignmentEmail({
   console.log(`[ASSIGNMENT EMAIL DISPATCHED TO: ${to}]`);
   console.log(`   Customer: ${customerName}`);
   console.log(`   Captain: ${techName}`);
+  console.log(`   Arrival Time: ${scheduledArrival || 'Soon'}`);
   console.log(`   PIN: ${pin}`);
   console.log(`   Job: ${jobTitle}`);
+  console.log(`======================================================\n`);
+
+  return { delivered: false, error: 'NO_SMTP_CREDENTIALS_IN_ENV' };
+}
+
+export interface SendTechnicianJobNotificationOptions {
+  to: string;
+  techName: string;
+  jobTitle: string;
+  customerName: string;
+  customerAddress: string;
+  serviceZone: string;
+  distanceKm: number;
+  scheduledArrival: string;
+  payout?: number;
+  jobId: string;
+  portalUrl?: string;
+}
+
+export async function sendTechnicianJobNotificationEmail({
+  to,
+  techName,
+  jobTitle,
+  customerName,
+  customerAddress,
+  serviceZone,
+  distanceKm,
+  scheduledArrival,
+  payout = 1050,
+  jobId,
+  portalUrl = 'http://172.16.25.82:5173/technician',
+}: SendTechnicianJobNotificationOptions): Promise<{ delivered: boolean; error?: string }> {
+  const gmailUser = process.env.GMAIL_USER || process.env.SMTP_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
+
+  const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(customerAddress + ', Bengaluru')}`;
+
+  if (gmailUser && gmailPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: gmailUser,
+          pass: gmailPass.replace(/\s+/g, ''),
+        },
+      });
+
+      const mailOptions = {
+        from: `"DispatchGrid Operations" <${gmailUser}>`,
+        to,
+        subject: `[DispatchGrid Partner Alert] New Job Available in ${serviceZone} (${distanceKm.toFixed(1)} km away)`,
+        text: `Hello Captain ${techName},\n\nA new urgent service job is available for you!\n\nJob: ${jobTitle}\nCustomer: ${customerName}\nWorksite Address: ${customerAddress} (${serviceZone})\nDistance from your location: ${distanceKm.toFixed(1)} km\nExpected Arrival by: ${scheduledArrival}\nEstimated Payout: ₹${payout}\n\nGoogle Maps Directions:\n${mapsUrl}\n\nOpen your Partner App to review and accept:\n${portalUrl}`,
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; background: #090d16; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; color: #f8fafc;">
+            <div style="background: linear-gradient(135deg, #059669 0%, #0d9488 100%); padding: 24px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">DispatchGrid Partner Fleet</h1>
+              <p style="margin: 4px 0 0 0; color: rgba(255,255,255,0.9); font-size: 13px;">New Live Work Order Dispatched to You</p>
+            </div>
+            
+            <div style="padding: 28px 24px;">
+              <div style="display: inline-block; background: #1e1b4b; border: 1px solid #4f46e5; color: #a5b4fc; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+                Instant Offer • 1-Min Window
+              </div>
+              <h2 style="margin: 0 0 10px 0; color: #ffffff; font-size: 20px; font-weight: 800;">New Job in ${customerAddress}!</h2>
+              <p style="margin: 0 0 20px 0; color: #94a3b8; font-size: 14px; line-height: 1.5;">
+                Hello <strong>Captain ${techName}</strong>, you have been selected for this urgent job because you are the <strong>closest qualified technician</strong> to the worksite.
+              </p>
+
+              <!-- Distance & Payout Highlight -->
+              <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+                <div style="flex: 1; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 14px; text-align: center;">
+                  <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">GPS Distance</div>
+                  <div style="font-size: 22px; font-weight: 900; color: #38bdf8; margin-top: 4px;">${distanceKm.toFixed(1)} km</div>
+                </div>
+                <div style="flex: 1; background: #0f172a; border: 1px solid #334155; border-radius: 12px; padding: 14px; text-align: center;">
+                  <div style="font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700;">Estimated Payout</div>
+                  <div style="font-size: 22px; font-weight: 900; color: #34d399; margin-top: 4px;">₹${payout}</div>
+                </div>
+              </div>
+
+              <!-- Worksite Details Card -->
+              <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 18px; margin-bottom: 22px;">
+                <div style="font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid #1e293b; padding-bottom: 6px;">
+                  Worksite & Order Information
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #e2e8f0;">
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b; width: 140px;">Task / Service:</td>
+                    <td style="padding: 6px 0; font-weight: 700; color: #ffffff;">${jobTitle}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Customer Name:</td>
+                    <td style="padding: 6px 0; font-weight: 600;">${customerName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Worksite Address:</td>
+                    <td style="padding: 6px 0; font-weight: 600; color: #facc15;">${customerAddress}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Expected Arrival:</td>
+                    <td style="padding: 6px 0; font-weight: 700; color: #6ee7b7;">By ${scheduledArrival}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Google Maps CTA -->
+              <div style="text-align: center; margin-bottom: 20px;">
+                <a href="${mapsUrl}" target="_blank" style="display: inline-block; background: #2563eb; color: #ffffff; font-weight: 800; font-size: 14px; text-decoration: none; padding: 14px 28px; border-radius: 12px; box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);">
+                  Open Google Maps Live Turn-by-Turn Route
+                </a>
+              </div>
+
+              <div style="text-align: center;">
+                <a href="${portalUrl}" target="_blank" style="color: #38bdf8; font-size: 12px; text-decoration: underline;">
+                  Open Partner Operations Console
+                </a>
+              </div>
+            </div>
+            
+            <div style="background: #0b1120; border-top: 1px solid #1e293b; padding: 14px 24px; text-align: center;">
+              <p style="margin: 0; color: #475569; font-size: 11px;">
+                (c) 2026 DispatchGrid On-Demand Fleet Logistics • Automated Job Dispatch Alert
+              </p>
+            </div>
+          </div>
+        `,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`\n======================================================`);
+      console.log(`[TECHNICIAN JOB OFFER EMAIL DELIVERED TO GMAIL]`);
+      console.log(`   To: ${to}`);
+      console.log(`   Captain: ${techName}`);
+      console.log(`   Worksite: ${customerAddress}`);
+      console.log(`   Distance: ${distanceKm.toFixed(1)} km`);
+      console.log(`   Subject: ${mailOptions.subject}`);
+      console.log(`   Dispatched via: ${gmailUser}`);
+      console.log(`======================================================\n`);
+      return { delivered: true };
+    } catch (err: any) {
+      console.error(`[SMTP ERROR]: Failed to send job alert email to technician ${to}:`, err.message);
+      return { delivered: false, error: err.message };
+    }
+  }
+
+  // Fallback console log
+  console.log(`\n======================================================`);
+  console.log(`[TECHNICIAN JOB OFFER DISPATCHED TO: ${to}]`);
+  console.log(`   Captain: ${techName}`);
+  console.log(`   Worksite: ${customerAddress}`);
+  console.log(`   Distance: ${distanceKm.toFixed(1)} km`);
+  console.log(`   Arrival: ${scheduledArrival}`);
   console.log(`======================================================\n`);
 
   return { delivered: false, error: 'NO_SMTP_CREDENTIALS_IN_ENV' };
