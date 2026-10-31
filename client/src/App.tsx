@@ -57,17 +57,17 @@ function App() {
     } catch {}
 
     return (
-      <div className="min-h-screen bg-[#180018] text-[#FAE5D8] flex flex-col font-sans selection:bg-[#522959] selection:text-[#FAE5D8]">
+      <div className="min-h-screen bg-[#FAF7F5] text-[#180018] flex flex-col font-sans selection:bg-[#522959] selection:text-white">
         <PortalNavbar activePortal={activePortal} onSelectPortal={handleSelectPortal} />
         <main className="p-4 sm:p-6 flex-1 max-w-xl mx-auto w-full flex items-center justify-center">
-          <div className="bg-[#2A114B] border border-rose-500/50 rounded-3xl p-8 text-center shadow-2xl backdrop-blur-xl animate-scaleIn">
-            <div className="w-14 h-14 rounded-2xl bg-rose-950/80 border border-rose-500/50 text-rose-400 flex items-center justify-center mx-auto mb-5 shadow-inner">
+          <div className="bg-white border border-rose-200 rounded-3xl p-8 text-center shadow-xl animate-scaleIn">
+            <div className="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto mb-5 shadow-sm">
               <IconAlertTriangle className="w-7 h-7" />
             </div>
-            <h2 className="text-xl font-bold text-[#FAE5D8] mb-2">Access Restricted</h2>
-            <p className="text-xs font-mono text-rose-300 uppercase tracking-wider mb-3">Role Boundary Isolation Enforced</p>
-            <p className="text-sm text-[#DFB6B2] mb-6 leading-relaxed">
-              Signed in as <strong className="text-[#FAE5D8]">{customerName}</strong>. Customer accounts are strictly isolated and cannot access the Technician Partner Terminal.
+            <h2 className="text-xl font-bold text-[#180018] mb-2">Access Restricted</h2>
+            <p className="text-xs font-mono text-rose-600 font-bold uppercase tracking-wider mb-3">Role Boundary Isolation Enforced</p>
+            <p className="text-sm text-[#522959] mb-6 leading-relaxed">
+              Signed in as <strong className="text-[#180018]">{customerName}</strong>. Customer accounts are strictly isolated and cannot access the Technician Partner Terminal.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <button
@@ -97,7 +97,7 @@ function App() {
             </div>
           </div>
         </main>
-        <footer className="py-4 border-t border-[#824D69]/30 px-6 text-center text-xs text-[#DFB6B2]/70 max-w-7xl mx-auto w-full font-mono">
+        <footer className="py-4 border-t border-[#EADFD7] px-6 text-center text-xs text-[#522959]/70 max-w-7xl mx-auto w-full font-mono">
           © 2026 DispatchGrid Technologies Inc. Enterprise Tier
         </footer>
       </div>
@@ -105,7 +105,7 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-[#180018] text-[#FAE5D8] flex flex-col font-sans selection:bg-[#522959] selection:text-[#FAE5D8]">
+    <div className="min-h-screen bg-[#FAF7F5] text-[#180018] flex flex-col font-sans selection:bg-[#522959] selection:text-white">
       {/* Dedicated Portal Navbar */}
       <PortalNavbar activePortal={activePortal} onSelectPortal={handleSelectPortal} />
 
@@ -117,12 +117,12 @@ function App() {
       </main>
 
       {/* Footer Info */}
-      <footer className="py-4 border-t border-[#824D69]/30 px-6 text-center text-xs text-[#DFB6B2]/70 flex flex-col sm:flex-row items-center justify-between gap-2 max-w-7xl mx-auto w-full">
+      <footer className="py-4 border-t border-[#EADFD7] px-6 text-center text-xs text-[#522959]/70 flex flex-col sm:flex-row items-center justify-between gap-2 max-w-7xl mx-auto w-full">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-emerald-400" />
-          <span>DispatchGrid Real-Time Workforce Orchestration Platform</span>
+          <span className="w-2 h-2 rounded-full bg-emerald-500" />
+          <span className="font-medium text-[#180018]">DispatchGrid Real-Time Workforce Orchestration Platform</span>
         </div>
-        <div className="font-mono text-[11px] text-[#DFB6B2]/60">
+        <div className="font-mono text-[11px] text-[#522959]/70">
           © 2026 DispatchGrid Technologies Inc. Enterprise Tier
         </div>
       </footer>

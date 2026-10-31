@@ -17,8 +17,8 @@ function deserializeTechnician(tech: any): any {
     ...tech,
     skills: typeof tech.skills === 'string' ? JSON.parse(tech.skills) : tech.skills,
     serviceZones: typeof tech.serviceZones === 'string' ? JSON.parse(tech.serviceZones) : tech.serviceZones,
-    email: contact.email,
-    phone: contact.phone,
+    email: tech.email || contact.email || '4mh23is094@gmail.com',
+    phone: tech.phone || contact.phone || '+91 9066272484',
   };
 }
 
@@ -26,9 +26,14 @@ function deserializeTechnician(tech: any): any {
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const data = createTechnicianSchema.parse(req.body);
+    const techEmail = data.email || (req.body as any).email || '4mh23is094@gmail.com';
+    const techPhone = data.phone || (req.body as any).phone || '+91 9066272484';
+
     const technician = await prisma.technician.create({
       data: {
         name: data.name,
+        email: techEmail,
+        phone: techPhone,
         skills: JSON.stringify(data.skills),
         serviceZones: JSON.stringify(data.serviceZones),
         shiftStart: data.shiftStart,
@@ -41,8 +46,8 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
     // Save contact info for live job email alerts
     saveTechContact(technician.id, {
       name: data.name,
-      email: (req.body as any).email,
-      phone: (req.body as any).phone,
+      email: techEmail,
+      phone: techPhone,
     });
 
     res.status(201).json({ success: true, data: deserializeTechnician(technician) } as ApiResponse);
@@ -103,6 +108,14 @@ router.patch('/:id', async (req: Request, res: Response, next: NextFunction) => 
     }
     const updateData: any = {};
     if (data.name !== undefined) updateData.name = data.name;
+    if (data.email !== undefined) {
+      updateData.email = data.email;
+      saveTechContact(id, { email: data.email });
+    }
+    if (data.phone !== undefined) {
+      updateData.phone = data.phone;
+      saveTechContact(id, { phone: data.phone });
+    }
     if (data.skills !== undefined) updateData.skills = JSON.stringify(data.skills);
     if (data.serviceZones !== undefined) updateData.serviceZones = JSON.stringify(data.serviceZones);
     if (data.shiftStart !== undefined) updateData.shiftStart = data.shiftStart;

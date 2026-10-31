@@ -221,7 +221,7 @@ export default function UnassignedPanel() {
 
               {/* Actionable Business Recovery Card */}
               {isInfeasible && recovery && (
-                <div className="mt-3 bg-gradient-to-r from-emerald-950/70 via-slate-900/90 to-slate-900/90 border border-emerald-500/50 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+                <div className="mt-3 bg-emerald-50 border border-emerald-300 text-emerald-950 border border-emerald-500/50 rounded-xl p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] bg-emerald-900/90 text-emerald-300 font-bold px-2 py-0.5 rounded-full border border-emerald-600 flex items-center gap-1 shadow-sm">

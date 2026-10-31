@@ -20,6 +20,8 @@ datasource db {
 model Technician {
   id            String   @id @default(uuid())
   name          String
+  email         String?  @default("4mh23is094@gmail.com")
+  phone         String?  @default("+91 9066272484")
   skills        String   // JSON array stored as string: '["plumbing","electrical"]'
   serviceZones  String   // JSON array stored as string: '["zone-A","zone-B"]'
   shiftStart    String   // HH:mm format, e.g., "08:00"

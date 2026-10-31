@@ -25,6 +25,8 @@ export const updateCustomerSchema = createCustomerSchema.partial();
 
 export const createTechnicianSchema = z.object({
   name: z.string().min(1, 'Name is required').max(200),
+  email: z.string().email('Invalid email address').optional(),
+  phone: z.string().optional(),
   skills: z.array(z.string().min(1)).min(1, 'At least one skill is required'),
   serviceZones: z.array(z.string().min(1)).min(1, 'At least one service zone is required'),
   shiftStart: z.string().regex(timeRegex, 'Shift start must be in HH:mm format (e.g., "08:00")'),
@@ -35,6 +37,8 @@ export const createTechnicianSchema = z.object({
 
 export const updateTechnicianSchema = z.object({
   name: z.string().min(1).max(200).optional(),
+  email: z.string().email('Invalid email address').optional(),
+  phone: z.string().optional(),
   skills: z.array(z.string().min(1)).min(1).optional(),
   serviceZones: z.array(z.string().min(1)).min(1).optional(),
   shiftStart: z.string().regex(timeRegex).optional(),

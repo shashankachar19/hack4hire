@@ -32,7 +32,7 @@ import {
 import { ApiResponse, VALID_JOB_TRANSITIONS, JobStatusType } from '../types';
 import { AppError } from '../middleware/errorHandler';
 import { reOptimizeSchedule } from '../services/schedulingService';
-import { sendAssignmentEmail, sendTechnicianJobNotificationEmail } from '../services/emailService';
+import { sendAssignmentEmail, sendTechnicianJobNotificationEmail, sendNearbyJobOpeningAlertEmail } from '../services/emailService';
 import { haversineDistance } from '../utils/geo';
 import { getTechContact } from '../utils/techContacts';
 
@@ -392,8 +392,9 @@ router.post('/instant-match', async (req: Request, res: Response, next: NextFunc
 
       // 2. Dispatch Technician Job Alert Email with Worksite Address, GPS Distance & Google Maps Route
       const techContact = getTechContact(chosenTech.id);
+      const chosenTechEmail = chosenTech.email || techContact.email;
       sendTechnicianJobNotificationEmail({
-        to: techContact.email,
+        to: chosenTechEmail,
         techName: chosenTech.name,
         jobTitle: job.title,
         customerName: customerDossier?.name || 'Valued Customer',
@@ -403,6 +404,28 @@ router.post('/instant-match', async (req: Request, res: Response, next: NextFunc
         scheduledArrival,
         jobId: job.id,
       }).catch((e) => console.error('[TECH JOB ALERT EMAIL ERROR]:', e.message));
+
+      // 3. Dispatch Proximity Job Opening Notifications to nearby qualified/available partners
+      const nearbyTechs = techsWithDist
+        .filter((t: any) => t.id !== chosenTech.id && t.distanceKm <= 15)
+        .slice(0, 3);
+
+      for (const nearby of nearbyTechs) {
+        const nContact = getTechContact(nearby.id);
+        const nEmail = nearby.email || nContact.email;
+        if (nEmail) {
+          sendNearbyJobOpeningAlertEmail({
+            to: nEmail,
+            techName: nearby.name,
+            jobTitle: job.title,
+            customerAddress: customerDossier?.address || 'Prestige Falcon City, Bengaluru',
+            serviceZone: job.serviceZone,
+            distanceKm: nearby.distanceKm,
+            payout: 1050,
+            jobId: job.id,
+          }).catch((e) => console.error('[NEARBY JOB ALERT EMAIL ERROR]:', e.message));
+        }
+      }
 
       // Background optimization telemetry without disrupting this locked assignment
       try {
@@ -585,8 +608,9 @@ router.post('/:id/decline', async (req: Request, res: Response, next: NextFuncti
 
       // 2. Dispatch technician email to the newly assigned backup specialist
       const techContact = getTechContact(backupTech.id);
+      const backupTechEmail = backupTech.email || techContact.email;
       sendTechnicianJobNotificationEmail({
-        to: techContact.email,
+        to: backupTechEmail,
         techName: backupTech.name,
         jobTitle: job.title,
         customerName: jobDesc.name || 'Valued Customer',

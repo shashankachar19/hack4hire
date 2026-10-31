@@ -572,7 +572,7 @@ export default function TechnicianPortal() {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+      <div className="flex flex-col items-center justify-center py-20 text-[#64748B]">
         <IconActivity className="w-8 h-8 text-indigo-400 animate-spin mb-3" />
         <span className="text-sm font-medium">Connecting to Partner Network...</span>
       </div>
@@ -597,19 +597,19 @@ export default function TechnicianPortal() {
       {/* Top Header: Partner Profile & Duty Switch */}
       <div className="glass-panel rounded-2xl p-5 border-indigo-500/30 relative overflow-hidden shadow-2xl space-y-4">
         {/* Operations Network Banner */}
-        <div className="p-3.5 bg-gradient-to-r from-indigo-950/80 via-slate-900 to-cyan-950/80 border border-indigo-500/40 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
+        <div className="p-3.5 bg-[#FAF2EC] border border-[#DFB682] border border-indigo-500/40 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-inner">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-lg bg-indigo-900/60 border border-indigo-700/60 flex items-center justify-center text-cyan-400">
               <IconHardHat className="w-5 h-5" />
             </div>
             <div>
-              <div className="text-xs font-bold text-white flex items-center gap-2">
+              <div className="text-xs font-bold text-[#180018] flex items-center gap-2">
                 <span>Fleet Partner Operations Console</span>
                 <span className="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-700 px-2 py-0.5 rounded-full font-mono">
                   LIVE SYNC
                 </span>
               </div>
-              <p className="text-[11px] text-slate-300">
+              <p className="text-[11px] text-[#522959]">
                 Verified Technician Operations Network. Manage work orders, live GPS transit, and on-site repair verifications.
               </p>
             </div>
@@ -657,7 +657,7 @@ export default function TechnicianPortal() {
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
           <div className="flex items-center gap-3.5 min-w-0 flex-1">
             <div className="relative shrink-0">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white text-xl font-black shadow-lg border-2 border-indigo-400/30">
+              <div className="w-14 h-14 rounded-2xl bg-[#522959] text-[#180018] flex items-center justify-center text-[#180018] text-xl font-black shadow-lg border-2 border-indigo-400/30">
                 {techData?.name ? techData.name.slice(0, 2).toUpperCase() : 'TC'}
               </div>
               <span
@@ -674,11 +674,11 @@ export default function TechnicianPortal() {
 
                 {/* Persona Switcher Dropdown */}
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] text-slate-400 font-medium">Active Profile:</span>
+                  <span className="text-[11px] text-[#64748B] font-medium">Active Profile:</span>
                   <select
                     value={selectedTechId}
                     onChange={(e) => handleSelectTechnician(e.target.value)}
-                    className="bg-slate-900 border border-slate-700 text-white font-bold text-xs sm:text-sm rounded-xl px-2.5 py-1 focus:outline-none focus:border-indigo-500 cursor-pointer max-w-full sm:max-w-xs truncate"
+                    className="bg-[#FAF2EC] border border-[#DFB682] text-[#180018] font-bold text-xs sm:text-sm rounded-xl px-2.5 py-1 focus:outline-none focus:border-indigo-500 cursor-pointer max-w-full sm:max-w-xs truncate"
                   >
                     {technicians.length === 0 ? (
                       <option value="">No partners registered yet (Click + Register)</option>
@@ -698,14 +698,14 @@ export default function TechnicianPortal() {
                     setProfileTab('BADGE')
                     setShowProfileModal(true)
                   }}
-                  className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 hover:text-white border border-indigo-700 flex items-center gap-1 font-mono transition-all cursor-pointer shadow-sm hover:bg-indigo-900 shrink-0"
+                  className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 hover:text-[#180018] border border-indigo-700 flex items-center gap-1 font-mono transition-all cursor-pointer shadow-sm hover:bg-indigo-900 shrink-0"
                 >
                   <IconShieldCheck className="w-3 h-3 text-cyan-400" />
                   <span>ID Badge & KYC</span>
                 </button>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2.5 mt-2 text-xs text-slate-400">
+              <div className="flex flex-wrap items-center gap-2.5 mt-2 text-xs text-[#64748B]">
                 <span className="flex items-center gap-1 text-amber-400 font-bold">
                   <IconStar className="w-3.5 h-3.5 fill-amber-400" /> 4.9 Rating
                 </span>
@@ -744,38 +744,38 @@ export default function TechnicianPortal() {
         </div>
 
         {/* Feature 4: Partner Wallet & Incentive Tracker (Driver Economics) */}
-        <div className="mt-5 pt-4 border-t border-slate-800 space-y-3">
+        <div className="mt-5 pt-4 border-t border-[#EADFD7] space-y-3">
           <div className="grid grid-cols-3 gap-2.5">
-            <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-center">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Today's Payout</div>
+            <div className="bg-[#FAF2EC]/80 p-3 rounded-xl border border-[#EADFD7] text-center">
+              <div className="text-[10px] text-[#64748B] uppercase font-semibold">Today's Payout</div>
               <div className="text-lg font-black text-emerald-400 font-mono mt-0.5">
                 ₹{totalPartnerEarnings.toLocaleString('en-IN')}
               </div>
             </div>
-            <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-center">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">Completed Orders</div>
+            <div className="bg-[#FAF2EC]/80 p-3 rounded-xl border border-[#EADFD7] text-center">
+              <div className="text-[10px] text-[#64748B] uppercase font-semibold">Completed Orders</div>
               <div className="text-lg font-black text-indigo-400 font-mono mt-0.5">{completedCount + 3} Jobs</div>
             </div>
-            <div className="bg-slate-900/80 p-3 rounded-xl border border-slate-800 text-center">
-              <div className="text-[10px] text-slate-400 uppercase font-semibold">SLA Bonus</div>
+            <div className="bg-[#FAF2EC]/80 p-3 rounded-xl border border-[#EADFD7] text-center">
+              <div className="text-[10px] text-[#64748B] uppercase font-semibold">SLA Bonus</div>
               <div className="text-lg font-black text-cyan-400 font-mono mt-0.5">+₹{bonusIncentive}</div>
             </div>
           </div>
 
           {/* Weekly Incentive Tier Bar */}
-          <div className="p-2.5 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1.5">
+          <div className="p-2.5 rounded-xl bg-white/60 border border-[#EADFD7] space-y-1.5">
             <div className="flex items-center justify-between text-[11px]">
-              <span className="text-slate-300 font-bold flex items-center gap-1.5">
+              <span className="text-[#522959] font-bold flex items-center gap-1.5">
                 <IconTarget className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Weekly Partner Incentive Goal</span>
                 <span className="text-amber-400 font-mono">8 / 12 Completed</span>
               </span>
               <span className="text-emerald-400 font-bold font-mono">+₹1,000 Weekend Bonus</span>
             </div>
-            <div className="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-slate-800">
-              <div className="bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 h-full rounded-full w-[66%]"></div>
+            <div className="w-full bg-[#FAF2EC] h-2 rounded-full overflow-hidden border border-[#EADFD7]">
+              <div className="bg-[#522959] h-full rounded-full w-[66%]"></div>
             </div>
-            <div className="text-[10px] text-slate-400 flex items-center justify-between">
+            <div className="text-[10px] text-[#64748B] flex items-center justify-between">
               <span>Complete 4 more orders before Sunday 10 PM</span>
               <span className="text-indigo-400 font-mono">Tier 2 Captain</span>
             </div>
@@ -784,7 +784,7 @@ export default function TechnicianPortal() {
       </div>
 
       {toastMsg && (
-        <div className="p-3 bg-slate-900 border border-indigo-500/50 rounded-xl text-xs text-indigo-200 flex items-center justify-between shadow-xl animate-float-slow">
+        <div className="p-3 bg-[#FAF2EC] border border-indigo-500/50 rounded-xl text-xs text-indigo-200 flex items-center justify-between shadow-xl animate-float-slow">
           <div className="flex items-center gap-2">
             <IconSparkles className="w-4 h-4 text-cyan-400" />
             <span>{toastMsg}</span>
@@ -810,13 +810,13 @@ export default function TechnicianPortal() {
         const custGateNote = customer?.gateNote || 'Flat 402, Ring bell twice'
 
         return (
-          <div className="glass-panel rounded-2xl border-amber-500/40 p-5 space-y-4 shadow-xl relative overflow-hidden bg-gradient-to-b from-amber-950/20 via-slate-900/80 to-slate-900">
+          <div className="glass-panel rounded-2xl border-amber-500/40 p-5 space-y-4 shadow-xl relative overflow-hidden bg-white border-amber-300">
             {/* Header & Priority */}
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-center justify-between pb-3 border-b border-[#EADFD7]">
               <div className="flex items-center gap-2">
                 <span className={`w-3 h-3 rounded-full ${activeAssignment.job.status === 'IN_PROGRESS' ? 'bg-emerald-400 animate-ping' : 'bg-amber-400 animate-ping'
                   }`} />
-                <h3 className="font-bold text-white text-base">
+                <h3 className="font-bold text-[#180018] text-base">
                   {activeAssignment.job.status === 'IN_PROGRESS'
                     ? 'Service In Progress On-Site'
                     : hasArrivedAtGate
@@ -836,19 +836,19 @@ export default function TechnicianPortal() {
 
             {/* Job Details */}
             <div className="space-y-2">
-              <div className="text-base font-bold text-white">{activeAssignment.job.title}</div>
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
+              <div className="text-base font-bold text-[#180018]">{activeAssignment.job.title}</div>
+              <div className="flex flex-wrap items-center gap-3 text-xs text-[#64748B]">
                 <span className="flex items-center gap-1 text-cyan-400">
                   <IconMapPin className="w-3.5 h-3.5" /> {activeAssignment.job.serviceZone}
                 </span>
                 <span>•</span>
-                <span className="flex items-center gap-1 text-slate-300">
+                <span className="flex items-center gap-1 text-[#522959]">
                   <IconClock className="w-3.5 h-3.5 text-indigo-400" /> Target Duration: {activeAssignment.job.durationMinutes} mins
                 </span>
                 <span>•</span>
                 <span className="font-mono text-emerald-400 font-bold">Base Payout: ₹650</span>
               </div>
-              <div className="text-[11px] text-slate-400 font-mono">
+              <div className="text-[11px] text-[#64748B] font-mono">
                 Scheduled Slot: {new Date(activeAssignment.scheduledStart).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} –{' '}
                 {new Date(activeAssignment.scheduledEnd).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </div>
@@ -856,16 +856,16 @@ export default function TechnicianPortal() {
 
             {/* Feature 2: Active On-Site Repair Stopwatch (ticks up during IN_PROGRESS) */}
             {activeAssignment.job.status === 'IN_PROGRESS' && (
-              <div className="p-3.5 bg-gradient-to-r from-emerald-950/70 via-slate-900 to-indigo-950/70 border border-emerald-500/50 rounded-xl flex items-center justify-between shadow-inner">
+              <div className="p-3.5 bg-emerald-50 border border-emerald-200 border border-emerald-500/50 rounded-xl flex items-center justify-between shadow-inner">
                 <div className="flex items-center gap-2.5">
                   <IconClock className="w-5 h-5 text-emerald-400 animate-pulse" />
                   <div>
                     <div className="text-[10px] uppercase font-bold text-emerald-300 font-mono">
                       Live On-Site Repair Stopwatch
                     </div>
-                    <div className="text-lg font-black text-white font-mono mt-0.5">
+                    <div className="text-lg font-black text-[#180018] font-mono mt-0.5">
                       {Math.floor(onSiteSecondsElapsed / 60)}m {(onSiteSecondsElapsed % 60).toString().padStart(2, '0')}s
-                      <span className="text-xs font-normal text-slate-400 ml-2">/ {activeAssignment.job.durationMinutes}m SLA Target</span>
+                      <span className="text-xs font-normal text-[#64748B] ml-2">/ {activeAssignment.job.durationMinutes}m SLA Target</span>
                     </div>
                   </div>
                 </div>
@@ -876,8 +876,8 @@ export default function TechnicianPortal() {
             )}
 
             {/* Customer Profile & Gate Note Dossier (Feature 5) */}
-            <div className="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 space-y-3">
-              <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between font-mono">
+            <div className="bg-[#FAF2EC]/90 rounded-2xl p-4 border border-[#EADFD7] space-y-3">
+              <div className="text-[10px] uppercase font-bold text-[#64748B] tracking-wider flex items-center justify-between font-mono">
                 <span className="text-cyan-400 flex items-center gap-1.5">
                   <IconUser className="w-3.5 h-3.5" /> Customer Contact & Delivery Location
                 </span>
@@ -888,14 +888,14 @@ export default function TechnicianPortal() {
 
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                  <div className="text-sm font-bold text-white flex items-center gap-2">
+                  <div className="text-sm font-bold text-[#180018] flex items-center gap-2">
                     <span>{custName}</span>
-                    <span className="text-xs text-slate-400 font-normal">({custAge} yrs)</span>
+                    <span className="text-xs text-[#64748B] font-normal">({custAge} yrs)</span>
                   </div>
-                  <div className="text-xs text-slate-300 font-mono mt-0.5 flex flex-wrap items-center gap-2">
-                    <span className="flex items-center gap-1"><IconPhone className="w-3 h-3 text-slate-400" /> {custPhone}</span>
+                  <div className="text-xs text-[#522959] font-mono mt-0.5 flex flex-wrap items-center gap-2">
+                    <span className="flex items-center gap-1"><IconPhone className="w-3 h-3 text-[#64748B]" /> {custPhone}</span>
                     <span>•</span>
-                    <span className="flex items-center gap-1"><IconMail className="w-3 h-3 text-slate-400" /> {custEmail}</span>
+                    <span className="flex items-center gap-1"><IconMail className="w-3 h-3 text-[#64748B]" /> {custEmail}</span>
                   </div>
                   <div className="text-xs text-cyan-300 mt-1 flex items-start gap-1.5">
                     <IconMapPin className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0 mt-0.5" />
@@ -904,7 +904,7 @@ export default function TechnicianPortal() {
                   <div className="text-[11px] text-amber-300 mt-1.5 bg-amber-950/60 px-3 py-1.5 rounded-xl border border-amber-800/60 inline-flex items-center gap-1.5 font-mono shadow-sm">
                     <IconDoorOpen className="w-3.5 h-3.5 text-amber-400" />
                     <span>Arrival Note:</span>
-                    <strong className="text-white">"{custGateNote}"</strong>
+                    <strong className="text-[#180018]">"{custGateNote}"</strong>
                   </div>
                 </div>
 
@@ -921,7 +921,7 @@ export default function TechnicianPortal() {
                     href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(custAddress + ', Bengaluru')}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 whitespace-nowrap"
+                    className="bg-[#FAF2EC] hover:bg-slate-800 border border-[#DFB682] text-[#522959] text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1.5 cursor-pointer shadow-sm active:scale-95 whitespace-nowrap"
                   >
                     <IconMapPin className="w-3.5 h-3.5 text-cyan-400" />
                     <span>Google Maps Route</span>
@@ -931,11 +931,11 @@ export default function TechnicianPortal() {
             </div>
 
             {/* Google Maps Worksite Navigation Panel */}
-            <div className="bg-slate-950/90 rounded-2xl p-4 border border-indigo-500/40 space-y-3.5 shadow-xl">
+            <div className="bg-white/90 rounded-2xl p-4 border border-indigo-500/40 space-y-3.5 shadow-xl">
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <IconMapPin className="w-4 h-4 text-rose-400" />
-                  <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                  <span className="text-xs font-bold text-[#180018] uppercase tracking-wider font-mono">
                     Google Maps Worksite Navigation
                   </span>
                 </div>
@@ -950,7 +950,7 @@ export default function TechnicianPortal() {
               </div>
 
               {/* Embedded Interactive Google Map */}
-              <div className="w-full h-56 rounded-xl overflow-hidden border border-slate-800 relative bg-slate-900 shadow-inner">
+              <div className="w-full h-56 rounded-xl overflow-hidden border border-[#EADFD7] relative bg-[#FAF2EC] shadow-inner">
                 <iframe
                   title="Google Maps Worksite Navigation"
                   width="100%"
@@ -966,8 +966,8 @@ export default function TechnicianPortal() {
 
               {/* Navigation Action & Worksite Details */}
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
-                <div className="text-xs text-slate-300">
-                  <strong className="text-white">Destination:</strong> {custAddress} ({activeAssignment.job.serviceZone})
+                <div className="text-xs text-[#522959]">
+                  <strong className="text-[#180018]">Destination:</strong> {custAddress} ({activeAssignment.job.serviceZone})
                 </div>
                 <a
                   href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(custAddress + ', Bengaluru')}`}
@@ -990,11 +990,11 @@ export default function TechnicianPortal() {
             </div>
 
             {/* Feature 1: 3-Stage Partner Arrival Pipeline Action Row */}
-            <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center gap-2.5">
+            <div className="pt-3 border-t border-[#EADFD7] flex flex-wrap items-center gap-2.5">
               {activeAssignment.job.status === 'ASSIGNED' ? (
                 <>
                   {(!hasAcceptedJob && !customer?.isAccepted) ? (
-                    <div className="w-full space-y-3 bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 p-4 rounded-xl border border-indigo-500/60 shadow-lg animate-pulse">
+                    <div className="w-full space-y-3 bg-[#FAF2EC] border border-[#DFB682] p-4 rounded-xl border border-indigo-500/60 shadow-lg animate-pulse">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                           <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
@@ -1011,8 +1011,8 @@ export default function TechnicianPortal() {
                           </span>
                         </div>
                       </div>
-                      <div className="text-xs text-slate-300">
-                        Service request from <strong className="text-white">{custName}</strong> for <strong className="text-cyan-300">{activeAssignment.job.title}</strong> at {custAddress}. Accept to lock dispatch.
+                      <div className="text-xs text-[#522959]">
+                        Service request from <strong className="text-[#180018]">{custName}</strong> for <strong className="text-cyan-300">{activeAssignment.job.title}</strong> at {custAddress}. Accept to lock dispatch.
                       </div>
                       <div className="flex items-center gap-2.5 pt-1">
                         <button
@@ -1021,7 +1021,7 @@ export default function TechnicianPortal() {
                           disabled={actionLoading === 'accept'}
                           className="btn-solid-success flex-1 text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2"
                         >
-                          <IconCheckCircle className="w-4 h-4 text-white" />
+                          <IconCheckCircle className="w-4 h-4 text-[#180018]" />
                           <span>ACCEPT JOB OFFER</span>
                         </button>
                         <button
@@ -1038,7 +1038,7 @@ export default function TechnicianPortal() {
                   ) : (
                     <>
                       {/* Confirmed Arrival Target Badge (Replaces the allocation countdown window after acceptance) */}
-                      <div className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-slate-900 to-emerald-950/90 border border-emerald-500/70 shadow-lg space-y-2">
+                      <div className="w-full p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 border border-emerald-500/70 shadow-lg space-y-2">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div className="flex items-center gap-2">
                             <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -1047,17 +1047,17 @@ export default function TechnicianPortal() {
                             </span>
                           </div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold text-slate-300 font-mono">Target Arrival:</span>
+                            <span className="text-xs font-bold text-[#522959] font-mono">Target Arrival:</span>
                             <span className="text-xs font-black font-mono text-emerald-300 bg-emerald-950 border border-emerald-600 px-2.5 py-1 rounded-xl shadow-sm glow-pill-emerald">
                               Today by {customer?.scheduledArrivalTime || '06:30 PM'}
                             </span>
-                            <span className="text-[10px] text-slate-400 font-mono">
+                            <span className="text-[10px] text-[#64748B] font-mono">
                               (~{Math.max(12, Math.round((customer?.distanceKm || 2.4) * 3))} mins transit)
                             </span>
                           </div>
                         </div>
-                        <div className="text-xs text-slate-300 flex flex-wrap items-center justify-between gap-2">
-                          <span>Worksite: <strong className="text-white">{custAddress}</strong></span>
+                        <div className="text-xs text-[#522959] flex flex-wrap items-center justify-between gap-2">
+                          <span>Worksite: <strong className="text-[#180018]">{custAddress}</strong></span>
                           <span className="text-[11px] text-cyan-300 font-mono flex items-center gap-1 font-bold">
                             <IconMapPin className="w-3.5 h-3.5 text-cyan-400" />
                             {customer?.distanceKm || 2.4} km from base
@@ -1072,7 +1072,7 @@ export default function TechnicianPortal() {
                             onClick={handleMarkEnRoute}
                             className="btn-solid-blue flex-1 text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 whitespace-nowrap"
                           >
-                            <IconTruck className="w-4 h-4 text-white" />
+                            <IconTruck className="w-4 h-4 text-[#180018]" />
                             <span>Start Transit (En Route)</span>
                           </button>
                         )}
@@ -1083,7 +1083,7 @@ export default function TechnicianPortal() {
                             onClick={handleMarkArrivedAtGate}
                             className="btn-solid-amber flex-1 text-xs py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 whitespace-nowrap"
                           >
-                            <IconMapPin className="w-4 h-4 text-white" />
+                            <IconMapPin className="w-4 h-4 text-[#180018]" />
                             <span>Mark Arrived at Gate</span>
                           </button>
                         ) : (
@@ -1095,9 +1095,9 @@ export default function TechnicianPortal() {
                       </div>
 
                       {/* Prominent Direct In-Card Doorstep PIN Entry Field */}
-                      <div className="w-full bg-slate-950/90 border border-emerald-500/50 rounded-2xl p-4 space-y-3 shadow-lg">
+                      <div className="w-full bg-white/90 border border-emerald-500/50 rounded-2xl p-4 space-y-3 shadow-lg">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-white flex items-center gap-1.5 font-mono">
+                          <span className="text-xs font-bold text-[#180018] flex items-center gap-1.5 font-mono">
                             <IconShieldCheck className="w-4 h-4 text-emerald-400" />
                             <span>Verify Customer Doorstep 4-Digit PIN to Start</span>
                           </span>
@@ -1113,7 +1113,7 @@ export default function TechnicianPortal() {
                               setEnteredPin(e.target.value.replace(/\D/g, ''))
                               setPinError(null)
                             }}
-                            className="w-full sm:w-44 text-center font-mono text-2xl font-black tracking-widest bg-slate-900 border border-slate-700 text-white rounded-xl py-2 focus:border-emerald-500 focus:outline-none shadow-inner"
+                            className="w-full sm:w-44 text-center font-mono text-2xl font-black tracking-widest bg-[#FAF2EC] border border-[#DFB682] text-[#180018] rounded-xl py-2 focus:border-emerald-500 focus:outline-none shadow-inner"
                           />
                           <button
                             type="button"
@@ -1121,7 +1121,7 @@ export default function TechnicianPortal() {
                             disabled={enteredPin.length < 4 || actionLoading !== null}
                             className="btn-solid-success w-full sm:flex-1 text-xs py-3 px-4 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
                           >
-                            <IconShieldCheck className="w-4 h-4 text-white" />
+                            <IconShieldCheck className="w-4 h-4 text-[#180018]" />
                             <span>{actionLoading === 'verify-pin' ? 'Verifying PIN...' : 'Verify PIN & Start Work'}</span>
                           </button>
                         </div>
@@ -1138,7 +1138,7 @@ export default function TechnicianPortal() {
                     type="button"
                     onClick={() => handleDeclineJob(activeAssignment.job.id)}
                     disabled={actionLoading !== null}
-                    className="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-rose-400 hover:text-rose-300 font-bold text-xs py-3 px-4 rounded-xl transition-all active:scale-95 cursor-pointer disabled:opacity-50"
+                    className="bg-[#FAF2EC] hover:bg-slate-800 border border-[#DFB682] text-rose-400 hover:text-rose-300 font-bold text-xs py-3 px-4 rounded-xl transition-all active:scale-95 cursor-pointer disabled:opacity-50"
                     title="Pass job to next backup partner"
                   >
                     Decline Job
@@ -1146,11 +1146,11 @@ export default function TechnicianPortal() {
                 </>
               ) : (
                 /* IN_PROGRESS: Active Service with Extra Jobs & Spare Parts Column / Table */
-                <div className="w-full bg-slate-950/90 border border-cyan-500/40 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl">
-                  <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="w-full bg-white/90 border border-cyan-500/40 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#EADFD7]">
                     <div className="flex items-center gap-2">
                       <IconSparkles className="w-4 h-4 text-cyan-400" />
-                      <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                      <span className="text-xs font-bold text-[#180018] uppercase tracking-wider font-mono">
                         Extra Jobs & Replaced Spare Parts (Billing Add-ons)
                       </span>
                     </div>
@@ -1162,14 +1162,14 @@ export default function TechnicianPortal() {
                   {/* Table of entered extra tasks */}
                   <div className="space-y-2">
                     {extraTasks.length === 0 ? (
-                      <div className="text-xs text-slate-400 italic py-2 text-center bg-slate-900/50 rounded-xl border border-dashed border-slate-800">
+                      <div className="text-xs text-[#64748B] italic py-2 text-center bg-[#FAF2EC]/50 rounded-xl border border-dashed border-[#EADFD7]">
                         No additional tasks or spare parts logged yet. Use the inputs below if extra work was performed.
                       </div>
                     ) : (
                       <div className="overflow-x-auto">
                         <table className="w-full text-left text-xs">
                           <thead>
-                            <tr className="text-[10px] text-slate-400 uppercase font-mono border-b border-slate-800/80">
+                            <tr className="text-[10px] text-[#64748B] uppercase font-mono border-b border-[#EADFD7]/80">
                               <th className="pb-2 font-medium">Extra Job / Replaced Spare Part</th>
                               <th className="pb-2 font-medium text-right">Additional Price</th>
                               <th className="pb-2 font-medium text-right w-16">Action</th>
@@ -1204,14 +1204,14 @@ export default function TechnicianPortal() {
 
                   {/* Quick Add Chips */}
                   <div className="space-y-1.5">
-                    <div className="text-[10px] text-slate-400 uppercase font-mono">Quick-Add Common Spare Parts:</div>
+                    <div className="text-[10px] text-[#64748B] uppercase font-mono">Quick-Add Common Spare Parts:</div>
                     <div className="flex flex-wrap gap-1.5">
                       {QUICK_EXTRA_TASKS.map((q, idx) => (
                         <button
                           key={idx}
                           type="button"
                           onClick={() => handleAddExtraTask(q.description, q.price)}
-                          className="text-[11px] bg-slate-900 hover:bg-indigo-950 text-slate-300 hover:text-cyan-300 border border-slate-700 hover:border-indigo-600 px-2.5 py-1 rounded-lg cursor-pointer transition-all flex items-center gap-1 font-mono active:scale-95"
+                          className="text-[11px] bg-[#FAF2EC] hover:bg-indigo-950 text-[#522959] hover:text-cyan-300 border border-[#DFB682] hover:border-indigo-600 px-2.5 py-1 rounded-lg cursor-pointer transition-all flex items-center gap-1 font-mono active:scale-95"
                         >
                           <span>+ {q.description}</span>
                           <span className="text-emerald-400 font-bold">(₹{q.price})</span>
@@ -1221,13 +1221,13 @@ export default function TechnicianPortal() {
                   </div>
 
                   {/* Custom Extra Job / Part Inputs */}
-                  <div className="flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-slate-800/80">
+                  <div className="flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-[#EADFD7]/80">
                     <input
                       type="text"
                       placeholder="Extra job description (e.g. Copper wiring 2m replaced)"
                       value={customTaskName}
                       onChange={(e) => setCustomTaskName(e.target.value)}
-                      className="w-full sm:flex-1 bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 focus:border-cyan-500 focus:outline-none"
+                      className="w-full sm:flex-1 bg-[#FAF2EC] border border-[#DFB682] text-[#180018] text-xs rounded-xl px-3 py-2 focus:border-cyan-500 focus:outline-none"
                     />
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                       <input
@@ -1235,7 +1235,7 @@ export default function TechnicianPortal() {
                         placeholder="₹ Price"
                         value={customTaskPrice}
                         onChange={(e) => setCustomTaskPrice(e.target.value)}
-                        className="w-24 bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 font-mono focus:border-cyan-500 focus:outline-none"
+                        className="w-24 bg-[#FAF2EC] border border-[#DFB682] text-[#180018] text-xs rounded-xl px-3 py-2 font-mono focus:border-cyan-500 focus:outline-none"
                       />
                       <button
                         type="button"
@@ -1249,26 +1249,26 @@ export default function TechnicianPortal() {
 
                   {/* Resolution note */}
                   <div className="pt-2">
-                    <label className="text-[10px] uppercase font-mono text-slate-400 font-bold block mb-1">
+                    <label className="text-[10px] uppercase font-mono text-[#64748B] font-bold block mb-1">
                       Technician Work Resolution Summary:
                     </label>
                     <input
                       type="text"
                       value={resolutionNote}
                       onChange={(e) => setResolutionNote(e.target.value)}
-                      className="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 focus:border-emerald-500 focus:outline-none"
+                      className="w-full bg-[#FAF2EC] border border-[#DFB682] text-[#180018] text-xs rounded-xl px-3 py-2 focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
 
                   {/* Button to Mark Tasks or Services Done */}
-                  <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center gap-3">
+                  <div className="pt-3 border-t border-[#EADFD7] flex flex-col sm:flex-row items-center gap-3">
                     <button
                       type="button"
                       onClick={handleConfirmCompletion}
                       disabled={actionLoading !== null}
                       className="btn-solid-success w-full sm:flex-1 text-xs sm:text-sm py-3.5 px-6 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50"
                     >
-                      <IconCheckCircle className="w-5 h-5 text-white" />
+                      <IconCheckCircle className="w-5 h-5 text-[#180018]" />
                       <span>MARK TASK & SERVICE COMPLETED {extraTasksTotal > 0 ? `(+₹${extraTasksTotal} Extra)` : ''}</span>
                     </button>
                     <button
@@ -1288,11 +1288,11 @@ export default function TechnicianPortal() {
           </div>
         )
       })() : (
-        <div className="glass-panel rounded-2xl p-6 border-slate-800 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center mx-auto mb-2 text-slate-500">
+        <div className="glass-panel rounded-2xl p-6 border-[#EADFD7] text-center">
+          <div className="w-12 h-12 rounded-2xl bg-[#FAF2EC] border border-[#EADFD7] flex items-center justify-center mx-auto mb-2 text-slate-500">
             <IconTruck className="w-6 h-6" />
           </div>
-          <h4 className="text-sm font-bold text-slate-300">No Active Order Right Now</h4>
+          <h4 className="text-sm font-bold text-[#522959]">No Active Order Right Now</h4>
           <p className="text-xs text-slate-500 mt-0.5">
             You are online. Stay in {techData?.serviceZones?.join(', ') || 'your zone'} to receive instant dispatches.
           </p>
@@ -1300,14 +1300,14 @@ export default function TechnicianPortal() {
       )}
 
       {/* TODAY'S ASSIGNED SHIFT TIMELINE / QUEUE */}
-      <div className="glass-panel rounded-2xl border-slate-800 p-5 space-y-4">
-        <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+      <div className="glass-panel rounded-2xl border-[#EADFD7] p-5 space-y-4">
+        <div className="flex items-center justify-between pb-2 border-b border-[#EADFD7]">
           <div>
-            <h3 className="font-bold text-white text-sm flex items-center gap-2">
+            <h3 className="font-bold text-[#180018] text-sm flex items-center gap-2">
               <IconClock className="w-4 h-4 text-indigo-400" />
               <span>Assigned Shift Route & Schedule</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">Chronological queue for today's shift ({assignments.length} jobs assigned)</p>
+            <p className="text-xs text-[#64748B] mt-0.5">Chronological queue for today's shift ({assignments.length} jobs assigned)</p>
           </div>
           <span className="text-xs font-mono font-bold text-indigo-400 bg-indigo-950/80 px-2.5 py-1 rounded-lg border border-indigo-800">
             {assignments.length} Scheduled
@@ -1325,20 +1325,20 @@ export default function TechnicianPortal() {
                   className={`p-3.5 rounded-xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${job.status === 'IN_PROGRESS'
                     ? 'bg-indigo-950/40 border-indigo-500/70'
                     : job.status === 'COMPLETED'
-                      ? 'bg-slate-950/50 border-slate-800/80 opacity-60'
-                      : 'bg-slate-900/60 border-slate-800 hover:border-slate-700'
+                      ? 'bg-white/50 border-[#EADFD7]/80 opacity-60'
+                      : 'bg-[#FAF2EC]/60 border-[#EADFD7] hover:border-[#DFB682]'
                     }`}
                 >
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-white">{job.title}</span>
+                      <span className="text-xs font-bold text-[#180018]">{job.title}</span>
                       {isLocked && (
                         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-mono">
                           LOCKED
                         </span>
                       )}
                     </div>
-                    <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-2 font-mono">
+                    <div className="text-[11px] text-[#64748B] mt-1 flex items-center gap-2 font-mono">
                       <span>{job.serviceZone}</span>
                       <span>•</span>
                       <span>
@@ -1355,7 +1355,7 @@ export default function TechnicianPortal() {
                       ? 'bg-emerald-950 text-emerald-400 border border-emerald-800'
                       : job.status === 'IN_PROGRESS'
                         ? 'bg-amber-950 text-amber-400 border border-amber-800'
-                        : 'bg-slate-800 text-slate-300'
+                        : 'bg-slate-800 text-[#522959]'
                       }`}
                   >
                     {job.status}
@@ -1383,8 +1383,8 @@ export default function TechnicianPortal() {
               <IconShieldCheck className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-white">Verify Customer 4-Digit PIN</h3>
-              <p className="text-xs text-slate-400 mt-1">
+              <h3 className="text-base font-bold text-[#180018]">Verify Customer 4-Digit PIN</h3>
+              <p className="text-xs text-[#64748B] mt-1">
                 Ask the customer for the security PIN displayed on their DispatchGrid tracking screen:
               </p>
             </div>
@@ -1402,7 +1402,7 @@ export default function TechnicianPortal() {
                 placeholder="e.g. 6410"
                 value={enteredPin}
                 onChange={(e) => setEnteredPin(e.target.value.replace(/\D/g, ''))}
-                className="w-44 text-center font-mono text-3xl font-black tracking-widest bg-slate-950 border border-indigo-500/60 text-white rounded-xl py-2.5 focus:outline-none focus:border-indigo-400 shadow-inner"
+                className="w-44 text-center font-mono text-3xl font-black tracking-widest bg-white border border-indigo-500/60 text-[#180018] rounded-xl py-2.5 focus:outline-none focus:border-indigo-400 shadow-inner"
                 autoFocus
               />
             </div>
@@ -1438,20 +1438,20 @@ export default function TechnicianPortal() {
             className="glass-panel rounded-2xl border-indigo-500/50 p-6 w-full max-w-md shadow-2xl space-y-4 animate-float-slow"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-start justify-between pb-3 border-b border-[#EADFD7]">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   <IconCheckCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-base">Work Completion & Materials Sheet</h3>
-                  <p className="text-xs text-slate-400">Urban Company standard itemized closeout</p>
+                  <h3 className="font-bold text-[#180018] text-base">Work Completion & Materials Sheet</h3>
+                  <p className="text-xs text-[#64748B]">Urban Company standard itemized closeout</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCompletionModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
+                className="text-[#64748B] hover:text-[#180018] p-1 rounded-lg"
               >
                 <IconX className="w-5 h-5" />
               </button>
@@ -1459,21 +1459,21 @@ export default function TechnicianPortal() {
 
             {/* Resolution Summary */}
             <div>
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block mb-1">
                 Resolution & Work Performed
               </label>
               <input
                 type="text"
                 value={resolutionNote}
                 onChange={(e) => setResolutionNote(e.target.value)}
-                className="w-full bg-slate-950 border border-slate-800 text-white text-xs rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none"
+                className="w-full bg-white border border-[#EADFD7] text-[#180018] text-xs rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none"
               />
             </div>
 
             {/* Consumables / Parts Installed Checkboxes */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+                <label className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider font-mono">
                   Consumables / Replacement Parts Used
                 </label>
                 <span className="text-[10px] text-emerald-400 font-mono font-bold">
@@ -1494,14 +1494,14 @@ export default function TechnicianPortal() {
                         )
                       }}
                       className={`w-full p-2 rounded-xl border text-left text-xs flex items-center justify-between transition-all cursor-pointer ${isChecked
-                        ? 'bg-indigo-950/70 border-indigo-500 text-white'
-                        : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                        ? 'bg-indigo-950/70 border-indigo-500 text-[#180018]'
+                        : 'bg-white/50 border-[#EADFD7] text-[#64748B] hover:border-[#DFB682]'
                         }`}
                     >
                       <div className="flex items-center gap-2">
-                        <span className={`w-4 h-4 rounded border flex items-center justify-center text-[10px] ${isChecked ? 'bg-indigo-600 border-indigo-500 text-white' : 'border-slate-700'
+                        <span className={`w-4 h-4 rounded border flex items-center justify-center text-[10px] ${isChecked ? 'bg-indigo-600 border-indigo-500 text-[#180018]' : 'border-[#DFB682]'
                           }`}>
-                          {isChecked ? <IconCheck className="w-3 h-3 text-white" /> : null}
+                          {isChecked ? <IconCheck className="w-3 h-3 text-[#180018]" /> : null}
                         </span>
                         <span>{part.name}</span>
                       </div>
@@ -1513,7 +1513,7 @@ export default function TechnicianPortal() {
             </div>
 
             {/* Warranty Badge */}
-            <div className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between text-[11px] text-slate-300">
+            <div className="p-2.5 rounded-xl bg-white border border-[#EADFD7] flex items-center justify-between text-[11px] text-[#522959]">
               <span className="flex items-center gap-1.5">
                 <IconShieldCheck className="w-4 h-4 text-emerald-400" />
                 <span>DispatchGrid 30-Day Service Guarantee Stamped</span>
@@ -1522,7 +1522,7 @@ export default function TechnicianPortal() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2.5 pt-2 border-t border-slate-800">
+            <div className="flex gap-2.5 pt-2 border-t border-[#EADFD7]">
               <button
                 type="button"
                 disabled={actionLoading !== null}
@@ -1563,20 +1563,20 @@ export default function TechnicianPortal() {
             className="glass-panel rounded-2xl border-amber-500/50 p-6 w-full max-w-md shadow-2xl space-y-4 animate-float-slow"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between pb-3 border-b border-slate-800">
+            <div className="flex items-start justify-between pb-3 border-b border-[#EADFD7]">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
                   <IconAlertTriangle className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-white text-base">Report On-Site Complication</h3>
-                  <p className="text-xs text-slate-400">Protects downstream bookings with algorithmic recovery</p>
+                  <h3 className="font-bold text-[#180018] text-base">Report On-Site Complication</h3>
+                  <p className="text-xs text-[#64748B]">Protects downstream bookings with algorithmic recovery</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowDelayModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-lg"
+                className="text-[#64748B] hover:text-[#180018] p-1 rounded-lg"
               >
                 <IconX className="w-5 h-5" />
               </button>
@@ -1584,7 +1584,7 @@ export default function TechnicianPortal() {
 
             {/* Delay Reason Presets */}
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              <label className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block">
                 Complication Cause
               </label>
               <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
@@ -1599,8 +1599,8 @@ export default function TechnicianPortal() {
                         setDelayMinutes(r.defaultMinutes)
                       }}
                       className={`w-full p-2.5 rounded-xl border text-left text-xs transition-all cursor-pointer ${isSelected
-                        ? 'bg-amber-950/70 border-amber-500 text-white'
-                        : 'bg-slate-950/50 border-slate-800 text-slate-400 hover:border-slate-700'
+                        ? 'bg-amber-950/70 border-amber-500 text-[#180018]'
+                        : 'bg-white/50 border-[#EADFD7] text-[#64748B] hover:border-[#DFB682]'
                         }`}
                     >
                       <div className="flex items-center justify-between">
@@ -1615,7 +1615,7 @@ export default function TechnicianPortal() {
 
             {/* Delay Duration Picker */}
             <div>
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1.5">
+              <label className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block mb-1.5">
                 Estimated Extra Duration
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -1626,7 +1626,7 @@ export default function TechnicianPortal() {
                     onClick={() => setDelayMinutes(mins)}
                     className={`py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${delayMinutes === mins
                       ? 'bg-amber-950 border-amber-500 text-amber-300'
-                      : 'bg-slate-950 border-slate-800 text-slate-400'
+                      : 'bg-white border-[#EADFD7] text-[#64748B]'
                       }`}
                   >
                     +{mins} Minutes
@@ -1636,7 +1636,7 @@ export default function TechnicianPortal() {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2.5 pt-2 border-t border-slate-800">
+            <div className="flex gap-2.5 pt-2 border-t border-[#EADFD7]">
               <button
                 type="button"
                 disabled={actionLoading !== null}
@@ -1719,7 +1719,7 @@ export default function TechnicianPortal() {
             {profileTab === 'BADGE' ? (
               <div className="space-y-4">
                 {/* The Badge */}
-                <div className="bg-gradient-to-br from-slate-900 via-indigo-950/60 to-slate-900 p-4 rounded-2xl border border-indigo-500/40 shadow-inner space-y-3">
+                <div className="bg-[#FAF2EC] border border-[#DFB682] p-4 rounded-2xl border border-indigo-500/40 shadow-inner space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-wider">
                       DISPATCHGRID VERIFIED FLEET ID
@@ -1730,12 +1730,12 @@ export default function TechnicianPortal() {
                   </div>
 
                   <div className="flex items-center gap-3.5 pt-1">
-                    <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-white font-black text-xl flex items-center justify-center shadow-lg border border-indigo-400 shrink-0">
+                    <div className="w-14 h-14 rounded-2xl bg-indigo-600 text-[#180018] font-black text-xl flex items-center justify-center shadow-lg border border-indigo-400 shrink-0">
                       {techData?.name ? techData.name.slice(0, 2).toUpperCase() : 'TC'}
                     </div>
                     <div>
-                      <div className="text-base font-black text-white">{techData?.name}</div>
-                      <div className="text-xs text-slate-300 font-mono">
+                      <div className="text-base font-black text-[#180018]">{techData?.name}</div>
+                      <div className="text-xs text-[#522959] font-mono">
                         ID: DG-TECH-{techData?.id ? techData.id.slice(0, 6).toUpperCase() : '9042'}
                       </div>
                       <div className="text-xs text-emerald-400 font-medium">
@@ -1745,20 +1745,20 @@ export default function TechnicianPortal() {
                   </div>
 
                   {/* Trust Badges */}
-                  <div className="pt-2 border-t border-slate-800/80 space-y-1.5 text-[11px]">
-                    <div className="flex items-center gap-2 text-slate-300">
+                  <div className="pt-2 border-t border-[#EADFD7]/80 space-y-1.5 text-[11px]">
+                    <div className="flex items-center gap-2 text-[#522959]">
                       <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       <span>Police Background Clearance: <strong>Verified (#KA-POL-8492)</strong></span>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-300">
+                    <div className="flex items-center gap-2 text-[#522959]">
                       <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       <span>Government Aadhaar e-KYC: <strong>Identity Confirmed</strong></span>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-300">
+                    <div className="flex items-center gap-2 text-[#522959]">
                       <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       <span>Trade Competency: <strong>NSDC Level 4 Master Technician</strong></span>
                     </div>
-                    <div className="flex items-center gap-2 text-slate-300">
+                    <div className="flex items-center gap-2 text-[#522959]">
                       <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
                       <span>Vehicle Equipment: <strong>Toolkit & Safety Gear Inspected</strong></span>
                     </div>
@@ -1779,14 +1779,14 @@ export default function TechnicianPortal() {
               /* Onboarding Form for Friend A */
               <form onSubmit={handleRegisterNewPartner} className="space-y-4 text-xs">
                 {/* 1-Click Fast Fill Specialist Credentials */}
-                <div className="p-3 bg-gradient-to-r from-indigo-950 via-slate-900 to-cyan-950 border border-indigo-500/40 rounded-xl flex items-center justify-between shadow-sm">
+                <div className="p-3 bg-[#FAF2EC] border border-[#DFB682] border border-indigo-500/40 rounded-xl flex items-center justify-between shadow-sm">
                   <div>
-                    <div className="font-bold text-white flex items-center gap-1.5">
+                    <div className="font-bold text-[#180018] flex items-center gap-1.5">
                       <IconZap className="w-4 h-4 text-cyan-400" />
                       <span>Fast Onboarding Preset</span>
                       <span className="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-700 px-1.5 py-0.2 rounded font-mono">CERTIFIED</span>
                     </div>
-                    <div className="text-[11px] text-slate-300 mt-0.5">Pre-selects all 5 trade skills and all 5 city service hubs.</div>
+                    <div className="text-[11px] text-[#522959] mt-0.5">Pre-selects all 5 trade skills and all 5 city service hubs.</div>
                   </div>
                   <button
                     type="button"
@@ -1810,7 +1810,7 @@ export default function TechnicianPortal() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
                       Technician / Partner Name *
                     </label>
                     <input
@@ -1819,12 +1819,12 @@ export default function TechnicianPortal() {
                       placeholder="e.g. Captain Arjun Rao"
                       value={newTechForm.name}
                       onChange={(e) => setNewTechForm({ ...newTechForm, name: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none"
+                      className="w-full bg-white border border-[#DFB682] text-[#180018] rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
                       Phone Number *
                     </label>
                     <input
@@ -1833,12 +1833,12 @@ export default function TechnicianPortal() {
                       placeholder="e.g. +91 98765 43210"
                       value={newTechForm.phone}
                       onChange={(e) => setNewTechForm({ ...newTechForm, phone: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-mono"
+                      className="w-full bg-white border border-[#DFB682] text-[#180018] rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-mono"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
                       Partner Email (for instant job notification alerts) *
                     </label>
                     <input
@@ -1847,14 +1847,14 @@ export default function TechnicianPortal() {
                       placeholder="e.g. 4mh23is094@gmail.com"
                       value={newTechForm.email}
                       onChange={(e) => setNewTechForm({ ...newTechForm, email: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-mono"
+                      className="w-full bg-white border border-[#DFB682] text-[#180018] rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-mono"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
                       Shift Start (24h)
                     </label>
                     <input
@@ -1862,11 +1862,11 @@ export default function TechnicianPortal() {
                       placeholder="08:00"
                       value={newTechForm.shiftStart}
                       onChange={(e) => setNewTechForm({ ...newTechForm, shiftStart: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-mono text-center"
+                      className="w-full bg-white border border-[#DFB682] text-[#180018] rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-mono text-center"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
                       Shift End (24h)
                     </label>
                     <input
@@ -1874,14 +1874,14 @@ export default function TechnicianPortal() {
                       placeholder="20:00"
                       value={newTechForm.shiftEnd}
                       onChange={(e) => setNewTechForm({ ...newTechForm, shiftEnd: e.target.value })}
-                      className="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-mono text-center"
+                      className="w-full bg-white border border-[#DFB682] text-[#180018] rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none font-mono text-center"
                     />
                   </div>
                 </div>
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider">
                       Qualified Trade Skills * ({newTechForm.skills.length} selected)
                     </label>
                     <button
@@ -1906,7 +1906,7 @@ export default function TechnicianPortal() {
                             ...p,
                             skills: isSel ? p.skills.filter(s => s !== sk.id) : [...p.skills, sk.id]
                           }))}
-                          className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${isSel ? 'bg-indigo-950/80 border-indigo-500 text-white shadow-sm' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                          className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${isSel ? 'bg-indigo-950/80 border-indigo-500 text-[#180018] shadow-sm' : 'bg-white border-[#EADFD7] text-[#64748B] hover:border-[#DFB682]'
                             }`}
                         >
                           <span className="font-medium text-[11px]">{sk.label}</span>
@@ -1919,7 +1919,7 @@ export default function TechnicianPortal() {
 
                 <div>
                   <div className="flex items-center justify-between mb-1.5">
-                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider">
+                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider">
                       Service Operating Zones * ({newTechForm.zones.length} selected)
                     </label>
                     <button
@@ -1944,7 +1944,7 @@ export default function TechnicianPortal() {
                             ...p,
                             zones: isSel ? p.zones.filter(z => z !== zn.id) : [...p.zones, zn.id]
                           }))}
-                          className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${isSel ? 'bg-cyan-950/80 border-cyan-500 text-white shadow-sm' : 'bg-slate-950 border-slate-800 text-slate-400 hover:border-slate-700'
+                          className={`p-2.5 rounded-xl border text-left flex items-center justify-between transition-all cursor-pointer ${isSel ? 'bg-cyan-950/80 border-cyan-500 text-[#180018] shadow-sm' : 'bg-white border-[#EADFD7] text-[#64748B] hover:border-[#DFB682]'
                             }`}
                         >
                           <span className="font-medium text-[11px]">{zn.label}</span>
@@ -1955,8 +1955,8 @@ export default function TechnicianPortal() {
                   </div>
                 </div>
 
-                <div className="p-3 bg-slate-950/80 rounded-xl border border-slate-800 text-[11px] text-slate-400 space-y-1">
-                  <div className="text-white font-bold flex items-center gap-1.5">
+                <div className="p-3 bg-white/80 rounded-xl border border-[#EADFD7] text-[11px] text-[#64748B] space-y-1">
+                  <div className="text-[#180018] font-bold flex items-center gap-1.5">
                     <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                     <span>Instant Fleet Matching Guarantee</span>
                   </div>
@@ -1989,18 +1989,18 @@ export default function TechnicianPortal() {
       {/* DISPATCHED MAILS & ALERTS LIVE FEED DRAWER / MODAL */}
       {showMailFeed && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl space-y-4">
-            <div className="flex items-start justify-between pb-3 border-b border-slate-800">
+          <div className="bg-[#FAF2EC] border border-cyan-500/50 rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl space-y-4">
+            <div className="flex items-start justify-between pb-3 border-b border-[#EADFD7]">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <IconMail className="w-5 h-5 text-cyan-400" />
-                  <h3 className="font-bold text-white text-base">Dispatched Mails & Fleet Alerts Feed</h3>
+                  <h3 className="font-bold text-[#180018] text-base">Dispatched Mails & Fleet Alerts Feed</h3>
                   <span className="text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-700/80 px-2 py-0.5 rounded-full font-mono">
                     Gmail SMTP Active
                   </span>
                 </div>
-                <p className="text-xs text-slate-400">
-                  Real transactional emails sent by the platform. All emails are copied via BCC to <strong className="text-white">4mh23is094@gmail.com</strong>.
+                <p className="text-xs text-[#64748B]">
+                  Real transactional emails sent by the platform. All emails are copied via BCC to <strong className="text-[#180018]">4mh23is094@gmail.com</strong>.
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -2017,7 +2017,7 @@ export default function TechnicianPortal() {
                     }
                   }}
                   disabled={mailFeedLoading}
-                  className="p-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer text-xs flex items-center gap-1"
+                  className="p-2 text-[#522959] hover:text-[#180018] bg-slate-800 hover:bg-slate-700 border border-[#DFB682] rounded-xl cursor-pointer text-xs flex items-center gap-1"
                   title="Refresh mail feed"
                 >
                   <IconSparkles className={`w-3.5 h-3.5 text-cyan-400 ${mailFeedLoading ? 'animate-spin' : ''}`} />
@@ -2026,7 +2026,7 @@ export default function TechnicianPortal() {
                 <button
                   type="button"
                   onClick={() => setShowMailFeed(false)}
-                  className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer"
+                  className="p-2 text-[#64748B] hover:text-[#180018] bg-slate-800 hover:bg-slate-700 border border-[#DFB682] rounded-xl cursor-pointer"
                 >
                   <IconX className="w-4 h-4" />
                 </button>
@@ -2035,9 +2035,9 @@ export default function TechnicianPortal() {
 
             <div className="overflow-y-auto space-y-3 flex-1 pr-1 custom-scrollbar">
               {recentEmails.length === 0 ? (
-                <div className="py-12 text-center text-slate-400 space-y-2">
+                <div className="py-12 text-center text-[#64748B] space-y-2">
                   <IconMail className="w-8 h-8 mx-auto text-slate-600" />
-                  <div className="text-sm font-semibold text-slate-300">No emails dispatched yet in this runtime</div>
+                  <div className="text-sm font-semibold text-[#522959]">No emails dispatched yet in this runtime</div>
                   <div className="text-xs text-slate-500">
                     Offers accepted or dispatches will appear here immediately.
                   </div>
@@ -2046,20 +2046,20 @@ export default function TechnicianPortal() {
                 recentEmails.map((email: any) => (
                   <div
                     key={email.id}
-                    className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 transition-all space-y-2.5"
+                    className="p-4 rounded-2xl bg-white/90 border border-[#EADFD7] hover:border-cyan-500/50 transition-all space-y-2.5"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                        <span className="text-xs font-bold text-white font-mono">{email.subject}</span>
+                        <span className="text-xs font-bold text-[#180018] font-mono">{email.subject}</span>
                       </div>
-                      <span className="text-[10px] text-slate-400 font-mono">
+                      <span className="text-[10px] text-[#64748B] font-mono">
                         {new Date(email.sentAt).toLocaleTimeString()}
                       </span>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="text-slate-400">To:</span>
+                      <span className="text-[#64748B]">To:</span>
                       <span className="font-mono text-cyan-300 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/60">
                         {email.to}
                       </span>
@@ -2082,7 +2082,7 @@ export default function TechnicianPortal() {
                         </span>
                       )}
                       {email.distanceKm && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-300 bg-slate-900 border border-slate-700 px-2 py-0.5 rounded-lg">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#522959] bg-[#FAF2EC] border border-[#DFB682] px-2 py-0.5 rounded-lg">
                           <IconMapPin className="w-3 h-3 text-cyan-400" />
                           {email.distanceKm} km
                         </span>
@@ -2093,7 +2093,7 @@ export default function TechnicianPortal() {
                     </div>
 
                     {email.preview && (
-                      <div className="text-[11px] text-slate-400 bg-slate-900/70 p-2.5 rounded-xl border border-slate-800/80 line-clamp-2 font-mono">
+                      <div className="text-[11px] text-[#64748B] bg-[#FAF2EC]/70 p-2.5 rounded-xl border border-[#EADFD7]/80 line-clamp-2 font-mono">
                         {email.preview}
                       </div>
                     )}
@@ -2102,11 +2102,11 @@ export default function TechnicianPortal() {
               )}
             </div>
 
-            <div className="pt-2 border-t border-slate-800 flex justify-end">
+            <div className="pt-2 border-t border-[#EADFD7] flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowMailFeed(false)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold cursor-pointer"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-[#522959] hover:text-[#180018] rounded-xl text-xs font-bold cursor-pointer"
               >
                 Close Feed
               </button>
