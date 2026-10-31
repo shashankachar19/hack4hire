@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Dashboard from '../components/Dashboard'
 import ScheduleTimeline from '../components/ScheduleTimeline'
 import FleetRadar from '../components/FleetRadar'
@@ -6,9 +6,8 @@ import UnassignedPanel from '../components/UnassignedPanel'
 import AuditHistory from '../components/AuditHistory'
 import ControlPanel from '../components/ControlPanel'
 import DiffModal from '../components/DiffModal'
-import ExternalToolsModal from '../components/ExternalToolsModal'
-import ArchitectureModal from '../components/ArchitectureModal'
-import { api } from '../api'
+import CustomerManager from '../components/CustomerManager'
+import EmployeeManager from '../components/EmployeeManager'
 import {
   IconActivity,
   IconClock,
@@ -17,12 +16,14 @@ import {
   IconLayers,
   IconCheckCircle,
   IconXCircle,
-  IconSparkles,
-  IconServer,
+  IconUsers,
+  IconHardHat,
 } from '../components/Icons'
 
 const ADMIN_TABS = [
   { id: 'Dashboard', label: 'Command Center', icon: IconActivity },
+  { id: 'Customers', label: 'Customers', icon: IconUsers },
+  { id: 'Employees', label: 'Employees (Fleet)', icon: IconHardHat },
   { id: 'Timeline', label: 'Timeline Gantt', icon: IconClock },
   { id: 'Radar', label: 'Fleet Geospatial Radar', icon: IconRadio },
   { id: 'Unassigned', label: 'Unassigned & Recovery', icon: IconAlertTriangle },
@@ -35,9 +36,6 @@ export default function AdminPortal() {
   const [activeTab, setActiveTab] = useState<AdminTabId>('Dashboard')
   const [refreshKey, setRefreshKey] = useState(0)
   const [diffRun, setDiffRun] = useState<any>(null)
-  const [showToolsModal, setShowToolsModal] = useState(false)
-  const [showArchModal, setShowArchModal] = useState(false)
-  const [currentSchedule, setCurrentSchedule] = useState<any>(null)
   const [toast, setToast] = useState<{ msg: string; type: 'success' | 'error' } | null>(null)
 
   const refresh = () => setRefreshKey((k) => k + 1)
@@ -46,58 +44,30 @@ export default function AdminPortal() {
     setTimeout(() => setToast(null), 4000)
   }
 
-  // Poll current schedule every 2 seconds for live sync with Customer & Technician portals
-  useEffect(() => {
-    api.getCurrentSchedule()
-      .then(setCurrentSchedule)
-      .catch(() => {})
-    const interval = setInterval(() => {
-      api.getCurrentSchedule().then(setCurrentSchedule).catch(() => {})
-    }, 2000)
-    return () => clearInterval(interval)
-  }, [refreshKey])
-
   return (
     <div className="space-y-6">
-      {/* Admin Action Sub-Header */}
+      {/* Streamlined Admin Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#824D69]/40">
         <div>
           <div className="flex items-center gap-2">
             <h2 className="text-xl font-black tracking-tight text-[#FAE5D8]">Fleet Dispatch Command Center</h2>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#2A114B] text-[#DFB6B2] border border-[#824D69]/60 font-mono uppercase tracking-wider">
+            <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#2A114B] text-[#DFB6B2] border border-[#824D69]/60 font-mono uppercase tracking-wider">
               Dispatcher View (Admin)
             </span>
           </div>
           <p className="text-xs text-[#DFB6B2]/80 mt-0.5">
-            Real-time multi-objective scheduling heuristic, 100-technician fleet telemetry, and zero-collision disruption recovery.
+            Real-time multi-objective scheduling heuristic, 100-technician fleet telemetry, and customer record management.
           </p>
         </div>
 
+        {/* Clean, essential controls only */}
         <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowArchModal(true)}
-            className="btn-solid-secondary flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
-            title="System Architecture & Optimization Specifications"
-          >
-            <IconServer className="w-3.5 h-3.5 text-[#DFB6B2]" />
-            <span className="hidden sm:inline">System Specs</span>
-          </button>
-
-          <button
-            onClick={() => setShowToolsModal(true)}
-            className="btn-solid-secondary flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
-            title="Google Calendar, Vehicle Telematics, Webhooks, and Capacity AI"
-          >
-            <IconSparkles className="w-3.5 h-3.5 text-[#FAE5D8]" />
-            <span>Integrations</span>
-          </button>
-
           <ControlPanel onRefresh={refresh} onShowToast={showToast} onShowDiff={setDiffRun} />
         </div>
       </div>
 
       {/* Admin Navigation Tabs */}
-      <div className="bg-[#2A114B]/80 backdrop-blur-md border border-[#824D69]/50 rounded-2xl p-1">
+      <div className="bg-[#2A114B]/80 backdrop-blur-md border border-[#824D69]/50 rounded-2xl p-1 shadow-md">
         <div className="flex gap-1.5 overflow-x-auto">
           {ADMIN_TABS.map((tab) => {
             const Icon = tab.icon
@@ -141,23 +111,16 @@ export default function AdminPortal() {
       {/* Tab Panels */}
       <div>
         {activeTab === 'Dashboard' && <Dashboard key={refreshKey} onShowDiff={setDiffRun} />}
+        {activeTab === 'Customers' && <CustomerManager onShowToast={showToast} />}
+        {activeTab === 'Employees' && <EmployeeManager onShowToast={showToast} />}
         {activeTab === 'Timeline' && <ScheduleTimeline key={refreshKey} />}
         {activeTab === 'Radar' && <FleetRadar key={refreshKey} />}
         {activeTab === 'Unassigned' && <UnassignedPanel key={refreshKey} />}
         {activeTab === 'Audit' && <AuditHistory key={refreshKey} onShowDiff={setDiffRun} />}
       </div>
 
-      {/* Modals */}
+      {/* Diff Run Modal */}
       {diffRun && <DiffModal run={diffRun} onClose={() => setDiffRun(null)} />}
-      {showToolsModal && (
-        <ExternalToolsModal
-          schedule={currentSchedule || { schedule: [] }}
-          onClose={() => setShowToolsModal(false)}
-          onShowToast={showToast}
-        />
-      )}
-      {showArchModal && <ArchitectureModal onClose={() => setShowArchModal(false)} />}
     </div>
   )
 }
-

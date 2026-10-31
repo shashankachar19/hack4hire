@@ -32,6 +32,9 @@ import {
   IconBell,
   IconBike,
   IconUser,
+  IconCreditCard,
+  IconQrCode,
+  IconWallet,
 } from '../components/Icons'
 
 function getCategoryIcon(id: string, className = 'w-6 h-6 text-cyan-400') {
@@ -258,34 +261,51 @@ function playAlertChime() {
 
 
 function ConfettiCanvas() {
-  const pieces = Array.from({ length: 50 }).map((_, i) => ({
+  const pieces = Array.from({ length: 80 }).map((_, i) => ({
     id: i,
-    left: ((i * 2 + 1) % 98) + '%',
-    delay: ((i * 0.07) % 2.5) + 's',
-    duration: (2.2 + (i % 5) * 0.4) + 's',
-    color: ['#522959', '#DFB682', '#059669', '#f59e0b', '#2563eb', '#dc2626', '#824D69'][i % 7],
-    size: 6 + (i % 5) * 2,
-    rotate: (i * 37) % 360,
+    left: ((i * 1.25 + 1) % 98) + '%',
+    delay: ((i * 0.05) % 3) + 's',
+    duration: (2.0 + (i % 6) * 0.35) + 's',
+    color: ['#522959', '#DFB6B2', '#10b981', '#f59e0b', '#3b82f6', '#ec4899', '#824D69', '#FAE5D8'][i % 8],
+    size: 7 + (i % 5) * 2.5,
+    rotate: (i * 41) % 360,
+    isEmoji: i % 7 === 0,
+    emoji: ['🎉', '✨', '⭐', '🎊', '🌸', '💖'][i % 6],
   }));
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[100] overflow-hidden">
+    <div className="fixed inset-0 pointer-events-none z-[200] overflow-hidden">
       {pieces.map((p) => (
-        <div
-          key={p.id}
-          className="absolute animate-confetti-fall"
-          style={{
-            left: p.left,
-            top: '-20px',
-            width: p.size + 'px',
-            height: (p.size * 1.4) + 'px',
-            backgroundColor: p.color,
-            borderRadius: p.id % 3 === 0 ? '50%' : '2px',
-            transform: 'rotate(' + p.rotate + 'deg)',
-            animationDelay: p.delay,
-            animationDuration: p.duration,
-          }}
-        />
+        p.isEmoji ? (
+          <div
+            key={p.id}
+            className="absolute animate-confetti-fall select-none pointer-events-none text-xl"
+            style={{
+              left: p.left,
+              top: '-30px',
+              animationDelay: p.delay,
+              animationDuration: p.duration,
+            }}
+          >
+            {p.emoji}
+          </div>
+        ) : (
+          <div
+            key={p.id}
+            className="absolute animate-confetti-fall pointer-events-none shadow-sm"
+            style={{
+              left: p.left,
+              top: '-20px',
+              width: p.size + 'px',
+              height: (p.size * 1.5) + 'px',
+              backgroundColor: p.color,
+              borderRadius: p.id % 3 === 0 ? '50%' : '3px',
+              transform: 'rotate(' + p.rotate + 'deg)',
+              animationDelay: p.delay,
+              animationDuration: p.duration,
+            }}
+          />
+        )
       ))}
     </div>
   );
@@ -360,6 +380,10 @@ export default function CustomerPortal() {
   const [preferredTechId, setPreferredTechId] = useState<string>('')
   const [showAssignedPopup, setShowAssignedPopup] = useState<boolean>(false)
   const [showCompletionModal, setShowCompletionModal] = useState<boolean>(false)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'UPI' | 'CARD' | 'POD' | 'WALLET'>('UPI')
+  const [dummyUpiId, setDummyUpiId] = useState<string>('customer@oksbi')
+  const [showQrPreview, setShowQrPreview] = useState<boolean>(false)
+  const [isAuthorizingPayment, setIsAuthorizingPayment] = useState<boolean>(false)
   const hasShownCompletionModalRef = useRef<string | null>(null)
   const hasShownAssignedPopupRef = useRef<string | null>(null)
 
@@ -497,11 +521,14 @@ export default function CustomerPortal() {
           } else if (fresh.status === 'IN_PROGRESS' && activeOrder.job.status !== 'IN_PROGRESS') {
             playDispatchChime()
             showToast(`Security PIN verified! ${techName} started repairs on site.`)
-          } else if (fresh.status === 'COMPLETED' && activeOrder.job.status !== 'COMPLETED') {
-            playSuccessChime()
-            showToast(`Service completed! Official tax invoice and 30-day warranty certificate ready.`)
+          } else if (fresh.status === 'COMPLETED') {
+            if (activeOrder.job.status !== 'COMPLETED') {
+              playSuccessChime()
+              showToast(`Service completed! Official tax invoice and 30-day warranty certificate ready.`)
+            }
             if (hasShownCompletionModalRef.current !== fresh.id) {
               hasShownCompletionModalRef.current = fresh.id
+              playSuccessChime()
               setShowCompletionModal(true)
             }
           } else if (freshDesc.reassignedTo && freshDesc.reassignedTo !== prevDesc.reassignedTo) {
@@ -930,7 +957,7 @@ export default function CustomerPortal() {
     // Generate secure 4-digit start-service PIN (Uber/Urban Company style)
     const generatedOtp = Math.floor(1000 + Math.random() * 9000).toString()
 
-    const customerDossier = {
+    const customerDossier: any = {
       customerId: currentCust.id,
       name: currentCust.name,
       phone: currentCust.phone,
@@ -958,14 +985,30 @@ export default function CustomerPortal() {
       slaDeadline: slaDeadline.toISOString(),
     }
 
+    const txnId = 'DG-PAY-' + Math.floor(100000 + Math.random() * 900000)
+    customerDossier.paymentMethod = selectedPaymentMethod
+    customerDossier.paymentTxnId = txnId
+    customerDossier.paymentStatus = selectedPaymentMethod === 'POD' ? 'PAY_ON_COMPLETION' : 'PAID_PREPAID'
+    payload.description = JSON.stringify(customerDossier)
+
     try {
-      await new Promise((r) => setTimeout(r, 1000))
+      if (selectedPaymentMethod !== 'POD') {
+        setIsAuthorizingPayment(true)
+        showToast(`Authorizing ₹${totalEstimatedFare} via NPCI / Razorpay Sandbox...`)
+        await new Promise((r) => setTimeout(r, 1200))
+        setIsAuthorizingPayment(false)
+        showToast(`Payment Authorized! Ref: ${txnId}`)
+      } else {
+        await new Promise((r) => setTimeout(r, 800))
+      }
       const res = await api.instantMatch(payload)
       const orderData = {
         ...res,
         otp: generatedOtp,
         gateNote: customerDossier.gateNote,
         customer: customerDossier,
+        paymentMethod: selectedPaymentMethod,
+        paymentTxnId: txnId,
       }
       setActiveOrder(orderData)
       setReallocationSecondsLeft(60) // Reset 1m reallocation countdown
@@ -987,6 +1030,8 @@ export default function CustomerPortal() {
         gateNote: orderData.gateNote,
         technicianName: res.assignment?.technician?.name || 'Alex Martinez',
         customer: customerDossier,
+        paymentMethod: selectedPaymentMethod,
+        paymentTxnId: txnId,
         createdAt: new Date().toISOString(),
       }
       const updatedList = [newBookingRecord, ...bookings]
@@ -1881,7 +1926,41 @@ export default function CustomerPortal() {
 
           {/* Rating Section on Completion */}
           {jobStatus === 'COMPLETED' && (
-            <div className="p-5 bg-gradient-to-r from-emerald-950/50 via-slate-900 to-emerald-950/30 rounded-2xl border border-emerald-500/40 text-center space-y-3">
+            <div className="p-6 bg-[#2A114B] rounded-2xl border-2 border-[#824D69] text-center space-y-4 shadow-2xl">
+              <div className="w-16 h-16 rounded-2xl bg-[#180018] border border-[#824D69] text-[#FAE5D8] flex items-center justify-center mx-auto text-3xl shadow-md">
+                🎉
+              </div>
+              <div>
+                <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-[#180018] text-emerald-400 border border-emerald-500/40 uppercase font-mono tracking-wider">
+                  Service 100% Completed
+                </span>
+                <h4 className="text-lg font-black text-[#FAE5D8] mt-2">
+                  Thank You for Choosing DispatchGrid!
+                </h4>
+                <p className="text-xs text-[#DFB6B2] mt-1 max-w-md mx-auto">
+                  Your certified emergency trade service has concluded with verified five-star quality. 30-day warranty certificate is now active.
+                </p>
+              </div>
+
+              {/* Prominent Confetti & Celebration Replay Button */}
+              <div className="flex flex-wrap items-center justify-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setShowCompletionModal(true)}
+                  className="btn-solid-primary py-3 px-6 rounded-xl text-xs sm:text-sm font-black shadow-lg cursor-pointer flex items-center justify-center gap-2 active:scale-95"
+                >
+                  <span className="text-base">🎉</span>
+                  <span>View Completion Celebration & Confetti</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => downloadInvoice()}
+                  className="btn-solid-secondary py-3 px-4 rounded-xl text-xs font-bold shadow-sm cursor-pointer flex items-center gap-1.5"
+                >
+                  <IconDollarSign className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Download Tax Invoice</span>
+                </button>
+              </div>
               <h4 className="text-sm font-bold text-white">How was your service with {assignedTech?.name || 'our partner'}?</h4>
               <div className="flex justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -2162,6 +2241,193 @@ export default function CustomerPortal() {
             />
           </div>
 
+          {/* 3. SELECT PAYMENT METHOD (SIMULATED SECURE SANDBOX) */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-[#FAE5D8] flex items-center gap-1.5 uppercase tracking-wider font-mono">
+                <IconCreditCard className="w-4 h-4 text-emerald-400" />
+                <span>3. Payment Method (Simulated Sandbox)</span>
+              </label>
+              <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                <IconShieldCheck className="w-3.5 h-3.5" />
+                <span>256-Bit SSL Encrypted</span>
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {/* UPI */}
+              <button
+                type="button"
+                onClick={() => setSelectedPaymentMethod('UPI')}
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative ${
+                  selectedPaymentMethod === 'UPI'
+                    ? 'bg-[#522959] border-[#824D69] text-[#FAE5D8] shadow-md'
+                    : 'bg-[#2A114B]/70 border-[#824D69]/40 text-[#DFB6B2] hover:bg-[#2A114B]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold font-mono">📱 UPI / QR</span>
+                  {selectedPaymentMethod === 'UPI' && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  )}
+                </div>
+                <div className="text-[10px] text-[#DFB6B2]/80">GPay, PhonePe, Paytm</div>
+                <div className="text-[9px] text-emerald-400 font-mono mt-1 font-semibold">Zero Surcharge</div>
+              </button>
+
+              {/* Card */}
+              <button
+                type="button"
+                onClick={() => setSelectedPaymentMethod('CARD')}
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative ${
+                  selectedPaymentMethod === 'CARD'
+                    ? 'bg-[#522959] border-[#824D69] text-[#FAE5D8] shadow-md'
+                    : 'bg-[#2A114B]/70 border-[#824D69]/40 text-[#DFB6B2] hover:bg-[#2A114B]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold font-mono">💳 Card</span>
+                  {selectedPaymentMethod === 'CARD' && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  )}
+                </div>
+                <div className="text-[10px] text-[#DFB6B2]/80">Visa, Mastercard, RuPay</div>
+                <div className="text-[9px] text-emerald-400 font-mono mt-1 font-semibold">•••• 4242</div>
+              </button>
+
+              {/* Pay on Completion */}
+              <button
+                type="button"
+                onClick={() => setSelectedPaymentMethod('POD')}
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative ${
+                  selectedPaymentMethod === 'POD'
+                    ? 'bg-[#522959] border-[#824D69] text-[#FAE5D8] shadow-md'
+                    : 'bg-[#2A114B]/70 border-[#824D69]/40 text-[#DFB6B2] hover:bg-[#2A114B]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold font-mono">💵 Cash / POD</span>
+                  {selectedPaymentMethod === 'POD' && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  )}
+                </div>
+                <div className="text-[10px] text-[#DFB6B2]/80">Pay Upon Completion</div>
+                <div className="text-[9px] text-[#DFB6B2] font-mono mt-1 font-semibold">₹0 Advance</div>
+              </button>
+
+              {/* Wallet */}
+              <button
+                type="button"
+                onClick={() => setSelectedPaymentMethod('WALLET')}
+                className={`p-3 rounded-2xl border text-left transition-all cursor-pointer relative ${
+                  selectedPaymentMethod === 'WALLET'
+                    ? 'bg-[#522959] border-[#824D69] text-[#FAE5D8] shadow-md'
+                    : 'bg-[#2A114B]/70 border-[#824D69]/40 text-[#DFB6B2] hover:bg-[#2A114B]'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold font-mono flex items-center gap-1.5"><IconWallet className="w-3.5 h-3.5 text-emerald-400" /><span>DG Wallet</span></span>
+                  {selectedPaymentMethod === 'WALLET' && (
+                    <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  )}
+                </div>
+                <div className="text-[10px] text-[#DFB6B2]/80">Instant 1-Tap Pay</div>
+                <div className="text-[9px] text-emerald-400 font-mono mt-1 font-semibold">Bal: ₹2,450</div>
+              </button>
+            </div>
+
+            {/* Method Details Row */}
+            {selectedPaymentMethod === 'UPI' && (
+              <div className="p-3.5 rounded-xl bg-[#180018]/90 border border-[#824D69]/50 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <span className="text-[11px] font-mono text-[#DFB6B2]/80">UPI VPA:</span>
+                  <input
+                    type="text"
+                    value={dummyUpiId}
+                    onChange={(e) => setDummyUpiId(e.target.value)}
+                    className="bg-[#2A114B] border border-[#824D69]/60 px-3 py-1.5 rounded-lg text-xs font-mono text-[#FAE5D8] focus:outline-none focus:border-[#DFB6B2] w-full sm:w-48"
+                  />
+                  <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
+                    ✓ NPCI Verified
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowQrPreview(!showQrPreview)}
+                  className="btn-solid-secondary px-3 py-1.5 rounded-lg text-xs font-mono font-bold cursor-pointer flex items-center gap-1.5 ml-auto sm:ml-0"
+                >
+                  <IconQrCode className="w-3.5 h-3.5 text-[#DFB6B2]" />
+                  <span>{showQrPreview ? 'Hide QR' : 'Show Instant QR'}</span>
+                </button>
+              </div>
+            )}
+
+            {showQrPreview && selectedPaymentMethod === 'UPI' && (
+              <div className="p-4 rounded-xl bg-[#180018] border border-[#824D69] text-center space-y-2 animate-scaleIn max-w-xs mx-auto">
+                <div className="text-[11px] font-mono font-bold text-[#FAE5D8]">Scan with GPay / PhonePe / Paytm</div>
+                <div className="w-40 h-40 bg-white p-2 rounded-xl mx-auto flex items-center justify-center">
+                  <div className="w-full h-full border-4 border-black p-1 flex flex-col justify-between">
+                    <div className="flex justify-between">
+                      <div className="w-8 h-8 bg-black"></div>
+                      <div className="w-8 h-8 bg-black"></div>
+                    </div>
+                    <div className="text-[10px] font-black text-black font-mono">₹{totalEstimatedFare} UPI</div>
+                    <div className="flex justify-between">
+                      <div className="w-8 h-8 bg-black"></div>
+                      <div className="w-6 h-6 bg-black"></div>
+                    </div>
+                  </div>
+                </div>
+                <div className="text-[10px] text-[#DFB6B2]/70 font-mono">Simulated Razorpay / NPCI Sandbox Gateway</div>
+              </div>
+            )}
+
+            {selectedPaymentMethod === 'CARD' && (
+              <div className="p-3.5 rounded-xl bg-[#180018]/90 border border-[#824D69]/50 flex items-center justify-between text-xs font-mono">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">💳</span>
+                  <div>
+                    <div className="font-bold text-[#FAE5D8]">HDFC Regalia Black •••• 4242</div>
+                    <div className="text-[10px] text-[#DFB6B2]/70">Exp: 08/29 • CVV: Verified • RBI Tokenized</div>
+                  </div>
+                </div>
+                <span className="text-[10px] text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                  Ready to Charge
+                </span>
+              </div>
+            )}
+
+            {selectedPaymentMethod === 'WALLET' && (
+              <div className="p-3.5 rounded-xl bg-[#180018]/90 border border-[#824D69]/50 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">👛</span>
+                  <div>
+                    <div className="font-bold text-[#FAE5D8]">DispatchGrid Instant Wallet</div>
+                    <div className="text-[10px] text-emerald-400 font-mono">Available Balance: ₹2,450.00 (+₹50 Cashback on this order)</div>
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-lg border border-emerald-500/30">
+                  1-Tap Checkout
+                </span>
+              </div>
+            )}
+
+            {selectedPaymentMethod === 'POD' && (
+              <div className="p-3.5 rounded-xl bg-[#180018]/90 border border-[#824D69]/50 flex items-center justify-between text-xs">
+                <div className="flex items-center gap-3">
+                  <span className="text-xl">💵</span>
+                  <div>
+                    <div className="font-bold text-[#FAE5D8]">Pay on Doorstep Completion</div>
+                    <div className="text-[10px] text-[#DFB6B2]/70">Pay specialist via Cash or Dynamic QR after complete job satisfaction.</div>
+                  </div>
+                </div>
+                <span className="text-[10px] font-mono text-[#DFB6B2] bg-[#2A114B] px-2.5 py-1 rounded-lg border border-[#824D69]/60">
+                  No Advance Required
+                </span>
+              </div>
+            )}
+          </div>
+
           {/* 4. Transparent Fare Breakdown Card (Urban Company style - Feature 3) */}
           <div className="glass-panel rounded-2xl border-indigo-500/30 overflow-hidden shadow-xl transition-all">
             {/* Top Bar with Total & Action Button */}
@@ -2194,10 +2460,15 @@ export default function CustomerPortal() {
               <button
                 type="button"
                 onClick={handleInstantBook}
-                disabled={isMatching}
+                disabled={isMatching || isAuthorizingPayment}
                 className="btn-solid-success w-full sm:w-auto text-sm px-7 py-3.5 rounded-xl flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg"
               >
-                {isMatching ? (
+                {isAuthorizingPayment ? (
+                  <>
+                    <IconRotateCw className="w-4 h-4 animate-spin text-white" />
+                    <span>Authorizing Sandbox Payment...</span>
+                  </>
+                ) : isMatching ? (
                   <>
                     <IconRotateCw className="w-4 h-4 animate-spin text-white" />
                     <span>Matching Nearest Specialist...</span>
@@ -2425,8 +2696,13 @@ export default function CustomerPortal() {
                               assignment: fresh.assignments?.[0],
                               otp: b.otp,
                               gateNote: b.gateNote,
+                              paymentMethod: b.paymentMethod || 'UPI',
+                              paymentTxnId: b.paymentTxnId || 'DG-PAY-88412',
                             })
                             setShowDrawer(false)
+                            if (fresh.status === 'COMPLETED') {
+                              setShowCompletionModal(true)
+                            }
                           })
                         }}
                         className="text-[11px] font-bold text-indigo-400 hover:text-indigo-300 cursor-pointer"
@@ -3481,6 +3757,12 @@ export default function CustomerPortal() {
               <div className="flex justify-between items-center pt-1 font-bold">
                 <span className="text-[#DFB6B2]">Total Bill Paid:</span>
                 <span className="text-emerald-400 text-sm font-mono">₹{activeOrder?.totalAmount || totalEstimatedFare}</span>
+              </div>
+              <div className="flex justify-between items-center pt-1 text-[11px] font-mono border-t border-[#824D69]/30">
+                <span className="text-[#DFB6B2]/70">Payment Settlement:</span>
+                <span className="text-emerald-400 font-bold">
+                  Paid via {activeOrder?.paymentMethod || selectedPaymentMethod || 'UPI'} ({activeOrder?.paymentTxnId || 'DG-PAY-88412'})
+                </span>
               </div>
             </div>
 

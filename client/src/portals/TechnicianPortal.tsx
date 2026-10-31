@@ -465,6 +465,9 @@ export default function TechnicianPortal() {
     if (!activeAssignment) return
     setActionLoading('completing')
     try {
+      if (activeAssignment.job.status === 'ASSIGNED') {
+        await api.updateJobState(activeAssignment.job.id, 'IN_PROGRESS');
+      }
       await api.updateJobState(activeAssignment.job.id, 'COMPLETED')
       await api.updateJobTransit(activeAssignment.job.id, {
         transitStage: 'COMPLETED',
