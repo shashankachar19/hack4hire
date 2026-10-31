@@ -181,10 +181,10 @@ export default function Dashboard({ onShowDiff }: DashboardProps) {
       {/* Priority and Status Breakdown */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Priority Card */}
-        <div className="glass-panel rounded-2xl border-slate-800 p-5">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center justify-between">
-            <span>Workforce Jobs by Priority Tier</span>
-            <span className="text-[10px] text-indigo-400 font-mono">100 Total</span>
+        <div className="glass-panel rounded-2xl border border-[#824D69]/40 p-5">
+          <h3 className="text-xs font-bold text-[#DFB6B2] uppercase tracking-wider mb-4 flex items-center justify-between">
+            <span className="text-[#FAE5D8]">Workforce Jobs by Priority Tier</span>
+            <span className="text-[10px] text-[#DFB6B2] font-mono">100 Ingested</span>
           </h3>
           <div className="space-y-3">
             {['CRITICAL', 'HIGH', 'MEDIUM', 'LOW'].map((p) => {
@@ -192,14 +192,14 @@ export default function Dashboard({ onShowDiff }: DashboardProps) {
               const pct = jobs.length > 0 ? (count / jobs.length) * 100 : 0
               return (
                 <div key={p} className="flex items-center gap-3">
-                  <span className="text-xs font-semibold text-slate-300 w-20">{p}</span>
-                  <div className="flex-1 bg-slate-950 rounded-full h-3.5 overflow-hidden p-0.5 border border-slate-800">
+                  <span className="text-xs font-semibold text-[#DFB6B2] w-20">{p}</span>
+                  <div className="flex-1 bg-[#180018] rounded-full h-3.5 overflow-hidden p-0.5 border border-[#824D69]/40">
                     <div
                       className={`h-full ${PRIORITY_COLORS[p]} rounded-full transition-all duration-500`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className="text-xs font-mono font-bold text-slate-200 w-10 text-right">{count}</span>
+                  <span className="text-xs font-mono font-bold text-[#FAE5D8] w-10 text-right">{count}</span>
                 </div>
               )
             })}
@@ -207,20 +207,20 @@ export default function Dashboard({ onShowDiff }: DashboardProps) {
         </div>
 
         {/* Status Card */}
-        <div className="glass-panel rounded-2xl border-slate-800 p-5">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center justify-between">
-            <span>Operational Finite State Machine</span>
+        <div className="glass-panel rounded-2xl border border-[#824D69]/40 p-5">
+          <h3 className="text-xs font-bold text-[#DFB6B2] uppercase tracking-wider mb-4 flex items-center justify-between">
+            <span className="text-[#FAE5D8]">Operational Finite State Machine</span>
             <span className="text-[10px] text-emerald-400 font-mono">Real-Time State</span>
           </h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
             {['PENDING', 'ASSIGNED', 'IN_PROGRESS', 'COMPLETED', 'UNASSIGNED', 'CANCELLED'].map((s) => {
-              const badge = STATUS_BADGES[s] || { color: 'text-slate-300', bg: 'bg-slate-900', border: 'border-slate-800' }
+              const badge = STATUS_BADGES[s] || { color: 'text-[#DFB6B2]', bg: 'bg-[#180018]', border: 'border-[#824D69]/40' }
               return (
                 <div key={s} className={`p-3 rounded-xl border ${badge.bg} ${badge.border} flex flex-col justify-between`}>
                   <span className={`text-[11px] font-bold tracking-wider ${badge.color}`}>
                     {s.replace('_', ' ')}
                   </span>
-                  <span className="text-xl font-bold font-mono text-white mt-1">
+                  <span className="text-xl font-bold font-mono text-[#FAE5D8] mt-1">
                     {statusCounts[s] || 0}
                   </span>
                 </div>
@@ -231,14 +231,14 @@ export default function Dashboard({ onShowDiff }: DashboardProps) {
       </div>
 
       {/* Technician Workload Card */}
-      <div className="glass-panel rounded-2xl border-slate-800 p-5">
+      <div className="glass-panel rounded-2xl border border-[#824D69]/40 p-5">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
           <div>
-            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-              <IconUsers className="w-4 h-4 text-indigo-400" />
-              <span>Technician Workload & Utilization Distribution</span>
+            <h3 className="text-xs font-bold text-[#FAE5D8] uppercase tracking-wider flex items-center gap-2">
+              <IconUsers className="w-4 h-4 text-[#DFB6B2]" />
+              <span>100-Technician Fleet Workload & Priority Roster</span>
             </h3>
-            <p className="text-xs text-slate-400 mt-0.5">Live shift utilization, skill profiles, and assigned job sequence.</p>
+            <p className="text-xs text-[#DFB6B2]/80 mt-0.5">Live shift utilization, skill profiles, and assigned job sequence.</p>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
             <input
@@ -246,10 +246,10 @@ export default function Dashboard({ onShowDiff }: DashboardProps) {
               placeholder="Search by name, skill, or zone..."
               value={techSearch}
               onChange={(e) => setTechSearch(e.target.value)}
-              className="bg-slate-900 border border-slate-700/80 rounded-xl px-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 w-full sm:w-56"
+              className="bg-[#180018] border border-[#824D69]/60 rounded-xl px-3 py-1.5 text-xs text-[#FAE5D8] placeholder-[#DFB6B2]/50 focus:outline-none focus:border-[#DFB6B2] w-full sm:w-60"
             />
-            <span className="text-xs text-slate-400 font-mono whitespace-nowrap hidden md:inline">
-              {summary.totalAssignments || 0} Assigned Across {summary.availableTechnicians || 0} Techs
+            <span className="text-xs text-[#DFB6B2] font-mono whitespace-nowrap hidden md:inline">
+              {summary.totalAssignments || 0} Assigned Across {summary.availableTechnicians || 100} Techs
             </span>
           </div>
         </div>

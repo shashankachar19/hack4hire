@@ -11,7 +11,7 @@ interface Props {
   onSelectPortal?: (portal: PortalType) => void
 }
 
-export default function PortalNavbar({ activePortal }: Props) {
+export default function PortalNavbar({ activePortal, onSelectPortal }: Props) {
   const isCustomer = activePortal === 'customer'
   const isTechnician = activePortal === 'technician'
   const isAdmin = activePortal === 'admin'
@@ -56,31 +56,52 @@ export default function PortalNavbar({ activePortal }: Props) {
           </div>
         </div>
 
-        {/* Dedicated Isolated Header Controls */}
-        {isCustomer && (
-          <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-            <div className="flex items-center gap-1.5 text-xs text-[#FAE5D8] font-medium bg-[#2A114B] px-3 py-1.5 rounded-xl border border-[#824D69]/50">
-              <IconShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Verified Dispatch Fleet</span>
-            </div>
-          </div>
-        )}
+        {/* Interactive Role Navigation Switcher */}
+        <div className="flex items-center gap-2.5 w-full md:w-auto justify-end">
+          <div className="flex items-center p-1 rounded-xl bg-[#2A114B] border border-[#824D69]/60 text-xs shadow-inner">
+            <button
+              type="button"
+              onClick={() => onSelectPortal?.('customer')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                isCustomer
+                  ? 'bg-[#522959] text-[#FAE5D8] shadow-md border border-[#824D69]'
+                  : 'text-[#DFB6B2] hover:text-[#FAE5D8] hover:bg-[#180018]/50'
+              }`}
+              title="Open Customer Booking & Instant Matching Portal"
+            >
+              <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Consumer</span>
+            </button>
 
-        {isTechnician && (
-          <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-            <div className="flex items-center gap-2 bg-[#2A114B] px-3 py-1.5 rounded-xl border border-[#824D69]/50 text-xs font-mono">
-              <IconHardHat className="w-4 h-4 text-[#DFB6B2]" />
-              <span className="text-[#FAE5D8] font-semibold">Field Partner Terminal</span>
-            </div>
-          </div>
-        )}
+            <button
+              type="button"
+              onClick={() => onSelectPortal?.('technician')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                isTechnician
+                  ? 'bg-[#522959] text-[#FAE5D8] shadow-md border border-[#824D69]'
+                  : 'text-[#DFB6B2] hover:text-[#FAE5D8] hover:bg-[#180018]/50'
+              }`}
+              title="Open Field Technician Partner Terminal"
+            >
+              <IconHardHat className="w-3.5 h-3.5 text-[#DFB6B2]" />
+              <span>Partner App</span>
+            </button>
 
-        {isAdmin && (
-          <div className="flex items-center gap-2 bg-[#2A114B] px-3 py-1.5 rounded-xl border border-[#824D69]/50 text-xs font-mono">
-            <IconSliders className="w-4 h-4 text-[#DFB6B2]" />
-            <span className="text-[#FAE5D8] font-semibold">Dispatcher Command Console</span>
+            <button
+              type="button"
+              onClick={() => onSelectPortal?.('admin')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer ${
+                isAdmin
+                  ? 'bg-[#522959] text-[#FAE5D8] shadow-md border border-[#824D69]'
+                  : 'text-[#DFB6B2] hover:text-[#FAE5D8] hover:bg-[#180018]/50'
+              }`}
+              title="Open Fleet Dispatcher & Command Console (Admin)"
+            >
+              <IconSliders className="w-3.5 h-3.5 text-[#FAE5D8]" />
+              <span>Dispatcher (Admin)</span>
+            </button>
           </div>
-        )}
+        </div>
       </div>
     </header>
   )

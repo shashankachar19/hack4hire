@@ -63,7 +63,7 @@ async function runAudit() {
     'Persistence',
     'Clean Seed Reset Endpoint',
     seedRes.status === 200 && seedRes.data?.success ? 'PASS' : 'FAIL',
-    `Reset 20 techs, 100 jobs`,
+    `Reset 20 customers, 100 techs, 100 jobs`,
     seedRes.latencyMs
   );
 
@@ -71,7 +71,7 @@ async function runAudit() {
   logResult(
     'Data Model',
     'Technician Count (>= 20)',
-    techs.data?.data?.length === 20 ? 'PASS' : 'FAIL',
+    (techs.data?.data?.length || 0) >= 20 ? 'PASS' : 'FAIL',
     `Retrieved ${techs.data?.data?.length} technicians`,
     techs.latencyMs
   );

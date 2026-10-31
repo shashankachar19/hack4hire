@@ -51,7 +51,7 @@ export default function ControlPanel({ onRefresh, onShowToast, onShowDiff }: Pro
     setLoading('reset')
     try {
       await api.resetSeed()
-      onShowToast('Database restored to pristine baseline state (20 technicians, 100 jobs)', 'success')
+      onShowToast('Database injected with 20 verified customers, 100 prioritized technicians & 100 jobs', 'success')
       onRefresh()
     } catch (e: any) {
       onShowToast(`Reset failed: ${e.message}`, 'error')
@@ -80,25 +80,25 @@ export default function ControlPanel({ onRefresh, onShowToast, onShowDiff }: Pro
       <button
         onClick={handleReOptimize}
         disabled={!!loading}
-        className="bg-slate-900 hover:bg-slate-800 border border-slate-700/80 hover:border-indigo-500/50 disabled:opacity-50 text-slate-200 hover:text-white text-xs font-bold px-3 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
+        className="btn-solid-secondary disabled:opacity-50 text-xs font-bold px-3 py-2 rounded-xl transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
         title="Re-optimize current schedule while locking in-progress assignments"
       >
         {loading === 'reopt' ? (
-          <IconRotateCw className="w-3.5 h-3.5 animate-spin text-indigo-400" />
+          <IconRotateCw className="w-3.5 h-3.5 animate-spin text-[#DFB6B2]" />
         ) : (
-          <IconRotateCw className="w-3.5 h-3.5 text-indigo-400" />
+          <IconRotateCw className="w-3.5 h-3.5 text-[#DFB6B2]" />
         )}
         <span>{loading === 'reopt' ? 'Optimizing...' : 'Re-Optimize'}</span>
       </button>
 
-      {/* Discreet Data Reset */}
+      {/* Data Seed & Reset Baseline */}
       <button
         onClick={handleResetBaseline}
         disabled={!!loading}
-        className="text-slate-400 hover:text-emerald-400 disabled:opacity-50 flex items-center justify-center p-2 text-xs bg-slate-900/80 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-xl transition-all active:scale-95 cursor-pointer"
-        title="Restore Baseline State: resets to 20 technicians and 100 jobs"
+        className="btn-solid-secondary disabled:opacity-50 flex items-center justify-center p-2 text-xs rounded-xl transition-all active:scale-95 cursor-pointer"
+        title="Inject / Restore Seed State: 20 customers, 100 technicians across priority tiers, 100 jobs"
       >
-        <IconRefresh className={`w-3.5 h-3.5 ${loading === 'reset' ? 'animate-spin text-emerald-400' : ''}`} />
+        <IconRefresh className={`w-3.5 h-3.5 ${loading === 'reset' ? 'animate-spin text-emerald-400' : 'text-[#DFB6B2]'}`} />
       </button>
     </div>
   )
