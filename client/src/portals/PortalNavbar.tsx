@@ -35,7 +35,7 @@ export default function PortalNavbar({ activePortal, onSelectPortal }: Props) {
                     : 'DispatchGrid Fleet'}
                 </span>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#2A114B] text-[#DFB6B2] border border-[#824D69]/60 uppercase font-mono">
-                  {isCustomer ? 'Consumer Portal' : isTechnician ? 'Field Terminal' : 'Command Center'}
+                  {isCustomer ? 'Customer Portal' : isTechnician ? 'Field Terminal' : 'Command Center'}
                 </span>
               </div>
               <p className="text-[10px] text-[#DFB6B2]/80 font-medium">
@@ -70,7 +70,7 @@ export default function PortalNavbar({ activePortal, onSelectPortal }: Props) {
               title="Open Customer Booking & Instant Matching Portal"
             >
               <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Consumer</span>
+              <span>Customer</span>
             </button>
 
             <button

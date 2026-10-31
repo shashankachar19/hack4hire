@@ -1067,7 +1067,7 @@ export default function CustomerPortal() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Consumer Hero Header */}
+      {/* Customer Hero Header */}
       <div className="glass-panel rounded-2xl p-6 border-indigo-500/30 relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 right-0 w-80 h-40 bg-gradient-to-bl from-indigo-500/10 via-cyan-500/5 to-transparent blur-3xl pointer-events-none" />
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
