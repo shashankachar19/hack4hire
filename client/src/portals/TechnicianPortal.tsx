@@ -68,6 +68,15 @@ const ALL_TECH_ZONES = [
   { id: 'zone-west', label: 'West Hub (Rajajinagar)' },
 ]
 
+const QUICK_EXTRA_TASKS = [
+  { description: '16A MCB Safety Switch', price: 250 },
+  { description: 'High-Pressure Teflon Seal', price: 80 },
+  { description: '2m Heavy Copper Wiring', price: 180 },
+  { description: '45uF Motor Run Capacitor', price: 350 },
+  { description: 'Compressor Gas Top-up (R32)', price: 650 },
+  { description: 'Internal Deep Chemical Flush', price: 300 },
+]
+
 export default function TechnicianPortal() {
   const [technicians, setTechnicians] = useState<any[]>([])
   const [selectedTechId, setSelectedTechId] = useState<string>(() => {
@@ -112,7 +121,34 @@ export default function TechnicianPortal() {
   const [resolutionNote, setResolutionNote] = useState('Diagnostics complete. Replaced worn seal and verified pressure.')
   const [selectedParts, setSelectedParts] = useState<string[]>(['p1', 'p2'])
 
-  // 6. On-Site Delay & Recovery Modal
+  // 6. Extra Jobs & Replaced Spare Parts Editor
+  const [extraTasks, setExtraTasks] = useState<Array<{ id: string; description: string; price: number }>>([
+    { id: 'ext-1', description: 'Replaced 16A Heavy-Duty MCB Breaker', price: 250 },
+  ])
+  const [customTaskName, setCustomTaskName] = useState('')
+  const [customTaskPrice, setCustomTaskPrice] = useState('')
+
+  const handleAddExtraTask = (description: string, price: number) => {
+    if (!description.trim() || isNaN(price) || price <= 0) {
+      showToast('Please enter a valid task description and price')
+      return
+    }
+    setExtraTasks((prev) => [
+      ...prev,
+      { id: `ext-${Date.now()}`, description: description.trim(), price: Math.round(price) },
+    ])
+    setCustomTaskName('')
+    setCustomTaskPrice('')
+    showToast(`Added extra task: "${description}" (+₹${price})`)
+  }
+
+  const handleRemoveExtraTask = (id: string) => {
+    setExtraTasks((prev) => prev.filter((item) => item.id !== id))
+  }
+
+  const extraTasksTotal = extraTasks.reduce((acc, t) => acc + t.price, 0)
+
+  // 7. On-Site Delay & Recovery Modal
   const [showDelayModal, setShowDelayModal] = useState(false)
   const [delayReason, setDelayReason] = useState(DELAY_REASONS[0].title)
   const [delayMinutes, setDelayMinutes] = useState(45)
@@ -380,10 +416,6 @@ export default function TechnicianPortal() {
   }
 
   // 4. Complete Job with Resolution & Parts Sheet (Urban Company Style)
-  const handleOpenCompletionModal = () => {
-    setShowCompletionModal(true)
-  }
-
   const handleConfirmCompletion = async () => {
     if (!activeAssignment) return
     setActionLoading('completing')
@@ -393,7 +425,9 @@ export default function TechnicianPortal() {
         transitStage: 'COMPLETED',
         resolutionNote,
         selectedParts,
-        partsCost: totalPartsCost,
+        extraTasks,
+        extraTasksTotal,
+        partsCost: totalPartsCost + extraTasksTotal,
         completedAt: new Date().toISOString(),
       })
       setShowCompletionModal(false)
@@ -401,7 +435,7 @@ export default function TechnicianPortal() {
       setIsEnRoute(false)
       setOnSiteSecondsElapsed(0)
       playDispatchChime()
-      showToast('Work Order marked COMPLETED! Earnings & consumables invoice credited.')
+      showToast(`Work Order marked COMPLETED! Extra tasks (+₹${extraTasksTotal}) added to invoice.`)
       await loadTechDetails(selectedTechId)
     } catch (err: any) {
       showToast(`Completion error: ${err.message}`)
@@ -838,45 +872,77 @@ export default function TechnicianPortal() {
                     <>
                       <div className="w-full p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-600/70 text-emerald-300 text-xs flex items-center justify-between font-mono">
                         <span className="flex items-center gap-1.5">
-                          <IconCheck className="w-3.5 h-3.5" /> Order Accepted by Captain! Review arrival directions and commence route:
+                          <IconCheck className="w-3.5 h-3.5" /> Order Accepted by Captain! Review directions & commence route:
                         </span>
                         <span className="text-[10px] bg-emerald-900 px-2 py-0.5 rounded text-white">READY</span>
                       </div>
 
-                      {!isEnRoute && (
-                        <button
-                          type="button"
-                          onClick={handleMarkEnRoute}
-                          className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md glow-pill-indigo flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-                        >
-                          <IconTruck className="w-4 h-4 text-white" />
-                          <span>Start Transit (Mark En Route)</span>
-                        </button>
-                      )}
+                      <div className="w-full flex flex-wrap gap-2">
+                        {!isEnRoute && (
+                          <button
+                            type="button"
+                            onClick={handleMarkEnRoute}
+                            className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition-all shadow-md glow-pill-indigo flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+                          >
+                            <IconTruck className="w-4 h-4 text-white" />
+                            <span>Start Transit (En Route)</span>
+                          </button>
+                        )}
 
-                      {!hasArrivedAtGate ? (
-                        <button
-                          type="button"
-                          onClick={handleMarkArrivedAtGate}
-                          className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md glow-pill-amber flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-                        >
-                          <IconMapPin className="w-4 h-4 text-white" />
-                          <span>I Have Arrived at Gate</span>
-                        </button>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEnteredPin('')
-                            setPinError(null)
-                            setShowPinModal(true)
-                          }}
-                          className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md glow-pill-emerald flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
-                        >
-                          <IconShieldCheck className="w-4 h-4 text-white" />
-                          <span>Verify Customer 4-Digit PIN to Start</span>
-                        </button>
-                      )}
+                        {!hasArrivedAtGate ? (
+                          <button
+                            type="button"
+                            onClick={handleMarkArrivedAtGate}
+                            className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-500 hover:to-orange-500 text-white font-bold text-xs py-2.5 px-3 rounded-xl transition-all shadow-md glow-pill-amber flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer whitespace-nowrap"
+                          >
+                            <IconMapPin className="w-4 h-4 text-white" />
+                            <span>Mark Arrived at Gate</span>
+                          </button>
+                        ) : (
+                          <div className="px-3 py-2 bg-amber-950/80 border border-amber-600 text-amber-300 text-xs font-mono font-bold rounded-xl flex items-center gap-1.5">
+                            <IconMapPin className="w-4 h-4 text-amber-400" />
+                            <span>At Customer Gate</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Prominent Direct In-Card Doorstep PIN Entry Field */}
+                      <div className="w-full bg-slate-950/90 border border-emerald-500/50 rounded-2xl p-4 space-y-3 shadow-lg">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold text-white flex items-center gap-1.5 font-mono">
+                            <IconShieldCheck className="w-4 h-4 text-emerald-400" />
+                            <span>Verify Customer Doorstep 4-Digit PIN to Start</span>
+                          </span>
+                          <span className="text-[10px] text-amber-300 font-mono">Customer has PIN on their screen</span>
+                        </div>
+                        <div className="flex flex-col sm:flex-row items-center gap-2.5">
+                          <input
+                            type="text"
+                            maxLength={4}
+                            placeholder="e.g. 4829"
+                            value={enteredPin}
+                            onChange={(e) => {
+                              setEnteredPin(e.target.value.replace(/\D/g, ''))
+                              setPinError(null)
+                            }}
+                            className="w-full sm:w-44 text-center font-mono text-2xl font-black tracking-widest bg-slate-900 border border-slate-700 text-white rounded-xl py-2 focus:border-emerald-500 focus:outline-none shadow-inner"
+                          />
+                          <button
+                            type="button"
+                            onClick={handleVerifyPinAndStart}
+                            disabled={enteredPin.length < 4 || actionLoading !== null}
+                            className="w-full sm:flex-1 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md glow-pill-emerald flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 active:scale-95"
+                          >
+                            <IconShieldCheck className="w-4 h-4 text-white" />
+                            <span>{actionLoading === 'verify-pin' ? 'Verifying PIN...' : 'Verify PIN & Start Work'}</span>
+                          </button>
+                        </div>
+                        {pinError && (
+                          <div className="p-2 bg-rose-950/80 border border-rose-500/60 rounded-xl text-xs text-rose-200">
+                            {pinError}
+                          </div>
+                        )}
+                      </div>
                     </>
                   )}
 
@@ -891,30 +957,144 @@ export default function TechnicianPortal() {
                   </button>
                 </>
               ) : (
-                <>
-                  {/* Feature 3: Complete Job with Urban Company Parts Sheet */}
-                  <button
-                    type="button"
-                    onClick={handleOpenCompletionModal}
-                    disabled={actionLoading !== null}
-                    className="flex-1 bg-gradient-to-r from-indigo-600 via-indigo-500 to-cyan-500 hover:from-indigo-500 hover:to-cyan-400 text-white font-bold text-xs py-3 px-4 rounded-xl transition-all shadow-md glow-pill-indigo flex items-center justify-center gap-2 active:scale-95 cursor-pointer disabled:opacity-50"
-                  >
-                    <IconCheckCircle className="w-4 h-4 text-white" />
-                    <span>Complete Order (Parts & Invoice)</span>
-                  </button>
+                /* IN_PROGRESS: Active Service with Extra Jobs & Spare Parts Column / Table */
+                <div className="w-full bg-slate-950/90 border border-cyan-500/40 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xl">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div className="flex items-center gap-2">
+                      <IconSparkles className="w-4 h-4 text-cyan-400" />
+                      <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                        Extra Jobs & Replaced Spare Parts (Billing Add-ons)
+                      </span>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-950 px-2.5 py-1 rounded-lg border border-emerald-700/60">
+                      Additional Amount: +₹{extraTasksTotal}
+                    </span>
+                  </div>
 
-                  {/* Feature 4: Report On-Site Delay & Recovery */}
-                  <button
-                    type="button"
-                    onClick={handleOpenDelayModal}
-                    disabled={actionLoading !== null}
-                    className="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-400 hover:text-cyan-300 font-bold text-xs py-3 px-4 rounded-xl transition-all active:scale-95 cursor-pointer disabled:opacity-50 flex items-center gap-1.5"
-                    title="Report on-site complication (+45m)"
-                  >
-                    <IconAlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-                    <span>Report Delay (+45m)</span>
-                  </button>
-                </>
+                  {/* Table of entered extra tasks */}
+                  <div className="space-y-2">
+                    {extraTasks.length === 0 ? (
+                      <div className="text-xs text-slate-400 italic py-2 text-center bg-slate-900/50 rounded-xl border border-dashed border-slate-800">
+                        No additional tasks or spare parts logged yet. Use the inputs below if extra work was performed.
+                      </div>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-left text-xs">
+                          <thead>
+                            <tr className="text-[10px] text-slate-400 uppercase font-mono border-b border-slate-800/80">
+                              <th className="pb-2 font-medium">Extra Job / Replaced Spare Part</th>
+                              <th className="pb-2 font-medium text-right">Additional Price</th>
+                              <th className="pb-2 font-medium text-right w-16">Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-800/60">
+                            {extraTasks.map((item) => (
+                              <tr key={item.id} className="text-slate-200">
+                                <td className="py-2.5 font-medium flex items-center gap-2">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                                  <span>{item.description}</span>
+                                </td>
+                                <td className="py-2.5 text-right font-mono font-bold text-emerald-400">
+                                  +₹{item.price}
+                                </td>
+                                <td className="py-2.5 text-right">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveExtraTask(item.id)}
+                                    className="text-rose-400 hover:text-rose-300 text-[11px] px-2 py-0.5 rounded bg-rose-950/60 hover:bg-rose-900 border border-rose-800 cursor-pointer"
+                                  >
+                                    Delete
+                                  </button>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Add Chips */}
+                  <div className="space-y-1.5">
+                    <div className="text-[10px] text-slate-400 uppercase font-mono">Quick-Add Common Spare Parts:</div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {QUICK_EXTRA_TASKS.map((q, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleAddExtraTask(q.description, q.price)}
+                          className="text-[11px] bg-slate-900 hover:bg-indigo-950 text-slate-300 hover:text-cyan-300 border border-slate-700 hover:border-indigo-600 px-2.5 py-1 rounded-lg cursor-pointer transition-all flex items-center gap-1 font-mono active:scale-95"
+                        >
+                          <span>+ {q.description}</span>
+                          <span className="text-emerald-400 font-bold">(₹{q.price})</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom Extra Job / Part Inputs */}
+                  <div className="flex flex-col sm:flex-row items-center gap-2 pt-2 border-t border-slate-800/80">
+                    <input
+                      type="text"
+                      placeholder="Extra job description (e.g. Copper wiring 2m replaced)"
+                      value={customTaskName}
+                      onChange={(e) => setCustomTaskName(e.target.value)}
+                      className="w-full sm:flex-1 bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 focus:border-cyan-500 focus:outline-none"
+                    />
+                    <div className="flex items-center gap-2 w-full sm:w-auto">
+                      <input
+                        type="number"
+                        placeholder="₹ Price"
+                        value={customTaskPrice}
+                        onChange={(e) => setCustomTaskPrice(e.target.value)}
+                        className="w-24 bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 font-mono focus:border-cyan-500 focus:outline-none"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleAddExtraTask(customTaskName, parseFloat(customTaskPrice))}
+                        className="px-3.5 py-2 bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-500 hover:to-cyan-500 text-white font-bold text-xs rounded-xl cursor-pointer whitespace-nowrap active:scale-95"
+                      >
+                        + Add Extra Job
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Resolution note */}
+                  <div className="pt-2">
+                    <label className="text-[10px] uppercase font-mono text-slate-400 font-bold block mb-1">
+                      Technician Work Resolution Summary:
+                    </label>
+                    <input
+                      type="text"
+                      value={resolutionNote}
+                      onChange={(e) => setResolutionNote(e.target.value)}
+                      className="w-full bg-slate-900 border border-slate-700 text-white text-xs rounded-xl px-3 py-2 focus:border-emerald-500 focus:outline-none"
+                    />
+                  </div>
+
+                  {/* Button to Mark Tasks or Services Done */}
+                  <div className="pt-3 border-t border-slate-800 flex flex-col sm:flex-row items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleConfirmCompletion}
+                      disabled={actionLoading !== null}
+                      className="w-full sm:flex-1 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white font-black text-xs sm:text-sm py-3.5 px-6 rounded-xl transition-all shadow-xl glow-pill-emerald flex items-center justify-center gap-2 active:scale-95 cursor-pointer disabled:opacity-50"
+                    >
+                      <IconCheckCircle className="w-5 h-5 text-white" />
+                      <span>MARK TASK & SERVICE COMPLETED {extraTasksTotal > 0 ? `(+₹${extraTasksTotal} Extra)` : ''}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleOpenDelayModal}
+                      disabled={actionLoading !== null}
+                      className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 border border-slate-700 text-cyan-400 hover:text-cyan-300 font-bold text-xs py-3 px-4 rounded-xl transition-all active:scale-95 cursor-pointer disabled:opacity-50 flex items-center justify-center gap-1.5 whitespace-nowrap"
+                      title="Report on-site complication (+45m)"
+                    >
+                      <IconAlertTriangle className="w-3.5 h-3.5 text-amber-400" />
+                      <span>Report Delay (+45m)</span>
+                    </button>
+                  </div>
+                </div>
               )}
             </div>
           </div>

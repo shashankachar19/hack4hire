@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { api } from '../api'
 import { COMMON_PARTS, type ConsumablePart } from '../parts'
 import {
@@ -305,6 +305,8 @@ export default function CustomerPortal() {
   const [bookings, setBookings] = useState<any[]>([])
   const [availableTechnicians, setAvailableTechnicians] = useState<any[]>([])
   const [preferredTechId, setPreferredTechId] = useState<string>('')
+  const [showAssignedPopup, setShowAssignedPopup] = useState<boolean>(false)
+  const hasShownAssignedPopupRef = useRef<string | null>(null)
 
   const showToast = (msg: string) => {
     setToastMsg(msg)
@@ -410,6 +412,11 @@ export default function CustomerPortal() {
 
           const techName = rawAssign?.technician?.name || activeOrder.assignment?.technician?.name || 'Alex Martinez'
 
+          if (fresh.status === 'ASSIGNED' && hasShownAssignedPopupRef.current !== fresh.id) {
+            hasShownAssignedPopupRef.current = fresh.id
+            setShowAssignedPopup(true)
+          }
+
           // Real-time audio and toast notifications reflecting technician actions
           if (freshDesc.isAccepted && !prevDesc.isAccepted) {
             playDispatchChime()
@@ -462,12 +469,34 @@ export default function CustomerPortal() {
     return () => clearInterval(timer)
   }, [activeOrder?.job?.id, activeOrder?.job?.status])
 
-  // Transparent Fare Breakdown Calculations (Urban Company Style - Feature 3)
+  // Distance Calculation between assigned / preferred tech and customer zone
+  function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return 3.2
+    const R = 6371
+    const dLat = ((lat2 - lat1) * Math.PI) / 180
+    const dLon = ((lon2 - lon1) * Math.PI) / 180
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) * Math.sin(dLon / 2) * Math.sin(dLon / 2)
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+    return R * c
+  }
+
+  // Transparent Fare Breakdown Calculations (Urban Company Style)
+  const defaultServiceCharge = 150
+  const selectedTech = availableTechnicians.find((t: any) => t.id === preferredTechId) || availableTechnicians[0]
+  const techLat = selectedTech?.latitude || 12.95
+  const techLng = selectedTech?.longitude || 77.58
+  const distanceKm = calculateDistanceKm(techLat, techLng, selectedZone.lat, selectedZone.lng)
+  const isDistanceOver5Km = distanceKm > 5.0
+  const distanceSurchargeFee = isDistanceOver5Km ? 50 : 0
+
   const baseTradePrice = selectedCategory.basePrice
   const prioritySpeedFee = priority === 'CRITICAL' ? 200 : priority === 'HIGH' ? 100 : 0
   const safetyEquipmentFee = 49
   const cloudPlatformFee = 29
-  const subtotalBeforeTax = baseTradePrice + prioritySpeedFee + safetyEquipmentFee + cloudPlatformFee
+  const subtotalBeforeTax =
+    baseTradePrice + defaultServiceCharge + distanceSurchargeFee + prioritySpeedFee + safetyEquipmentFee + cloudPlatformFee
   const gstTaxAmount = Math.round(subtotalBeforeTax * 0.18)
   const totalEstimatedFare = subtotalBeforeTax + gstTaxAmount
 
@@ -494,14 +523,44 @@ export default function CustomerPortal() {
     setIsCancelling(true)
     try {
       const jobId = activeOrder.job.id
+      const isPartnerAtDoorstep = (() => {
+        try {
+          if (!activeOrder?.job?.description) return false
+          const desc = JSON.parse(activeOrder.job.description)
+          return desc.transitStage === 'ARRIVED' || desc.transitStage === 'IN_PROGRESS' || !!desc.arrivedAt
+        } catch {
+          return false
+        }
+      })()
+
+      const penaltyAmount = isPartnerAtDoorstep ? 150 : 0
+
       await api.updateJobState(jobId, 'CANCELLED')
+      if (penaltyAmount > 0) {
+        await api.updateJobTransit(jobId, {
+          cancellationPenalty: penaltyAmount,
+          cancelledAfterArrival: true,
+        }).catch(() => {})
+      }
+
       setActiveOrder(null)
       setShowCancelModal(false)
-      showToast(`Booking cancelled: "${cancelReason}". Partner returned to fleet.`)
+      showToast(
+        penaltyAmount > 0
+          ? `Booking cancelled. Doorstep arrival penalty of ₹150 applied to partner compensation.`
+          : `Booking cancelled: "${cancelReason}". Partner returned to fleet.`
+      )
 
       setBookings((prev) => {
         const updated = prev.map((b) =>
-          b.id === jobId ? { ...b, status: 'CANCELLED', cancellationReason: cancelReason } : b
+          b.id === jobId
+            ? {
+                ...b,
+                status: 'CANCELLED',
+                cancellationReason: cancelReason,
+                cancellationPenalty: penaltyAmount,
+              }
+            : b
         )
         try {
           localStorage.setItem('dg_user_bookings', JSON.stringify(updated))
@@ -805,6 +864,8 @@ export default function CustomerPortal() {
       setPartnerEtaSeconds(390) // Reset to 6m 30s
       playDispatchChime()
       showToast('Technician matched & dispatched instantly!')
+      setShowAssignedPopup(true)
+      hasShownAssignedPopupRef.current = res.job.id
 
       // Save to customer's personal booking history
       const newBookingRecord = {
@@ -1530,6 +1591,35 @@ export default function CustomerPortal() {
             </div>
           )}
 
+          {/* Extra Jobs & Replaced Spare Parts Fitted Sheet */}
+          {jobStatus === 'COMPLETED' && activeOrderDesc.extraTasks && activeOrderDesc.extraTasks.length > 0 && (
+            <div className="bg-slate-900/90 rounded-2xl p-4 border border-cyan-500/40 space-y-3 shadow-xl">
+              <div className="flex items-center justify-between">
+                <div className="text-xs font-bold text-white flex items-center gap-2">
+                  <IconSparkles className="w-4 h-4 text-cyan-400" />
+                  <span>Additional Jobs & Spare Parts Authorized On-Site</span>
+                  <span className="text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-700 px-2 py-0.5 rounded-full font-mono">
+                    Technician Add-ons
+                  </span>
+                </div>
+                <span className="text-xs font-mono font-bold text-emerald-400">
+                  Total Add-ons: +₹{activeOrderDesc.extraTasksTotal || activeOrderDesc.extraTasks.reduce((s: number, i: any) => s + (i.price || 0), 0)}
+                </span>
+              </div>
+              <div className="space-y-1.5">
+                {activeOrderDesc.extraTasks.map((item: any) => (
+                  <div key={item.id} className="flex justify-between items-center text-xs text-slate-300 bg-slate-950/60 px-3 py-2 rounded-xl border border-slate-800">
+                    <span className="font-medium flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                      <span>{item.description}</span>
+                    </span>
+                    <span className="font-mono text-emerald-400 font-bold">+₹{item.price}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Rating Section on Completion */}
           {jobStatus === 'COMPLETED' && (
             <div className="p-5 bg-gradient-to-r from-emerald-950/50 via-slate-900 to-emerald-950/30 rounded-2xl border border-emerald-500/40 text-center space-y-3">
@@ -1884,6 +1974,24 @@ export default function CustomerPortal() {
 
                   <div className="flex items-center justify-between text-slate-300">
                     <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+                      <span>Standard Service Visit & Logistics Charge</span>
+                    </div>
+                    <span className="font-mono font-semibold text-emerald-400 font-bold">+₹{defaultServiceCharge}</span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-slate-300">
+                    <div className="flex items-center gap-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
+                      <span>Distance Surcharge ({distanceKm.toFixed(1)} km from nearest partner)</span>
+                    </div>
+                    <span className={`font-mono font-semibold ${isDistanceOver5Km ? 'text-amber-400 font-bold' : 'text-slate-400'}`}>
+                      {isDistanceOver5Km ? `+₹${distanceSurchargeFee} (>5km)` : '₹0 (Within 5km)'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between text-slate-300">
+                    <div className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                       <span>SLA Speed Guarantee ({priority === 'CRITICAL' ? 'Immediate 45-Min Emergency' : priority === 'HIGH' ? 'Within 2 Hours' : 'Standard Flexible'})</span>
                     </div>
@@ -2127,6 +2235,29 @@ export default function CustomerPortal() {
               </button>
             </div>
 
+            {/* Doorstep Arrival Penalty Alert if technician already arrived */}
+            {(() => {
+              let isArrived = false
+              try {
+                if (activeOrder?.job?.description) {
+                  const d = JSON.parse(activeOrder.job.description)
+                  isArrived = d.transitStage === 'ARRIVED' || d.transitStage === 'IN_PROGRESS' || !!d.arrivedAt
+                }
+              } catch {}
+              if (!isArrived) return null
+              return (
+                <div className="p-3.5 bg-rose-950/90 border border-rose-500 rounded-xl space-y-1.5 shadow-md">
+                  <div className="flex items-center gap-2 text-rose-300 font-bold text-xs uppercase tracking-wider font-mono">
+                    <IconAlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0" />
+                    <span>Late Cancellation Doorstep Penalty: ₹150</span>
+                  </div>
+                  <p className="text-[11px] text-rose-200">
+                    Captain <strong>{activeOrder?.assignment?.technician?.name || 'Partner'}</strong> has already arrived at your doorstep. Cancelling now incurs a mandatory <strong>₹150</strong> doorstep visit fee to compensate partner travel and fuel costs.
+                  </p>
+                </div>
+              )
+            })()}
+
             {/* Warning Banner */}
             <div className="p-3 bg-rose-950/60 border border-rose-500/50 rounded-xl text-xs text-rose-200 flex items-center gap-2.5">
               <IconAlertTriangle className="w-4 h-4 text-rose-400 flex-shrink-0" />
@@ -2202,7 +2333,18 @@ export default function CustomerPortal() {
                 ) : (
                   <>
                     <IconXCircle className="w-3.5 h-3.5" />
-                    <span>Confirm Cancellation</span>
+                    <span>
+                      Confirm Cancellation{' '}
+                      {(() => {
+                        try {
+                          const d = activeOrder?.job?.description ? JSON.parse(activeOrder.job.description) : null
+                          if (d?.transitStage === 'ARRIVED' || d?.transitStage === 'IN_PROGRESS' || d?.arrivedAt) {
+                            return '(₹150 Penalty Applies)'
+                          }
+                        } catch {}
+                        return ''
+                      })()}
+                    </span>
                   </>
                 )}
               </button>
@@ -2811,6 +2953,99 @@ export default function CustomerPortal() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* TECHNICIAN ASSIGNED POPUP MODAL (Urban Company / Uber Style) */}
+      {showAssignedPopup && activeOrder && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in duration-200">
+          <div className="bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 max-w-md w-full space-y-5 shadow-2xl relative overflow-hidden">
+            <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400" />
+
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 shadow-md">
+                  <IconCheckCircle className="w-7 h-7" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-wider text-cyan-400 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-700/60">
+                    Fleet Specialist Assigned
+                  </span>
+                  <h3 className="text-lg font-black text-white mt-0.5">Technician Dispatched!</h3>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAssignedPopup(false)}
+                className="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer"
+              >
+                <IconX className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Specialist Card */}
+            <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-3">
+              <div className="flex items-center gap-3.5">
+                <div className="w-13 h-13 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white text-lg font-black shadow-lg">
+                  {(activeOrder.assignment?.technician?.name || 'CP').slice(0, 2).toUpperCase()}
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-bold text-white">
+                      Captain {activeOrder.assignment?.technician?.name || 'Alex Martinez'}
+                    </span>
+                    <span className="text-[9px] bg-emerald-950 text-emerald-400 border border-emerald-700 px-1.5 py-0.2 rounded font-mono">
+                      VERIFIED
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-amber-400 font-bold mt-0.5">
+                    <span className="flex items-center gap-1">
+                      <IconStar className="w-3.5 h-3.5 fill-amber-400" /> 4.9 Rating
+                    </span>
+                    <span className="text-slate-500">•</span>
+                    <span className="text-slate-300 font-normal">
+                      {Array.isArray(activeOrder.assignment?.technician?.skills)
+                        ? activeOrder.assignment.technician.skills.join(', ')
+                        : 'Trade Specialist'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-xs text-slate-300 pt-1 border-t border-slate-800/80">
+                Assigned to service your <strong>{activeOrder.job?.title || 'Urgent Service'}</strong> in{' '}
+                <strong className="text-cyan-300">{activeOrder.job?.serviceZone || 'Central Hub'}</strong>.
+              </div>
+            </div>
+
+            {/* Doorstep Security PIN Notification */}
+            <div className="p-4 bg-gradient-to-r from-indigo-950/70 via-slate-900 to-cyan-950/70 border border-indigo-500/50 rounded-2xl text-center space-y-2 shadow-inner">
+              <div className="text-[10px] text-indigo-300 uppercase font-mono font-bold tracking-widest">
+                Your Doorstep Security PIN
+              </div>
+              <div className="font-mono text-3xl font-black text-cyan-300 tracking-[0.2em] py-0.5">
+                {activeOrder.otp || '4829'}
+              </div>
+              <p className="text-[11px] text-slate-400">
+                Share this 4-digit code with Captain {activeOrder.assignment?.technician?.name || 'Partner'} when they arrive at your door to authorize entrance & start work.
+              </p>
+            </div>
+
+            {/* Email Confirmation Notice */}
+            <div className="p-3 bg-emerald-950/50 border border-emerald-500/40 rounded-xl text-xs text-emerald-300 flex items-center gap-2.5">
+              <IconMail className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+              <span>
+                Assignment confirmation email with Security PIN sent to <strong>{profile?.email || 'your registered email'}</strong>!
+              </span>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowAssignedPopup(false)}
+              className="w-full bg-gradient-to-r from-indigo-600 via-cyan-600 to-emerald-600 hover:from-indigo-500 hover:to-emerald-500 text-white font-bold text-xs py-3.5 rounded-xl shadow-lg glow-pill-indigo cursor-pointer transition-all active:scale-95"
+            >
+              Track Live on Radar
+            </button>
           </div>
         </div>
       )}

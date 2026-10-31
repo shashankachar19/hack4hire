@@ -32,6 +32,7 @@ import {
 import { ApiResponse, VALID_JOB_TRANSITIONS, JobStatusType } from '../types';
 import { AppError } from '../middleware/errorHandler';
 import { reOptimizeSchedule } from '../services/schedulingService';
+import { sendAssignmentEmail } from '../services/emailService';
 
 const router = Router();
 
@@ -285,6 +286,45 @@ router.post('/instant-match', async (req: Request, res: Response, next: NextFunc
 
       isAssigned = true;
       assignment = deserializeTechInJob(rawAssignment);
+
+      // Asynchronously trigger customer assignment confirmation email with Doorstep PIN
+      const customerDossier = (() => {
+        try {
+          return data.description ? JSON.parse(data.description) : null;
+        } catch {
+          return null;
+        }
+      })();
+
+      let recipientEmail = customerDossier?.email;
+      if (!recipientEmail && validCustomerId) {
+        prisma.customer
+          .findUnique({ where: { id: validCustomerId }, select: { email: true } })
+          .then((c) => {
+            if (c?.email && chosenTech) {
+              sendAssignmentEmail({
+                to: c.email,
+                customerName: customerDossier?.name || 'Valued Customer',
+                techName: chosenTech.name,
+                techPhone: customerDossier?.phone || '+91 98450 12345',
+                jobTitle: job.title,
+                serviceZone: job.serviceZone,
+                pin: customerDossier?.servicePin || '4829',
+              }).catch((e) => console.error('[ASSIGNMENT EMAIL ERROR]:', e.message));
+            }
+          })
+          .catch(() => {});
+      } else if (recipientEmail && chosenTech) {
+        sendAssignmentEmail({
+          to: recipientEmail,
+          customerName: customerDossier?.name || 'Valued Customer',
+          techName: chosenTech.name,
+          techPhone: customerDossier?.phone || '+91 98450 12345',
+          jobTitle: job.title,
+          serviceZone: job.serviceZone,
+          pin: customerDossier?.servicePin || '4829',
+        }).catch((e) => console.error('[ASSIGNMENT EMAIL ERROR]:', e.message));
+      }
 
       // Background optimization telemetry without disrupting this locked assignment
       try {

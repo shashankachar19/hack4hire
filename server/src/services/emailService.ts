@@ -227,3 +227,153 @@ export async function sendWelcomeEmail({ to, name, address, phone }: SendWelcome
 
   return { delivered: false, error: 'NO_SMTP_CREDENTIALS_IN_ENV' };
 }
+
+export interface SendAssignmentEmailOptions {
+  to: string;
+  customerName: string;
+  techName: string;
+  techPhone?: string;
+  jobTitle: string;
+  serviceZone: string;
+  pin: string;
+  totalAmount?: number;
+}
+
+export async function sendAssignmentEmail({
+  to,
+  customerName,
+  techName,
+  techPhone,
+  jobTitle,
+  serviceZone,
+  pin,
+  totalAmount,
+}: SendAssignmentEmailOptions): Promise<{ delivered: boolean; error?: string }> {
+  const gmailUser = process.env.GMAIL_USER || process.env.SMTP_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
+
+  if (gmailUser && gmailPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: gmailUser,
+          pass: gmailPass.replace(/\s+/g, ''),
+        },
+      });
+
+      const mailOptions = {
+        from: `"DispatchGrid Fleet" <${gmailUser}>`,
+        to,
+        subject: `[DispatchGrid] Captain ${techName} Assigned to Your Order (${jobTitle})`,
+        text: `Hello ${customerName},\n\nGreat news! Captain ${techName} has been assigned to your order: "${jobTitle}".\n\nYour Doorstep Security PIN is: ${pin}\n\nPlease share this 4-digit PIN with Captain ${techName} upon arrival at your doorstep to authorize and begin repairs.\n\nTechnician Details:\n- Name: Captain ${techName}\n- Contact: ${techPhone || '+91 98450 12345'}\n- Service Zone: ${serviceZone}\n${totalAmount ? `- Estimated Total: ₹${totalAmount}\n` : ''}\nYou can track Captain ${techName}'s transit radar in real-time on your customer portal.\n\nThank you for choosing DispatchGrid!`,
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; background: #090d16; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; color: #f8fafc;">
+            <div style="background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 100%); padding: 26px; text-align: center;">
+              <h1 style="margin: 0; color: #ffffff; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">DispatchGrid</h1>
+              <p style="margin: 4px 0 0 0; color: rgba(255,255,255,0.9); font-size: 13px;">Verified On-Demand Fleet Network</p>
+            </div>
+            
+            <div style="padding: 32px 28px;">
+              <div style="display: inline-block; background: #042f2e; border: 1px solid #0d9488; color: #2dd4bf; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
+                Specialist Dispatched & Assigned
+              </div>
+              <h2 style="margin: 0 0 12px 0; color: #ffffff; font-size: 20px; font-weight: 800;">Captain ${techName} is on the way!</h2>
+              <p style="margin: 0 0 20px 0; color: #94a3b8; font-size: 14px; line-height: 1.5;">
+                Hello <strong>${customerName}</strong>, your request for <strong>${jobTitle}</strong> in ${serviceZone} has been matched with our top-rated certified specialist.
+              </p>
+              
+              <!-- Doorstep PIN Card -->
+              <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 2px solid #6366f1; border-radius: 14px; padding: 22px; text-align: center; margin-bottom: 24px;">
+                <div style="font-size: 11px; font-weight: 800; color: #c7d2fe; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 8px;">
+                  Your Doorstep Start PIN
+                </div>
+                <div style="font-family: 'SF Mono', Monaco, Consolas, monospace; font-size: 38px; font-weight: 900; letter-spacing: 12px; color: #38bdf8; margin: 4px 0;">
+                  ${pin}
+                </div>
+                <div style="margin-top: 8px; font-size: 12px; color: #94a3b8;">
+                  Please share this 4-digit code with Captain ${techName} when they arrive at your door to start work.
+                </div>
+              </div>
+
+              <!-- Specialist & Order Details -->
+              <div style="background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                <div style="font-size: 12px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid #1e293b; padding-bottom: 6px;">
+                  Dispatch Summary
+                </div>
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #e2e8f0;">
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b; width: 140px;">Assigned Specialist:</td>
+                    <td style="padding: 6px 0; font-weight: 700; color: #ffffff;">Captain ${techName}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Specialist Contact:</td>
+                    <td style="padding: 6px 0; font-weight: 600;">${techPhone || '+91 98450 12345'}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Service Requested:</td>
+                    <td style="padding: 6px 0; font-weight: 600;">${jobTitle}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Operating Zone:</td>
+                    <td style="padding: 6px 0; font-weight: 600;">${serviceZone}</td>
+                  </tr>
+                  ${totalAmount ? `
+                  <tr>
+                    <td style="padding: 6px 0; color: #64748b;">Estimated Bill:</td>
+                    <td style="padding: 6px 0; font-weight: 700; color: #10b981;">₹${totalAmount}</td>
+                  </tr>
+                  ` : ''}
+                </table>
+              </div>
+
+              <div style="background: #0b1120; border: 1px solid #1e293b; border-radius: 10px; padding: 14px 18px; margin-bottom: 20px;">
+                <div style="font-size: 12px; font-weight: 600; color: #f1f5f9; margin-bottom: 4px;">Next Steps:</div>
+                <div style="font-size: 12px; color: #94a3b8; line-height: 1.6;">
+                  1. Watch live radar transit updates on your customer dashboard.<br />
+                  2. Verify the captain's ID badge when they ring your doorbell.<br />
+                  3. Share PIN <strong>${pin}</strong> to start the stopwatch.
+                </div>
+              </div>
+
+              <p style="margin: 0; color: #64748b; font-size: 12px; line-height: 1.4;">
+                Need assistance or want to reschedule? Use your DispatchGrid portal.
+              </p>
+            </div>
+            
+            <div style="background: #0b1120; border-top: 1px solid #1e293b; padding: 16px 28px; text-align: center;">
+              <p style="margin: 0; color: #475569; font-size: 11px;">
+                (c) 2026 DispatchGrid On-Demand Technologies • Automated Dispatch Confirmation
+              </p>
+            </div>
+          </div>
+        `,
+      };
+
+      await transporter.sendMail(mailOptions);
+      console.log(`\n======================================================`);
+      console.log(`[ASSIGNMENT EMAIL DELIVERED TO GMAIL]`);
+      console.log(`   To: ${to}`);
+      console.log(`   Captain: ${techName}`);
+      console.log(`   PIN: ${pin}`);
+      console.log(`   Subject: ${mailOptions.subject}`);
+      console.log(`   Dispatched via: ${gmailUser}`);
+      console.log(`======================================================\n`);
+      return { delivered: true };
+    } catch (err: any) {
+      console.error(`[SMTP ERROR]: Failed to send assignment email to ${to}:`, err.message);
+      return { delivered: false, error: err.message };
+    }
+  }
+
+  // Fallback console log
+  console.log(`\n======================================================`);
+  console.log(`[ASSIGNMENT EMAIL DISPATCHED TO: ${to}]`);
+  console.log(`   Customer: ${customerName}`);
+  console.log(`   Captain: ${techName}`);
+  console.log(`   PIN: ${pin}`);
+  console.log(`   Job: ${jobTitle}`);
+  console.log(`======================================================\n`);
+
+  return { delivered: false, error: 'NO_SMTP_CREDENTIALS_IN_ENV' };
+}
