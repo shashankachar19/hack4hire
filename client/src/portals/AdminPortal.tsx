@@ -60,15 +60,15 @@ export default function AdminPortal() {
   return (
     <div className="space-y-6">
       {/* Admin Action Sub-Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#EADFD7]">
+      <div className="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-[#824D69]/40">
         <div>
           <div className="flex items-center gap-2">
-            <h2 className="text-xl font-black tracking-tight text-[#180018]">Fleet Dispatch Command Center</h2>
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FAF2EC] text-[#522959] border border-[#DFB682] font-mono uppercase tracking-wider">
+            <h2 className="text-xl font-black tracking-tight text-[#FAE5D8]">Fleet Dispatch Command Center</h2>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#2A114B] text-[#DFB6B2] border border-[#824D69]/60 font-mono uppercase tracking-wider">
               Dispatcher View (Admin)
             </span>
           </div>
-          <p className="text-xs text-[#522959]/80 mt-0.5">
+          <p className="text-xs text-[#DFB6B2]/80 mt-0.5">
             Real-time multi-objective scheduling heuristic, 100-technician fleet telemetry, and zero-collision disruption recovery.
           </p>
         </div>
@@ -79,7 +79,7 @@ export default function AdminPortal() {
             className="btn-solid-secondary flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="System Architecture & Optimization Specifications"
           >
-            <IconServer className="w-3.5 h-3.5 text-[#522959]" />
+            <IconServer className="w-3.5 h-3.5 text-[#DFB6B2]" />
             <span className="hidden sm:inline">System Specs</span>
           </button>
 
@@ -88,7 +88,7 @@ export default function AdminPortal() {
             className="btn-solid-secondary flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition-all shadow-sm active:scale-95 cursor-pointer"
             title="Google Calendar, Vehicle Telematics, Webhooks, and Capacity AI"
           >
-            <IconSparkles className="w-3.5 h-3.5 text-[#522959]" />
+            <IconSparkles className="w-3.5 h-3.5 text-[#FAE5D8]" />
             <span>Integrations</span>
           </button>
 
@@ -97,7 +97,7 @@ export default function AdminPortal() {
       </div>
 
       {/* Admin Navigation Tabs */}
-      <div className="bg-[#FAF2EC] border border-[#EADFD7] rounded-2xl p-1 shadow-sm">
+      <div className="bg-[#2A114B]/80 backdrop-blur-md border border-[#824D69]/50 rounded-2xl p-1">
         <div className="flex gap-1.5 overflow-x-auto">
           {ADMIN_TABS.map((tab) => {
             const Icon = tab.icon
@@ -108,11 +108,11 @@ export default function AdminPortal() {
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2.5 text-xs font-bold rounded-xl transition-all whitespace-nowrap cursor-pointer ${
                   isActive
-                    ? 'bg-[#522959] text-white border border-[#522959] shadow-sm'
-                    : 'text-[#522959] hover:text-[#180018] hover:bg-white'
+                    ? 'bg-[#522959] text-[#FAE5D8] border border-[#824D69] shadow-md'
+                    : 'text-[#DFB6B2] hover:text-[#FAE5D8] hover:bg-[#180018]/40'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-[#824D69]'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-[#FAE5D8]' : 'text-[#DFB6B2]/70'}`} />
                 <span>{tab.label}</span>
               </button>
             )

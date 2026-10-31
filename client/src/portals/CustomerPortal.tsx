@@ -1110,19 +1110,19 @@ export default function CustomerPortal() {
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Customer Hero Header */}
       <div className="glass-panel rounded-2xl p-6 border-indigo-500/30 relative overflow-hidden shadow-2xl">
-        <div className="absolute top-0 right-0 w-80 h-40 bg-[#FAF2EC]/50 blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-40 bg-gradient-to-bl from-indigo-500/10 via-cyan-500/5 to-transparent blur-3xl pointer-events-none" />
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1.5">
               <IconZap className="w-5 h-5 text-indigo-400" />
-              <h2 className="text-2xl font-black text-[#180018] tracking-tight">
+              <h2 className="text-2xl font-black text-white tracking-tight">
                 DispatchGrid <span className="text-indigo-400">Instant</span>
               </h2>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-700 uppercase tracking-wider font-mono">
                 Live On-Demand
               </span>
             </div>
-            <p className="text-xs text-[#522959] max-w-lg">
+            <p className="text-xs text-slate-300 max-w-lg">
               Book certified emergency trade specialists in seconds. Intelligent on-demand dispatch matching the nearest qualified fleet partner with zero wait.
             </p>
           </div>
@@ -1148,7 +1148,7 @@ export default function CustomerPortal() {
             <button
               type="button"
               onClick={() => setShowDrawer(true)}
-              className="bg-white hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-sm"
+              className="bg-slate-900/90 hover:bg-slate-800 border border-slate-700 text-slate-200 text-xs font-bold px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-2 cursor-pointer active:scale-95 shadow-sm"
               title="View my booking receipts and order history"
             >
               <span>My Bookings</span>
@@ -1171,15 +1171,15 @@ export default function CustomerPortal() {
 
       {/* Customer Profile Status Bar (Login / Identity) */}
       {profile ? (
-        <div className="glass-panel rounded-2xl p-4 border-indigo-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md bg-white border-[#EADFD7]">
+        <div className="glass-panel rounded-2xl p-4 border-indigo-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-md bg-gradient-to-r from-indigo-950/40 via-slate-900/90 to-slate-900">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#522959] text-white flex items-center justify-center text-[#180018] font-bold text-sm shadow-md">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-cyan-500 flex items-center justify-center text-white font-bold text-sm shadow-md">
               {profile.name.slice(0, 2).toUpperCase()}
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-bold text-[#180018] text-sm">{profile.name}</span>
-                <span className="text-[10px] bg-slate-800 text-[#522959] px-2 py-0.5 rounded font-mono">
+                <span className="font-bold text-white text-sm">{profile.name}</span>
+                <span className="text-[10px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-mono">
                   {profile.age} yrs • Resident
                 </span>
                 <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-700/80 px-2 py-0.5 rounded font-mono">
@@ -1189,10 +1189,10 @@ export default function CustomerPortal() {
                   {profile.id ? `SQLite DB: ${profile.id.slice(0, 8)}...` : 'Database Verified'}
                 </span>
               </div>
-              <div className="text-xs text-[#64748B] font-mono mt-0.5 flex flex-wrap items-center gap-2">
-                <span className="flex items-center gap-1"><IconPhone className="w-3 h-3 text-[#64748B]" /> {profile.phone}</span>
+              <div className="text-xs text-slate-400 font-mono mt-0.5 flex flex-wrap items-center gap-2">
+                <span className="flex items-center gap-1"><IconPhone className="w-3 h-3 text-slate-400" /> {profile.phone}</span>
                 <span>•</span>
-                <span className="flex items-center gap-1"><IconMail className="w-3 h-3 text-[#64748B]" /> {profile.email}</span>
+                <span className="flex items-center gap-1"><IconMail className="w-3 h-3 text-slate-400" /> {profile.email}</span>
               </div>
               <div className="text-xs text-cyan-300 mt-1 flex items-center gap-1 font-medium">
                 <IconMapPin className="w-3.5 h-3.5 text-cyan-400 flex-shrink-0" />
@@ -1212,14 +1212,14 @@ export default function CustomerPortal() {
             <button
               type="button"
               onClick={handleSignOut}
-              className="text-xs font-bold text-[#64748B] hover:text-rose-400 bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
+              className="text-xs font-bold text-slate-400 hover:text-rose-400 bg-slate-900 hover:bg-slate-800 border border-slate-700 px-3 py-1.5 rounded-xl transition-all cursor-pointer"
             >
               Sign Out
             </button>
           </div>
         </div>
       ) : (
-        <div className="rounded-3xl border border-indigo-500/40 bg-white border-[#DFB682] p-6 md:p-8 shadow-2xl space-y-6 relative overflow-hidden">
+        <div className="rounded-3xl border border-indigo-500/40 bg-gradient-to-br from-slate-900 via-indigo-950/40 to-slate-900 p-6 md:p-8 shadow-2xl space-y-6 relative overflow-hidden">
           {/* MAIDPOOL-INSPIRED HIGH-TRUST GUEST ONBOARDING SHOWCASE */}
           {/* Subtle Ambient Radial Glow */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
@@ -1231,16 +1231,16 @@ export default function CustomerPortal() {
                 <IconShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
                 <span>100% Verified & Trusted Fleet • South Bangalore</span>
               </span>
-              <span className="text-[10px] uppercase font-bold text-[#64748B] font-mono tracking-wider">
+              <span className="text-[10px] uppercase font-bold text-slate-400 font-mono tracking-wider">
                 Modeled after mAidpool & Urban Company
               </span>
             </div>
 
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#180018] tracking-tight leading-tight">
-              Emergency Home & Office Trade Specialists in <span className="text-[#522959]">South Bangalore</span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight leading-tight">
+              Emergency Home & Office Trade Specialists in <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-cyan-400 to-teal-300">South Bangalore</span>
             </h2>
 
-            <p className="text-xs sm:text-sm text-[#522959] max-w-2xl leading-relaxed">
+            <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
               Professional, police-verified technicians for emergency pipe repairs, short circuits, air conditioning, and electrical diagnostics. Serving JP Nagar, Koramangala, BTM Layout, HSR, Indiranagar & Whitefield with <strong className="text-white">100% SLA Satisfaction Guarantee!</strong>
             </p>
           </div>
@@ -1267,65 +1267,65 @@ export default function CustomerPortal() {
           </div>
 
           {/* 4 Core Maidpool Trust Pillars */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 relative z-10 pt-2 border-t border-[#EADFD7]/80">
-            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-[#EADFD7] flex items-center gap-3 shadow-inner">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 relative z-10 pt-2 border-t border-slate-800/80">
+            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3 shadow-inner">
               <div className="w-10 h-10 rounded-xl bg-cyan-950/80 border border-cyan-800/60 flex items-center justify-center text-cyan-400 flex-shrink-0">
                 <IconShieldCheck className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs font-bold text-white">100% Verified</div>
-                <div className="text-[10px] text-[#64748B]">Background Checked</div>
+                <div className="text-[10px] text-slate-400">Background Checked</div>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-[#EADFD7] flex items-center gap-3 shadow-inner">
+            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3 shadow-inner">
               <div className="w-10 h-10 rounded-xl bg-indigo-950/80 border border-indigo-800/60 flex items-center justify-center text-indigo-400 flex-shrink-0">
                 <IconZap className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs font-bold text-white">45-Min SLA</div>
-                <div className="text-[10px] text-[#64748B]">Zero-Wait Dispatch</div>
+                <div className="text-[10px] text-slate-400">Zero-Wait Dispatch</div>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-[#EADFD7] flex items-center gap-3 shadow-inner">
+            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3 shadow-inner">
               <div className="w-10 h-10 rounded-xl bg-amber-950/80 border border-amber-800/60 flex items-center justify-center text-amber-400 flex-shrink-0">
                 <IconStar className="w-5 h-5 fill-amber-400" />
               </div>
               <div>
                 <div className="text-xs font-bold text-white">4.9 / 5.0 Rating</div>
-                <div className="text-[10px] text-[#64748B]">1,200+ Dispatches</div>
+                <div className="text-[10px] text-slate-400">1,200+ Dispatches</div>
               </div>
             </div>
 
-            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-[#EADFD7] flex items-center gap-3 shadow-inner">
+            <div className="p-3.5 rounded-2xl bg-slate-950/70 border border-slate-800 flex items-center gap-3 shadow-inner">
               <div className="w-10 h-10 rounded-xl bg-emerald-950/80 border border-emerald-800/60 flex items-center justify-center text-emerald-400 flex-shrink-0">
                 <IconCheckCircle className="w-5 h-5" />
               </div>
               <div>
                 <div className="text-xs font-bold text-white">100% Assured</div>
-                <div className="text-[10px] text-[#64748B]">30-Day Warranty</div>
+                <div className="text-[10px] text-slate-400">30-Day Warranty</div>
               </div>
             </div>
           </div>
 
           {/* 3-Step "How It Works" Interactive Stepper */}
           <div className="p-4 rounded-2xl bg-slate-950/80 border border-indigo-900/40 relative z-10 space-y-2.5">
-            <div className="text-[10px] uppercase font-bold text-[#64748B] tracking-wider flex items-center justify-between font-mono">
+            <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between font-mono">
               <span>HOW DISPATCHGRID WORKS (3 SIMPLE STEPS)</span>
               <span className="text-cyan-400">Pre-Book or Instant Callout</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-              <div className="flex items-center gap-2 text-[#522959] bg-slate-900/60 p-2 rounded-xl border border-[#EADFD7]">
-                <span className="w-5 h-5 rounded-full bg-indigo-600 text-[#180018] font-bold flex items-center justify-center text-[10px] shrink-0 font-mono">1</span>
+              <div className="flex items-center gap-2 text-slate-300 bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                <span className="w-5 h-5 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0 font-mono">1</span>
                 <span>Choose Trade Skill from catalog below</span>
               </div>
-              <div className="flex items-center gap-2 text-[#522959] bg-slate-900/60 p-2 rounded-xl border border-[#EADFD7]">
-                <span className="w-5 h-5 rounded-full bg-cyan-600 text-[#180018] font-bold flex items-center justify-center text-[10px] shrink-0 font-mono">2</span>
+              <div className="flex items-center gap-2 text-slate-300 bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                <span className="w-5 h-5 rounded-full bg-cyan-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0 font-mono">2</span>
                 <span>Intelligent algorithm matches nearest fleet</span>
               </div>
-              <div className="flex items-center gap-2 text-[#522959] bg-slate-900/60 p-2 rounded-xl border border-[#EADFD7]">
-                <span className="w-5 h-5 rounded-full bg-emerald-600 text-[#180018] font-bold flex items-center justify-center text-[10px] shrink-0 font-mono">3</span>
+              <div className="flex items-center gap-2 text-slate-300 bg-slate-900/60 p-2 rounded-xl border border-slate-800">
+                <span className="w-5 h-5 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center text-[10px] shrink-0 font-mono">3</span>
                 <span>Share 4-Digit PIN & receive official GST invoice</span>
               </div>
             </div>
@@ -1337,9 +1337,9 @@ export default function CustomerPortal() {
       {activeOrder ? (
         <div className="glass-panel rounded-2xl border-emerald-500/40 p-6 space-y-6 shadow-2xl relative overflow-hidden">
           {/* Status Header */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-[#EADFD7] gap-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-slate-800 gap-3">
             <div>
-              <div className="text-xs uppercase font-bold text-[#64748B] tracking-wider">Live Booking Status</div>
+              <div className="text-xs uppercase font-bold text-slate-400 tracking-wider">Live Booking Status</div>
               <h3 className="text-xl font-black text-white mt-0.5 flex items-center gap-2">
                 {jobStatus === 'ASSIGNED' && (
                   <>
@@ -1374,7 +1374,7 @@ export default function CustomerPortal() {
               </h3>
             </div>
 
-            <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-[#522959]">
+            <span className="text-xs font-mono font-bold px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-300">
               Ticket #{activeOrder.job.id.slice(0, 8)}
             </span>
           </div>
@@ -1410,7 +1410,7 @@ export default function CustomerPortal() {
                     ? 'bg-emerald-950/60 border-emerald-600/70 text-emerald-300'
                     : step.active
                     ? 'bg-indigo-950/60 border-indigo-500 text-indigo-300 shadow-sm glow-pill-indigo'
-                    : 'bg-slate-900/40 border-[#EADFD7] text-slate-500'
+                    : 'bg-slate-900/40 border-slate-800 text-slate-500'
                 }`}
               >
                 <div className="text-xs font-bold">{step.label}</div>
@@ -1420,7 +1420,7 @@ export default function CustomerPortal() {
 
           {/* Captain Accepted Order Banner */}
           {activeOrderDesc.isAccepted && activeOrderDesc.transitStage !== 'ARRIVED' && jobStatus === 'ASSIGNED' && (
-            <div className="bg-emerald-50 border border-emerald-300 p-3.5 rounded-2xl border border-emerald-500/60 shadow-md flex items-center justify-between gap-3 animate-float-slow">
+            <div className="bg-gradient-to-r from-emerald-950/70 via-slate-900 to-emerald-950/70 p-3.5 rounded-2xl border border-emerald-500/60 shadow-md flex items-center justify-between gap-3 animate-float-slow">
               <div className="flex items-center gap-2.5">
                 <span className="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-sm font-bold">
                   <IconCheck className="w-4 h-4" />
@@ -1442,7 +1442,7 @@ export default function CustomerPortal() {
 
           {/* Standout Gate Arrival Alert Banner (When Technician arrives at customer gate) */}
           {activeOrderDesc.transitStage === 'ARRIVED' && jobStatus === 'ASSIGNED' && (
-            <div className="bg-amber-50 border-2 border-amber-400 p-4 rounded-2xl border-2 border-amber-500 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-pulse">
+            <div className="bg-gradient-to-r from-amber-950/90 via-slate-900 to-amber-950/90 p-4 rounded-2xl border-2 border-amber-500 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-pulse">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-xl bg-amber-500/20 border border-amber-400 flex items-center justify-center shadow-inner">
                   <IconBell className="w-6 h-6 text-amber-400" />
@@ -1468,7 +1468,7 @@ export default function CustomerPortal() {
 
           {/* On-Site Delay / Complication Notification Banner */}
           {activeOrderDesc.complication && (
-            <div className="bg-white p-4 rounded-2xl border border-amber-500/60 shadow-lg flex items-start gap-3">
+            <div className="bg-slate-900/90 p-4 rounded-2xl border border-amber-500/60 shadow-lg flex items-start gap-3">
               <IconAlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
               <div>
                 <div className="text-amber-400 font-bold text-xs uppercase tracking-wider font-mono flex items-center gap-2">
@@ -1480,7 +1480,7 @@ export default function CustomerPortal() {
                 <div className="text-white text-xs mt-1 font-medium">
                   "{activeOrderDesc.complication.reason}"
                 </div>
-                <div className="text-[11px] text-[#64748B] mt-1 flex items-center gap-1.5">
+                <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1.5">
                   <IconShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
                   <span>DispatchGrid Guarantee: Your booking price is 100% price-locked. Schedule recovery engine has shifted downstream routes.</span>
                 </div>
@@ -1490,13 +1490,13 @@ export default function CustomerPortal() {
 
           {/* 4-Digit Service Start Verification PIN (Feature 5) */}
           {jobStatus !== 'COMPLETED' && jobStatus !== 'CANCELLED' && (
-            <div className="bg-[#FAF2EC] border border-[#DFB682] p-4 rounded-2xl border border-indigo-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
+            <div className="bg-gradient-to-r from-indigo-950/80 via-slate-900 to-indigo-950/80 p-4 rounded-2xl border border-indigo-500/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-lg">
               <div>
                 <div className="text-[10px] text-indigo-300 uppercase font-bold tracking-wider flex items-center gap-1.5 font-mono">
                   <IconShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
                   <span>Start-Service Security Verification PIN</span>
                 </div>
-                <div className="text-xs text-[#522959] mt-0.5">
+                <div className="text-xs text-slate-300 mt-0.5">
                   Share this 4-digit code with {assignedTech?.name || 'technician'} upon arrival to begin work:
                 </div>
               </div>
@@ -1510,7 +1510,7 @@ export default function CustomerPortal() {
           {jobStatus !== 'COMPLETED' && jobStatus !== 'CANCELLED' && (
             !activeOrderDesc.isAccepted ? (
               /* Phase 1: Waiting for partner acceptance -> Reallocation countdown runs; arrival time NOT shown yet */
-              <div className="bg-amber-50/70 border border-amber-200 p-4 sm:p-5 rounded-2xl border border-amber-500/50 shadow-xl space-y-3.5">
+              <div className="bg-gradient-to-r from-slate-900 via-amber-950/60 to-slate-900 p-4 sm:p-5 rounded-2xl border border-amber-500/50 shadow-xl space-y-3.5">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
                     <div className="text-[10px] text-amber-300 uppercase font-bold tracking-wider flex items-center gap-1.5 font-mono">
@@ -1523,7 +1523,7 @@ export default function CustomerPortal() {
                         {reallocationSecondsLeft}s remaining
                       </span>
                     </div>
-                    <div className="text-xs text-[#522959] mt-1 flex items-center gap-1.5">
+                    <div className="text-xs text-slate-300 mt-1 flex items-center gap-1.5">
                       <IconMapPin className="w-3.5 h-3.5 text-amber-400" />
                       <span>
                         Offer dispatched to Captain <strong className="text-white">{assignedTech?.name}</strong> ({activeOrderDesc.distanceKm || 2.4} km away). Auto-reallocates to next backup if no response in {reallocationSecondsLeft}s.
@@ -1539,13 +1539,13 @@ export default function CustomerPortal() {
 
                 {/* Reallocation Progress Bar (ticks down from 60 to 0) */}
                 <div className="space-y-1.5 pt-1">
-                  <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-[#EADFD7]">
+                  <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
                     <div
-                      className="bg-amber-500 h-full rounded-full transition-all duration-1000 shadow-sm"
+                      className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 h-full rounded-full transition-all duration-1000 shadow-sm"
                       style={{ width: `${Math.min(100, Math.max(5, (reallocationSecondsLeft / 60) * 100))}%` }}
                     ></div>
                   </div>
-                  <div className="flex justify-between text-[10px] text-[#64748B] font-mono">
+                  <div className="flex justify-between text-[10px] text-slate-400 font-mono">
                     <span>Dispatched (0s)</span>
                     <span>Auto-Reallocation Cutoff (60s)</span>
                   </div>
@@ -1560,7 +1560,7 @@ export default function CustomerPortal() {
               </div>
             ) : (
               /* Phase 2: Partner Accepted! Reallocation window completely removed. Arrival Time is now activated and confirmed! */
-              <div className="bg-emerald-50/70 border border-emerald-200 p-4 sm:p-5 rounded-2xl border border-emerald-500/50 shadow-xl space-y-3.5">
+              <div className="bg-gradient-to-r from-slate-900 via-emerald-950/70 to-slate-900 p-4 sm:p-5 rounded-2xl border border-emerald-500/50 shadow-xl space-y-3.5">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                   <div>
                     <div className="text-[10px] text-emerald-300 uppercase font-bold tracking-wider flex items-center gap-1.5 font-mono">
@@ -1572,11 +1572,11 @@ export default function CustomerPortal() {
                       <span className="font-mono px-3 py-1 rounded-xl border text-base font-bold shadow-md bg-emerald-950/80 text-emerald-300 border-emerald-600 glow-pill-emerald">
                         Today by {activeOrderDesc.scheduledArrivalTime || '06:30 PM'}
                       </span>
-                      <span className="text-xs text-[#64748B] font-mono">
+                      <span className="text-xs text-slate-400 font-mono">
                         (~{Math.max(12, Math.round((activeOrderDesc.distanceKm || 2.4) * 3))} mins transit)
                       </span>
                     </div>
-                    <div className="text-xs text-[#522959] mt-1 flex items-center gap-1.5">
+                    <div className="text-xs text-slate-300 mt-1 flex items-center gap-1.5">
                       <IconMail className="w-3.5 h-3.5 text-cyan-400" />
                       <span>
                         Official arrival schedule & PIN confirmation dispatched to <strong className="text-white">{activeOrderDesc.email || 'your email'}</strong>
@@ -1611,9 +1611,9 @@ export default function CustomerPortal() {
 
                 {/* Transit Progress Bar */}
                 <div className="space-y-1.5 pt-1">
-                  <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-[#EADFD7]">
+                  <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
                     <div
-                      className="bg-[#522959] h-full rounded-full transition-all duration-1000 shadow-sm"
+                      className="bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 h-full rounded-full transition-all duration-1000 shadow-sm"
                       style={{
                         width: `${
                           jobStatus === 'IN_PROGRESS'
@@ -1627,7 +1627,7 @@ export default function CustomerPortal() {
                       }}
                     ></div>
                   </div>
-                  <div className="flex justify-between text-[10px] text-[#64748B] font-mono">
+                  <div className="flex justify-between text-[10px] text-slate-400 font-mono">
                     <span>Hub Dispatched</span>
                     <span>Transit Corridor</span>
                     <span>{activeOrderDesc.address || 'Delivery Address'}</span>
@@ -1640,9 +1640,9 @@ export default function CustomerPortal() {
           {/* Assigned Technician Profile Card (Partner Card with Verified Badges & Vehicle) */}
           {assignedTech ? (
             <div className="space-y-4">
-              <div className="bg-white rounded-2xl p-5 border border-[#EADFD7] shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+              <div className="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 shadow-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[#522959] text-white flex items-center justify-center text-[#180018] text-xl font-black shadow-lg">
+                  <div className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-indigo-600 via-indigo-500 to-cyan-400 flex items-center justify-center text-white text-xl font-black shadow-lg">
                     {assignedTech.name.slice(0, 2).toUpperCase()}
                   </div>
                   <div>
@@ -1655,7 +1655,7 @@ export default function CustomerPortal() {
                         Background Checked
                       </span>
                     </div>
-                    <div className="flex items-center gap-3 mt-1 text-xs text-[#64748B]">
+                    <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
                       <span className="flex items-center gap-1 text-amber-400 font-bold">
                         <IconStar className="w-3.5 h-3.5 fill-amber-400" /> 4.9 (142 ratings)
                       </span>
@@ -1664,7 +1664,7 @@ export default function CustomerPortal() {
                       <span>•</span>
                       <span className="text-emerald-400 font-semibold">98% On-Time SLA</span>
                     </div>
-                    <div className="text-[11px] text-[#64748B] mt-1 flex items-center gap-1.5 font-mono">
+                    <div className="text-[11px] text-slate-400 mt-1 flex items-center gap-1.5 font-mono">
                       <IconBike className="w-3.5 h-3.5 text-cyan-400" />
                       <span>Honda Activa 6G • #KA-05-MN-4821 (Toolkit Onboard)</span>
                     </div>
@@ -1674,7 +1674,7 @@ export default function CustomerPortal() {
                 {/* Transit & Contact Actions */}
                 <div className="flex items-center gap-3 w-full md:w-auto justify-end">
                   <div className="text-right mr-2 hidden sm:block">
-                    <div className="text-[10px] text-[#64748B] uppercase font-semibold">Worksite Distance</div>
+                    <div className="text-[10px] text-slate-400 uppercase font-semibold">Worksite Distance</div>
                     <div className="text-base font-bold text-cyan-400 font-mono">
                       {activeOrderDesc.distanceKm || activeOrderDesc.techDistance || 2.4} km away
                     </div>
@@ -1696,8 +1696,8 @@ export default function CustomerPortal() {
               </div>
 
               {/* Decision Engine Candidate Ranking Audit (Why this person was chosen over someone else) */}
-              <div className="bg-white rounded-2xl p-5 border border-indigo-500/30 space-y-3.5 shadow-xl">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-[#EADFD7] pb-3">
+              <div className="bg-slate-900/90 rounded-2xl p-5 border border-indigo-500/30 space-y-3.5 shadow-xl">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-800 pb-3">
                   <div className="flex items-center gap-2">
                     <IconShieldCheck className="w-4 h-4 text-cyan-400" />
                     <span className="text-xs font-black text-white uppercase tracking-wider font-mono">
@@ -1709,7 +1709,7 @@ export default function CustomerPortal() {
                   </span>
                 </div>
 
-                <div className="text-xs text-[#522959] leading-relaxed">
+                <div className="text-xs text-slate-300 leading-relaxed">
                   <strong>Why was this person chosen over someone else?</strong>{' '}
                   <span className="text-cyan-200">
                     {activeOrderDesc.dispatchReason ||
@@ -1719,9 +1719,9 @@ export default function CustomerPortal() {
 
                 {/* Candidate Ranking Comparison Table */}
                 {activeOrderDesc.candidateRanking && activeOrderDesc.candidateRanking.length > 0 && (
-                  <div className="overflow-x-auto rounded-xl border border-[#EADFD7] bg-slate-950/80">
-                    <table className="w-full text-left text-xs text-[#522959]">
-                      <thead className="bg-slate-900 text-[#64748B] font-mono text-[10px] uppercase border-b border-[#EADFD7]">
+                  <div className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/80">
+                    <table className="w-full text-left text-xs text-slate-300">
+                      <thead className="bg-slate-900 text-slate-400 font-mono text-[10px] uppercase border-b border-slate-800">
                         <tr>
                           <th className="py-2.5 px-3">Rank</th>
                           <th className="py-2.5 px-3">Technician</th>
@@ -1746,7 +1746,7 @@ export default function CustomerPortal() {
                             </td>
                             <td className="py-2.5 px-3">
                               <span className={`text-[10px] px-2 py-0.5 rounded-md ${
-                                cand.isQualified ? 'bg-emerald-950 text-emerald-400 border border-emerald-700/60' : 'bg-slate-800 text-[#64748B]'
+                                cand.isQualified ? 'bg-emerald-950 text-emerald-400 border border-emerald-700/60' : 'bg-slate-800 text-slate-400'
                               }`}>
                                 {cand.isQualified ? 'Trade Qualified' : 'Alternative Skill'}
                               </span>
@@ -1757,7 +1757,7 @@ export default function CustomerPortal() {
                                   <IconCheck className="w-3 h-3" /> SELECTED #1
                                 </span>
                               ) : (
-                                <span className="text-[10px] text-[#64748B]">
+                                <span className="text-[10px] text-slate-400">
                                   Backup (+{(cand.distanceKm - (activeOrderDesc.distanceKm || 2.4)).toFixed(1)} km)
                                 </span>
                               )}
@@ -1775,7 +1775,7 @@ export default function CustomerPortal() {
               <IconAlertTriangle className="w-5 h-5 text-amber-400 flex-shrink-0" />
               <div>
                 <div className="font-bold">Searching qualified backup partners...</div>
-                <div className="text-[11px] text-[#64748B] mt-0.5">
+                <div className="text-[11px] text-slate-400 mt-0.5">
                   All local technicians currently on active jobs. Dispatch system actively searching nearest available specialist.
                 </div>
               </div>
@@ -1783,17 +1783,17 @@ export default function CustomerPortal() {
           )}
 
           {/* Customer Profile Dossier attached to this booking */}
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-[#EADFD7] text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div>
-              <div className="text-[10px] uppercase font-bold text-[#64748B] tracking-wider">Service Delivery Contact (Billed To)</div>
+              <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Service Delivery Contact (Billed To)</div>
               <div className="text-white mt-1 font-bold flex items-center gap-2">
                 <span>{activeOrder.customer?.name || profile?.name || 'Rahul Sharma'}</span>
-                <span className="text-[10px] text-[#64748B]">({activeOrder.customer?.age || profile?.age || 29} yrs)</span>
+                <span className="text-[10px] text-slate-400">({activeOrder.customer?.age || profile?.age || 29} yrs)</span>
               </div>
-              <div className="text-[11px] text-[#522959] font-mono mt-0.5 flex flex-wrap items-center gap-2">
-                <span className="flex items-center gap-1"><IconPhone className="w-3 h-3 text-[#64748B]" /> {activeOrder.customer?.phone || profile?.phone || '+91 98765 43210'}</span>
+              <div className="text-[11px] text-slate-300 font-mono mt-0.5 flex flex-wrap items-center gap-2">
+                <span className="flex items-center gap-1"><IconPhone className="w-3 h-3 text-slate-400" /> {activeOrder.customer?.phone || profile?.phone || '+91 98765 43210'}</span>
                 <span>•</span>
-                <span className="flex items-center gap-1"><IconMail className="w-3 h-3 text-[#64748B]" /> {activeOrder.customer?.email || profile?.email || 'customer@example.com'}</span>
+                <span className="flex items-center gap-1"><IconMail className="w-3 h-3 text-slate-400" /> {activeOrder.customer?.email || profile?.email || 'customer@example.com'}</span>
               </div>
               <div className="text-[11px] text-cyan-300 mt-0.5 flex items-center gap-1">
                 <IconMapPin className="w-3 h-3 text-cyan-400" />
@@ -1806,22 +1806,22 @@ export default function CustomerPortal() {
           </div>
 
           {/* Gate Notes Attached to Order (Feature 3) */}
-          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-[#EADFD7] text-xs flex items-start justify-between gap-3">
+          <div className="bg-slate-900/60 p-3.5 rounded-xl border border-slate-800 text-xs flex items-start justify-between gap-3">
             <div>
-              <div className="text-[10px] uppercase font-bold text-[#64748B] tracking-wider">Gate / Arrival Instructions for Partner</div>
+              <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Gate / Arrival Instructions for Partner</div>
               <div className="text-slate-200 mt-1 font-medium">{activeOrder.gateNote || 'Flat 402, Ring bell twice'}</div>
             </div>
-            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-[#64748B] font-mono">
+            <span className="text-[10px] bg-slate-800 px-2 py-0.5 rounded text-slate-400 font-mono">
               Sent to Partner
             </span>
           </div>
 
           {/* Consumables & Parts Fitted Sheet (Urban Company Style) */}
           {jobStatus === 'COMPLETED' && activeOrderDesc.selectedParts && activeOrderDesc.selectedParts.length > 0 && (
-            <div className="bg-white rounded-2xl p-4 border border-emerald-500/40 space-y-3 shadow-xl">
+            <div className="bg-slate-900/90 rounded-2xl p-4 border border-emerald-500/40 space-y-3 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-bold text-white flex items-center gap-2">
-                  <IconWrench className="w-4 h-4 text-[#64748B]" />
+                  <IconWrench className="w-4 h-4 text-slate-400" />
                   <span>Parts & Consumables Installed On-Site</span>
                   <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-700 px-2 py-0.5 rounded-full font-mono">
                     Genuine OEM Parts
@@ -1835,7 +1835,7 @@ export default function CustomerPortal() {
                 {activeOrderDesc.selectedParts.map((partId: string) => {
                   const part = COMMON_PARTS.find((p: ConsumablePart) => p.id === partId)
                   return (
-                    <div key={partId} className="flex justify-between items-center text-xs text-[#522959] bg-slate-950/60 px-3 py-2 rounded-xl border border-[#EADFD7]">
+                    <div key={partId} className="flex justify-between items-center text-xs text-slate-300 bg-slate-950/60 px-3 py-2 rounded-xl border border-slate-800">
                       <span className="font-medium">{part?.name || partId} ({part?.category})</span>
                       <span className="font-mono text-emerald-400 font-bold">₹{part?.price || 0}</span>
                     </div>
@@ -1843,7 +1843,7 @@ export default function CustomerPortal() {
                 })}
               </div>
               {activeOrderDesc.resolutionNote && (
-                <div className="text-xs text-[#522959] bg-slate-950/40 p-2.5 rounded-xl border border-[#EADFD7] font-mono">
+                <div className="text-xs text-slate-300 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800 font-mono">
                   <span className="text-emerald-400 font-bold">Work Order Notes:</span> "{activeOrderDesc.resolutionNote}"
                 </div>
               )}
@@ -1852,7 +1852,7 @@ export default function CustomerPortal() {
 
           {/* Extra Jobs & Replaced Spare Parts Fitted Sheet */}
           {jobStatus === 'COMPLETED' && activeOrderDesc.extraTasks && activeOrderDesc.extraTasks.length > 0 && (
-            <div className="bg-white rounded-2xl p-4 border border-cyan-500/40 space-y-3 shadow-xl">
+            <div className="bg-slate-900/90 rounded-2xl p-4 border border-cyan-500/40 space-y-3 shadow-xl">
               <div className="flex items-center justify-between">
                 <div className="text-xs font-bold text-white flex items-center gap-2">
                   <IconSparkles className="w-4 h-4 text-cyan-400" />
@@ -1867,7 +1867,7 @@ export default function CustomerPortal() {
               </div>
               <div className="space-y-1.5">
                 {activeOrderDesc.extraTasks.map((item: any) => (
-                  <div key={item.id} className="flex justify-between items-center text-xs text-[#522959] bg-slate-950/60 px-3 py-2 rounded-xl border border-[#EADFD7]">
+                  <div key={item.id} className="flex justify-between items-center text-xs text-slate-300 bg-slate-950/60 px-3 py-2 rounded-xl border border-slate-800">
                     <span className="font-medium flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
                       <span>{item.description}</span>
@@ -1881,7 +1881,7 @@ export default function CustomerPortal() {
 
           {/* Rating Section on Completion */}
           {jobStatus === 'COMPLETED' && (
-            <div className="p-5 bg-emerald-50 border border-emerald-200 rounded-2xl border border-emerald-500/40 text-center space-y-3">
+            <div className="p-5 bg-gradient-to-r from-emerald-950/50 via-slate-900 to-emerald-950/30 rounded-2xl border border-emerald-500/40 text-center space-y-3">
               <h4 className="text-sm font-bold text-white">How was your service with {assignedTech?.name || 'our partner'}?</h4>
               <div className="flex justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
@@ -1914,7 +1914,7 @@ export default function CustomerPortal() {
                   <span>Download Official Tax Invoice</span>
                 </button>
               </div>
-              <p className="text-xs text-[#64748B]">100% On-Time SLA Guarantee fulfilled.</p>
+              <p className="text-xs text-slate-400">100% On-Time SLA Guarantee fulfilled.</p>
             </div>
           )}
 
@@ -1923,7 +1923,7 @@ export default function CustomerPortal() {
             <button
               type="button"
               onClick={handleNewBooking}
-              className="text-xs font-bold text-[#522959] hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 px-4 py-2.5 rounded-xl transition-all cursor-pointer"
+              className="text-xs font-bold text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-700 px-4 py-2.5 rounded-xl transition-all cursor-pointer"
             >
               + Book Another Service
             </button>
@@ -1945,7 +1945,7 @@ export default function CustomerPortal() {
         <div className="space-y-6">
           {/* 1. Category Picker */}
           <div>
-            <div className="text-xs uppercase font-bold text-[#64748B] tracking-wider mb-3">
+            <div className="text-xs uppercase font-bold text-slate-400 tracking-wider mb-3">
               1. Select Trade Specialist
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -1963,15 +1963,15 @@ export default function CustomerPortal() {
                     }`}
                   >
                     <div>
-                      <div className="mb-2.5 p-2 w-10 h-10 rounded-xl bg-slate-900 border border-[#EADFD7] flex items-center justify-center">
+                      <div className="mb-2.5 p-2 w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center">
                         {getCategoryIcon(cat.id)}
                       </div>
                       <div className="text-xs font-bold text-white leading-tight">{cat.name}</div>
-                      <div className="text-[10px] text-[#64748B] mt-1 line-clamp-2">{cat.description}</div>
+                      <div className="text-[10px] text-slate-400 mt-1 line-clamp-2">{cat.description}</div>
                     </div>
-                    <div className="mt-3 pt-2 border-t border-[#EADFD7]/80 flex items-center justify-between">
+                    <div className="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between">
                       <span className="text-[11px] font-mono font-bold text-emerald-400">₹{cat.basePrice}</span>
-                      <span className="text-[10px] text-[#64748B] font-mono">~{cat.avgTime}</span>
+                      <span className="text-[10px] text-slate-400 font-mono">~{cat.avgTime}</span>
                     </div>
                   </button>
                 )
@@ -1982,9 +1982,9 @@ export default function CustomerPortal() {
           {/* 2. Location & Urgency */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Zone / Address Picker with Quick Saved Address Switcher (Feature 1) */}
-            <div className="glass-panel rounded-2xl p-4 border-[#EADFD7] space-y-3">
+            <div className="glass-panel rounded-2xl p-4 border-slate-800 space-y-3">
               <div className="flex items-center justify-between">
-                <label className="text-xs uppercase font-bold text-[#64748B] tracking-wider flex items-center gap-1.5">
+                <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">
                   <IconMapPin className="w-4 h-4 text-cyan-400" />
                   <span>2. Service Location & Saved Addresses</span>
                 </label>
@@ -2009,13 +2009,13 @@ export default function CustomerPortal() {
                       <div className="flex items-center justify-between">
                         <span className="p-1 rounded-lg bg-slate-800/80 text-cyan-400">{getAddressIcon(addr.id)}</span>
                         <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded font-mono ${
-                          isSelected ? 'bg-indigo-600/60 text-white' : 'bg-slate-800 text-[#64748B]'
+                          isSelected ? 'bg-indigo-600/60 text-white' : 'bg-slate-800 text-slate-400'
                         }`}>
                           {addr.tag}
                         </span>
                       </div>
                       <div className="text-xs font-bold mt-1 text-white truncate">{addr.label}</div>
-                      <div className="text-[9px] text-[#64748B] truncate mt-0.5">{addr.landmark}</div>
+                      <div className="text-[9px] text-slate-400 truncate mt-0.5">{addr.landmark}</div>
                     </button>
                   )
                 })}
@@ -2023,7 +2023,7 @@ export default function CustomerPortal() {
 
               {/* Hub Zone Dropdown */}
               <div className="space-y-1">
-                <div className="text-[10px] text-[#64748B] uppercase font-semibold">Assigned Dispatch Zone</div>
+                <div className="text-[10px] text-slate-400 uppercase font-semibold">Assigned Dispatch Zone</div>
                 <select
                   value={selectedZone.id}
                   onChange={(e) => {
@@ -2045,7 +2045,7 @@ export default function CustomerPortal() {
 
               {/* Exact Street Address Input */}
               <div className="space-y-1">
-                <div className="text-[10px] text-[#64748B] uppercase font-semibold">Street / Flat / Door Number</div>
+                <div className="text-[10px] text-slate-400 uppercase font-semibold">Street / Flat / Door Number</div>
                 <input
                   type="text"
                   placeholder="Specific Street / Apartment / Flat No. (e.g. Flat 402, Tower B)"
@@ -2054,14 +2054,14 @@ export default function CustomerPortal() {
                     setStreetAddress(e.target.value)
                     setSelectedAddressId('custom')
                   }}
-                  className="w-full bg-slate-900/60 border border-[#EADFD7] text-[#522959] text-xs rounded-xl p-2.5 focus:outline-none focus:border-indigo-500 font-medium"
+                  className="w-full bg-slate-900/60 border border-slate-800 text-slate-300 text-xs rounded-xl p-2.5 focus:outline-none focus:border-indigo-500 font-medium"
                 />
               </div>
             </div>
 
             {/* Urgency & Priority Picker */}
-            <div className="glass-panel rounded-2xl p-4 border-[#EADFD7] space-y-3">
-              <label className="text-xs uppercase font-bold text-[#64748B] tracking-wider flex items-center gap-1.5">
+            <div className="glass-panel rounded-2xl p-4 border-slate-800 space-y-3">
+              <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center gap-1.5">
                 <IconZap className="w-4 h-4 text-amber-400" />
                 <span>3. Dispatch Priority Level</span>
               </label>
@@ -2076,7 +2076,7 @@ export default function CustomerPortal() {
                     type="button"
                     onClick={() => setPriority(tier.id as any)}
                     className={`p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
-                      priority === tier.id ? tier.color + ' font-bold shadow-md' : 'border-[#EADFD7] bg-slate-900/40 text-[#64748B]'
+                      priority === tier.id ? tier.color + ' font-bold shadow-md' : 'border-slate-800 bg-slate-900/40 text-slate-400'
                     }`}
                   >
                     <div className="text-xs font-bold">{tier.label}</div>
@@ -2090,15 +2090,15 @@ export default function CustomerPortal() {
                 placeholder={`Custom issue details (e.g. "${selectedCategory.name} issue in kitchen")`}
                 value={customTitle}
                 onChange={(e) => setCustomTitle(e.target.value)}
-                className="w-full bg-slate-900/60 border border-[#EADFD7] text-[#522959] text-xs rounded-xl p-2.5 focus:outline-none focus:border-indigo-500"
+                className="w-full bg-slate-900/60 border border-slate-800 text-slate-300 text-xs rounded-xl p-2.5 focus:outline-none focus:border-indigo-500"
               />
             </div>
           </div>
 
           {/* Preferred Fleet Partner Dispatch Selector */}
-          <div className="glass-panel rounded-2xl p-4 border-[#EADFD7] space-y-2">
+          <div className="glass-panel rounded-2xl p-4 border-slate-800 space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-[#522959] flex items-center gap-1.5">
+              <span className="font-bold text-slate-300 flex items-center gap-1.5">
                 <IconHardHat className="w-3.5 h-3.5 text-cyan-400" />
                 <span>Dispatched Fleet Specialist</span>
                 <span className="text-[10px] text-cyan-400 font-mono">(Smart Auto-Match or Choose Preferred Partner)</span>
@@ -2129,8 +2129,8 @@ export default function CustomerPortal() {
           </div>
 
           {/* 3. Gate Notes & Arrival Instructions (Feature 3) */}
-          <div className="glass-panel rounded-2xl p-4 border-[#EADFD7] space-y-3">
-            <label className="text-xs uppercase font-bold text-[#64748B] tracking-wider flex items-center justify-between">
+          <div className="glass-panel rounded-2xl p-4 border-slate-800 space-y-3">
+            <label className="text-xs uppercase font-bold text-slate-400 tracking-wider flex items-center justify-between">
               <span>4. Gate Notes & Arrival Instructions for Partner</span>
               <span className="text-[10px] text-indigo-400 font-mono">Quick-Tap Chips</span>
             </label>
@@ -2145,7 +2145,7 @@ export default function CustomerPortal() {
                   className={`text-[11px] px-3 py-1.5 rounded-xl border transition-all cursor-pointer ${
                     gateNote === chip
                       ? 'bg-indigo-950 text-indigo-300 border-indigo-600 font-bold'
-                      : 'bg-slate-900/80 text-[#64748B] border-[#EADFD7] hover:border-slate-700 hover:text-slate-200'
+                      : 'bg-slate-900/80 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-slate-200'
                   }`}
                 >
                   {chip}
@@ -2158,20 +2158,20 @@ export default function CustomerPortal() {
               placeholder="Custom arrival note (e.g. Buzz intercom #104 or leave shoes outside)"
               value={gateNote}
               onChange={(e) => setGateNote(e.target.value)}
-              className="w-full bg-slate-900/60 border border-[#EADFD7] text-[#522959] text-xs rounded-xl p-2.5 focus:outline-none focus:border-indigo-500 font-medium"
+              className="w-full bg-slate-900/60 border border-slate-800 text-slate-300 text-xs rounded-xl p-2.5 focus:outline-none focus:border-indigo-500 font-medium"
             />
           </div>
 
           {/* 4. Transparent Fare Breakdown Card (Urban Company style - Feature 3) */}
           <div className="glass-panel rounded-2xl border-indigo-500/30 overflow-hidden shadow-xl transition-all">
             {/* Top Bar with Total & Action Button */}
-            <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#FAF2EC] border-t border-[#EADFD7]">
+            <div className="p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 bg-gradient-to-r from-slate-900 via-indigo-950/40 to-slate-900">
               <div className="flex items-center gap-3 w-full sm:w-auto">
                 <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
                   <IconDollarSign className="w-5 h-5" />
                 </div>
                 <div>
-                  <div className="text-[10px] text-[#64748B] uppercase font-semibold flex items-center gap-2">
+                  <div className="text-[10px] text-slate-400 uppercase font-semibold flex items-center gap-2">
                     <span>Total Guaranteed Amount</span>
                     <button
                       type="button"
@@ -2213,8 +2213,8 @@ export default function CustomerPortal() {
 
             {/* Expandable Urban Company Styled Itemized Breakdown */}
             {showFareBreakdown && (
-              <div className="p-4 sm:p-5 border-t border-[#EADFD7] bg-slate-950/80 space-y-3">
-                <div className="text-xs uppercase font-bold text-[#522959] tracking-wider flex items-center justify-between border-b border-[#EADFD7]/80 pb-2">
+              <div className="p-4 sm:p-5 border-t border-slate-800 bg-slate-950/80 space-y-3">
+                <div className="text-xs uppercase font-bold text-slate-300 tracking-wider flex items-center justify-between border-b border-slate-800/80 pb-2">
                   <span className="flex items-center gap-1.5">
                     <IconShieldCheck className="w-4 h-4 text-cyan-400" />
                     <span>Urban Company Style Transparent Fare Receipt</span>
@@ -2223,7 +2223,7 @@ export default function CustomerPortal() {
                 </div>
 
                 <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between text-[#522959]">
+                  <div className="flex items-center justify-between text-slate-300">
                     <div className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
                       <span>Base Trade Labour ({selectedCategory.name})</span>
@@ -2231,7 +2231,7 @@ export default function CustomerPortal() {
                     <span className="font-mono font-semibold text-white">₹{baseTradePrice}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-[#522959]">
+                  <div className="flex items-center justify-between text-slate-300">
                     <div className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
                       <span>Standard Service Visit & Logistics Charge</span>
@@ -2239,17 +2239,17 @@ export default function CustomerPortal() {
                     <span className="font-mono font-semibold text-emerald-400 font-bold">+₹{defaultServiceCharge}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-[#522959]">
+                  <div className="flex items-center justify-between text-slate-300">
                     <div className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-teal-400"></span>
                       <span>Distance Surcharge ({distanceKm.toFixed(1)} km from nearest partner)</span>
                     </div>
-                    <span className={`font-mono font-semibold ${isDistanceOver5Km ? 'text-amber-400 font-bold' : 'text-[#64748B]'}`}>
+                    <span className={`font-mono font-semibold ${isDistanceOver5Km ? 'text-amber-400 font-bold' : 'text-slate-400'}`}>
                       {isDistanceOver5Km ? `+₹${distanceSurchargeFee} (>5km)` : '₹0 (Within 5km)'}
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between text-[#522959]">
+                  <div className="flex items-center justify-between text-slate-300">
                     <div className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-400"></span>
                       <span>SLA Speed Guarantee ({priority === 'CRITICAL' ? 'Immediate 45-Min Emergency' : priority === 'HIGH' ? 'Within 2 Hours' : 'Standard Flexible'})</span>
@@ -2257,7 +2257,7 @@ export default function CustomerPortal() {
                     <span className="font-mono font-semibold text-white">₹{prioritySpeedFee}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-[#522959]">
+                  <div className="flex items-center justify-between text-slate-300">
                     <div className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
                       <span>Safety Gear, Sanitized Tools & Basic Consumables</span>
@@ -2265,7 +2265,7 @@ export default function CustomerPortal() {
                     <span className="font-mono font-semibold text-white">₹{safetyEquipmentFee}</span>
                   </div>
 
-                  <div className="flex items-center justify-between text-[#522959]">
+                  <div className="flex items-center justify-between text-slate-300">
                     <div className="flex items-center gap-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
                       <span>Real-Time Cloud Dispatch & Fleet Platform Fee</span>
@@ -2273,9 +2273,9 @@ export default function CustomerPortal() {
                     <span className="font-mono font-semibold text-white">₹{cloudPlatformFee}</span>
                   </div>
 
-                  <div className="border-t border-[#EADFD7] pt-2 flex items-center justify-between text-[#64748B] text-[11px]">
+                  <div className="border-t border-slate-800 pt-2 flex items-center justify-between text-slate-400 text-[11px]">
                     <span>Statutory Taxes (18% GST SGST + CGST)</span>
-                    <span className="font-mono text-[#522959]">₹{gstTaxAmount}</span>
+                    <span className="font-mono text-slate-300">₹{gstTaxAmount}</span>
                   </div>
 
                   <div className="border-t border-indigo-900/60 pt-2 flex items-center justify-between text-sm font-bold text-white">
@@ -2284,7 +2284,7 @@ export default function CustomerPortal() {
                   </div>
                 </div>
 
-                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-[#EADFD7] text-[11px] text-[#64748B] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
+                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-[11px] text-slate-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1">
                   <span className="flex items-center gap-1.5"><IconShieldCheck className="w-3.5 h-3.5 text-emerald-400" /> Backed by DispatchGrid 30-Day Service Guarantee</span>
                   <span className="text-cyan-400 font-mono">Official GST Invoice generated upon completion</span>
                 </div>
@@ -2301,11 +2301,11 @@ export default function CustomerPortal() {
           onClick={() => setShowDrawer(false)}
         >
           <div
-            className="glass-panel rounded-2xl border-[#EADFD7] p-6 w-full max-w-md shadow-2xl h-[90vh] flex flex-col"
+            className="glass-panel rounded-2xl border-slate-800 p-6 w-full max-w-md shadow-2xl h-[90vh] flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Drawer Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#EADFD7]">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <span>My Bookings History</span>
@@ -2313,26 +2313,26 @@ export default function CustomerPortal() {
                     {bookings.length} Tickets
                   </span>
                 </h3>
-                <p className="text-xs text-[#64748B]">Order receipts, security PINs, and tax invoices.</p>
+                <p className="text-xs text-slate-400">Order receipts, security PINs, and tax invoices.</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowDrawer(false)}
-                className="text-[#64748B] hover:text-white p-1 rounded-lg"
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
               >
                 <IconX className="w-5 h-5" />
               </button>
             </div>
 
             {/* Active Customer Profile Inside Drawer */}
-            <div className="py-3 border-b border-[#EADFD7]">
+            <div className="py-3 border-b border-slate-800">
               {profile ? (
-                <div className="p-3 bg-white rounded-xl border border-indigo-500/30 space-y-1.5">
+                <div className="p-3 bg-slate-900/90 rounded-xl border border-indigo-500/30 space-y-1.5">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-bold text-white flex items-center gap-1.5">
                       <IconUser className="w-3.5 h-3.5 text-cyan-400" />
                       <span>{profile.name}</span>
-                      <span className="text-[10px] text-[#64748B]">({profile.age} yrs)</span>
+                      <span className="text-[10px] text-slate-400">({profile.age} yrs)</span>
                     </span>
                     <button
                       type="button"
@@ -2342,16 +2342,16 @@ export default function CustomerPortal() {
                       Edit Profile
                     </button>
                   </div>
-                  <div className="text-[11px] text-[#522959] font-mono flex flex-wrap items-center gap-2">
-                    <span className="flex items-center gap-1"><IconPhone className="w-3 h-3 text-[#64748B]" /> {profile.phone}</span>
+                  <div className="text-[11px] text-slate-300 font-mono flex flex-wrap items-center gap-2">
+                    <span className="flex items-center gap-1"><IconPhone className="w-3 h-3 text-slate-400" /> {profile.phone}</span>
                     <span>•</span>
-                    <span className="flex items-center gap-1"><IconMail className="w-3 h-3 text-[#64748B]" /> {profile.email}</span>
+                    <span className="flex items-center gap-1"><IconMail className="w-3 h-3 text-slate-400" /> {profile.email}</span>
                   </div>
-                  <div className="text-[11px] text-[#64748B] truncate flex items-center gap-1">
+                  <div className="text-[11px] text-slate-400 truncate flex items-center gap-1">
                     <IconMapPin className="w-3 h-3 text-cyan-400" />
                     <span>{profile.address}</span>
                   </div>
-                  <div className="pt-1.5 border-t border-[#EADFD7]/80 flex items-center justify-between">
+                  <div className="pt-1.5 border-t border-slate-800/80 flex items-center justify-between">
                     <span className="text-[9px] text-emerald-400 font-mono">Verified Resident</span>
                     <button
                       type="button"
@@ -2384,7 +2384,7 @@ export default function CustomerPortal() {
                 bookings.map((b) => (
                   <div
                     key={b.id}
-                    className="p-3.5 rounded-xl border border-[#EADFD7] bg-[#FAF2EC] hover:border-slate-700 transition-all space-y-2"
+                    className="p-3.5 rounded-xl border border-slate-800 bg-slate-900/70 hover:border-slate-700 transition-all space-y-2"
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-white truncate max-w-[200px]">{b.title}</span>
@@ -2403,13 +2403,13 @@ export default function CustomerPortal() {
                       </span>
                     </div>
 
-                    <div className="text-[11px] text-[#64748B] flex items-center justify-between font-mono">
+                    <div className="text-[11px] text-slate-400 flex items-center justify-between font-mono">
                       <span>Tech: {b.technicianName || 'Alex Martinez'}</span>
                       <span className="text-emerald-400 font-bold">₹{b.totalAmount}</span>
                     </div>
 
                     {b.otp && b.status !== 'COMPLETED' && (
-                      <div className="text-[10px] text-[#64748B] font-mono bg-slate-950 p-1.5 rounded flex items-center justify-between border border-[#EADFD7]">
+                      <div className="text-[10px] text-slate-400 font-mono bg-slate-950 p-1.5 rounded flex items-center justify-between border border-slate-800">
                         <span>Security Start PIN:</span>
                         <strong className="text-indigo-400 tracking-wider font-bold">{b.otp}</strong>
                       </div>
@@ -2456,7 +2456,7 @@ export default function CustomerPortal() {
 
             {/* Clear History Button */}
             {bookings.length > 0 && (
-              <div className="pt-3 border-t border-[#EADFD7] text-center">
+              <div className="pt-3 border-t border-slate-800 text-center">
                 <button
                   type="button"
                   onClick={clearCustomerHistory}
@@ -2475,20 +2475,20 @@ export default function CustomerPortal() {
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-rose-500/50 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl relative animate-float-slow">
             {/* Header */}
-            <div className="flex items-start justify-between pb-3 border-b border-[#EADFD7]">
+            <div className="flex items-start justify-between pb-3 border-b border-slate-800">
               <div>
                 <div className="flex items-center gap-2">
                   <IconAlertTriangle className="w-5 h-5 text-rose-400" />
                   <h3 className="font-bold text-white text-base">Cancel Booking Confirmation</h3>
                 </div>
-                <p className="text-xs text-[#64748B] mt-1">
+                <p className="text-xs text-slate-400 mt-1">
                   Please share why you'd like to cancel this dispatch request:
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCancelModal(false)}
-                className="text-[#64748B] hover:text-white p-1 rounded-lg"
+                className="text-slate-400 hover:text-white p-1 rounded-lg"
               >
                 <IconX className="w-5 h-5" />
               </button>
@@ -2537,13 +2537,13 @@ export default function CustomerPortal() {
                     className={`w-full p-2.5 rounded-xl border text-left transition-all cursor-pointer flex items-start gap-2.5 ${
                       isSelected
                         ? 'bg-rose-950/70 border-rose-500 text-white shadow-sm'
-                        : 'bg-slate-950/60 border-[#EADFD7] text-[#522959] hover:border-slate-700 hover:bg-slate-900/60'
+                        : 'bg-slate-950/60 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-900/60'
                     }`}
                   >
                     <span className="p-1 rounded-lg bg-rose-950/60 text-rose-400">{getCancellationIcon(opt.id)}</span>
                     <div className="flex-1">
                       <div className="text-xs font-bold text-white">{opt.title}</div>
-                      <div className="text-[10px] text-[#64748B] mt-0.5">{opt.desc}</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">{opt.desc}</div>
                     </div>
                     <div className={`w-4 h-4 rounded-full border flex items-center justify-center mt-0.5 ${
                       isSelected ? 'border-rose-400 bg-rose-500 text-white' : 'border-slate-700'
@@ -2557,7 +2557,7 @@ export default function CustomerPortal() {
 
             {/* Optional Additional Feedback */}
             <div>
-              <label className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">
                 Additional Comments (Optional)
               </label>
               <input
@@ -2565,16 +2565,16 @@ export default function CustomerPortal() {
                 placeholder="e.g. Will book tomorrow at 10 AM instead"
                 value={cancelNotes}
                 onChange={(e) => setCancelNotes(e.target.value)}
-                className="w-full bg-slate-950 border border-[#EADFD7] text-white text-xs rounded-xl p-2.5 focus:border-rose-500 focus:outline-none"
+                className="w-full bg-slate-950 border border-slate-800 text-white text-xs rounded-xl p-2.5 focus:border-rose-500 focus:outline-none"
               />
             </div>
 
             {/* Modal Actions */}
-            <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-[#EADFD7]">
+            <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-slate-800">
               <button
                 type="button"
                 onClick={() => setShowCancelModal(false)}
-                className="px-4 py-2 text-xs font-semibold text-[#522959] hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-all cursor-pointer"
+                className="px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-xl transition-all cursor-pointer"
               >
                 Keep Booking
               </button>
@@ -2670,7 +2670,7 @@ export default function CustomerPortal() {
 
             {/* Mode Switcher Tabs (when not verifying OTP) */}
             {authMode !== 'VERIFY_OTP' && (
-              <div className="flex rounded-xl bg-slate-950 p-1 border border-[#EADFD7] text-xs font-bold">
+              <div className="flex rounded-xl bg-slate-950 p-1 border border-slate-800 text-xs font-bold">
                 <button
                   type="button"
                   onClick={() => {
@@ -2678,7 +2678,7 @@ export default function CustomerPortal() {
                     setAuthError(null)
                   }}
                   className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
-                    authMode === 'LOGIN' ? 'bg-indigo-600 text-white shadow-sm' : 'text-[#64748B] hover:text-white'
+                    authMode === 'LOGIN' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   Sign In
@@ -2690,7 +2690,7 @@ export default function CustomerPortal() {
                     setAuthError(null)
                   }}
                   className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer text-center ${
-                    authMode === 'REGISTER' ? 'bg-indigo-600 text-white shadow-sm' : 'text-[#64748B] hover:text-white'
+                    authMode === 'REGISTER' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   Register New
@@ -2703,7 +2703,7 @@ export default function CustomerPortal() {
                     setAuthError(null)
                   }}
                   className={`flex-1 py-1.5 rounded-lg transition-all cursor-pointer text-center flex items-center justify-center gap-1 ${
-                    authMode === 'FORGOT_PASSWORD' ? 'bg-indigo-600 text-white shadow-sm' : 'text-[#64748B] hover:text-white'
+                    authMode === 'FORGOT_PASSWORD' ? 'bg-indigo-600 text-white shadow-sm' : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   <IconKey className="w-3.5 h-3.5" />
@@ -2731,7 +2731,7 @@ export default function CustomerPortal() {
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer ${
                       loginMethod === 'OTP'
                         ? 'bg-indigo-950/90 text-indigo-300 border-indigo-600'
-                        : 'bg-slate-950 text-[#64748B] border-[#EADFD7] hover:text-white'
+                        : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
                     }`}
                   >
                     <IconMail className="w-3.5 h-3.5 text-indigo-400" />
@@ -2743,7 +2743,7 @@ export default function CustomerPortal() {
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold border transition-all cursor-pointer ${
                       loginMethod === 'PASSWORD'
                         ? 'bg-indigo-950/90 text-indigo-300 border-indigo-600'
-                        : 'bg-slate-950 text-[#64748B] border-[#EADFD7] hover:text-white'
+                        : 'bg-slate-950 text-slate-400 border-slate-800 hover:text-white'
                     }`}
                   >
                     <IconLock className="w-3.5 h-3.5 text-indigo-400" />
@@ -2760,7 +2760,7 @@ export default function CustomerPortal() {
                     className="space-y-3"
                   >
                     <div>
-                      <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                      <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                         Email Address
                       </label>
                       <input
@@ -2801,7 +2801,7 @@ export default function CustomerPortal() {
                     className="space-y-3"
                   >
                     <div>
-                      <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                      <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                         Email Address
                       </label>
                       <input
@@ -2814,7 +2814,7 @@ export default function CustomerPortal() {
                       />
                     </div>
                     <div>
-                      <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                      <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                         Password
                       </label>
                       <input
@@ -2860,14 +2860,14 @@ export default function CustomerPortal() {
                 className="space-y-3 pt-1"
               >
                 {/* Fast Fill Customer Preset */}
-                <div className="p-3 bg-[#FAF2EC] border border-[#DFB682] border border-indigo-500/40 rounded-xl flex items-center justify-between shadow-sm">
+                <div className="p-3 bg-gradient-to-r from-indigo-950 via-slate-900 to-cyan-950 border border-indigo-500/40 rounded-xl flex items-center justify-between shadow-sm">
                   <div>
                     <div className="font-bold text-white flex items-center gap-1.5 text-xs">
                       <IconZap className="w-3.5 h-3.5 text-cyan-400" />
                       <span>Verified Customer Preset</span>
                       <span className="text-[9px] bg-cyan-950 text-cyan-300 border border-cyan-700 px-1.5 py-0.2 rounded font-mono">1-CLICK</span>
                     </div>
-                    <div className="text-[11px] text-[#522959] mt-0.5">Auto-fills verified resident credentials for instant booking.</div>
+                    <div className="text-[11px] text-slate-300 mt-0.5">Auto-fills verified resident credentials for instant booking.</div>
                   </div>
                   <button
                     type="button"
@@ -2889,7 +2889,7 @@ export default function CustomerPortal() {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                       Full Name *
                     </label>
                     <input
@@ -2902,7 +2902,7 @@ export default function CustomerPortal() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                       Age *
                     </label>
                     <input
@@ -2920,7 +2920,7 @@ export default function CustomerPortal() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                       Mobile Phone *
                     </label>
                     <input
@@ -2933,7 +2933,7 @@ export default function CustomerPortal() {
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                    <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                       Email Address *
                     </label>
                     <input
@@ -2951,7 +2951,7 @@ export default function CustomerPortal() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                  <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                     Service Delivery Address *
                   </label>
                   <input
@@ -2986,7 +2986,7 @@ export default function CustomerPortal() {
                 className="space-y-4 pt-1"
               >
                 {/* Real Email Dispatch Notice */}
-                <div className="p-4 bg-[#FAF2EC] border border-[#EADFD7] border border-indigo-500/50 rounded-2xl space-y-2.5 shadow-inner">
+                <div className="p-4 bg-gradient-to-r from-indigo-950/80 via-slate-900 to-slate-900 border border-indigo-500/50 rounded-2xl space-y-2.5 shadow-inner">
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
                       <IconMail className="w-4 h-4 text-cyan-400" />
@@ -3002,11 +3002,11 @@ export default function CustomerPortal() {
                         : 'PIN Expired'}
                     </span>
                   </div>
-                  <div className="text-xs text-[#522959] bg-slate-950/80 p-3 rounded-xl border border-[#EADFD7] leading-relaxed">
+                  <div className="text-xs text-slate-300 bg-slate-950/80 p-3 rounded-xl border border-slate-800 leading-relaxed">
                     A 6-digit verification code has been dispatched to your actual inbox at <strong className="text-cyan-300 font-mono">{authEmail}</strong>. Please check your inbox or spam folder and enter the PIN below.
                   </div>
                   <div className="flex items-center justify-between pt-1 text-[11px]">
-                    <span className="text-[#64748B]">Didn't receive the email?</span>
+                    <span className="text-slate-400">Didn't receive the email?</span>
                     <button
                       type="button"
                       disabled={otpSecondsLeft > 150}
@@ -3022,7 +3022,7 @@ export default function CustomerPortal() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                  <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                     Enter 6-Digit Verification PIN *
                   </label>
                   <input
@@ -3035,7 +3035,7 @@ export default function CustomerPortal() {
                     className="w-full bg-slate-950 border border-indigo-500/80 text-white text-center text-xl font-mono tracking-widest rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     autoFocus
                   />
-                  <div className="flex items-center justify-between text-[11px] text-[#64748B] mt-1.5 font-mono px-1">
+                  <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1.5 font-mono px-1">
                     <span>Demo Master PIN: <button type="button" onClick={() => setAuthOtp('123456')} className="text-cyan-400 underline font-bold hover:text-cyan-300 cursor-pointer">123456</button></span>
                     <span className="text-[10px] text-emerald-400 flex items-center gap-1"><IconCheck className="w-3 h-3" /> Real Email OTP Active</span>
                   </div>
@@ -3048,7 +3048,7 @@ export default function CustomerPortal() {
                       setAuthMode('LOGIN')
                       setAuthError(null)
                     }}
-                    className="text-xs text-[#64748B] hover:text-white cursor-pointer"
+                    className="text-xs text-slate-400 hover:text-white cursor-pointer"
                   >
                     ← Back to Sign In
                   </button>
@@ -3075,7 +3075,7 @@ export default function CustomerPortal() {
                     className="space-y-3"
                   >
                     <div>
-                      <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                      <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                         Registered Email Address *
                       </label>
                       <input
@@ -3087,7 +3087,7 @@ export default function CustomerPortal() {
                         className="w-full bg-slate-950 border border-slate-700 text-white text-xs rounded-xl p-2.5 focus:border-indigo-500 focus:outline-none"
                       />
                     </div>
-                    <p className="text-[11px] text-[#64748B]">
+                    <p className="text-[11px] text-slate-400">
                       We will dispatch a secure single-use verification PIN to this email address to verify your identity before updating the password in the SQLite database.
                     </p>
                     <div className="pt-2 flex items-center justify-between">
@@ -3097,7 +3097,7 @@ export default function CustomerPortal() {
                           setAuthMode('LOGIN')
                           setAuthError(null)
                         }}
-                        className="text-xs text-[#64748B] hover:text-white cursor-pointer"
+                        className="text-xs text-slate-400 hover:text-white cursor-pointer"
                       >
                         ← Back to Sign In
                       </button>
@@ -3119,7 +3119,7 @@ export default function CustomerPortal() {
                     className="space-y-3"
                   >
                     {/* Real Email Dispatch Notice */}
-                    <div className="p-4 bg-[#FAF2EC] border border-[#EADFD7] border border-indigo-500/50 rounded-2xl space-y-2.5 shadow-inner">
+                    <div className="p-4 bg-gradient-to-r from-indigo-950/80 via-slate-900 to-slate-900 border border-indigo-500/50 rounded-2xl space-y-2.5 shadow-inner">
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-2">
                           <IconKey className="w-4 h-4 text-cyan-400" />
@@ -3135,11 +3135,11 @@ export default function CustomerPortal() {
                             : 'PIN Expired'}
                         </span>
                       </div>
-                      <div className="text-xs text-[#522959] bg-slate-950/80 p-3 rounded-xl border border-[#EADFD7] leading-relaxed">
+                      <div className="text-xs text-slate-300 bg-slate-950/80 p-3 rounded-xl border border-slate-800 leading-relaxed">
                         A 6-digit password reset code has been sent to your Gmail/inbox at <strong className="text-cyan-300 font-mono">{authEmail}</strong>. Enter the PIN from your email to update your password.
                       </div>
                       <div className="flex items-center justify-between pt-1 text-[11px]">
-                        <span className="text-[#64748B]">Didn't receive email?</span>
+                        <span className="text-slate-400">Didn't receive email?</span>
                         <button
                           type="button"
                           disabled={otpSecondsLeft > 150}
@@ -3152,7 +3152,7 @@ export default function CustomerPortal() {
                     </div>
 
                     <div>
-                      <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                      <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                         6-Digit Reset PIN *
                       </label>
                       <input
@@ -3168,7 +3168,7 @@ export default function CustomerPortal() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                        <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                           New Password *
                         </label>
                         <input
@@ -3181,7 +3181,7 @@ export default function CustomerPortal() {
                         />
                       </div>
                       <div>
-                        <label className="text-[10px] font-bold text-[#522959] uppercase tracking-wider block mb-1">
+                        <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                           Confirm Password *
                         </label>
                         <input
@@ -3199,7 +3199,7 @@ export default function CustomerPortal() {
                       <button
                         type="button"
                         onClick={() => setResetStep(1)}
-                        className="text-xs text-[#64748B] hover:text-white cursor-pointer"
+                        className="text-xs text-slate-400 hover:text-white cursor-pointer"
                       >
                         ← Change Email
                       </button>
@@ -3317,7 +3317,7 @@ export default function CustomerPortal() {
       {showMailFeed && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl space-y-4">
-            <div className="flex items-start justify-between pb-3 border-b border-[#EADFD7]">
+            <div className="flex items-start justify-between pb-3 border-b border-slate-800">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <IconMail className="w-5 h-5 text-cyan-400" />
@@ -3326,7 +3326,7 @@ export default function CustomerPortal() {
                     Gmail SMTP Active
                   </span>
                 </div>
-                <p className="text-xs text-[#64748B]">
+                <p className="text-xs text-slate-400">
                   Real transactional emails sent by the platform. All emails are copied via BCC to <strong className="text-white">4mh23is094@gmail.com</strong>.
                 </p>
               </div>
@@ -3344,7 +3344,7 @@ export default function CustomerPortal() {
                     }
                   }}
                   disabled={mailFeedLoading}
-                  className="p-2 text-[#522959] hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer text-xs flex items-center gap-1"
+                  className="p-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer text-xs flex items-center gap-1"
                   title="Refresh mail feed"
                 >
                   <IconSparkles className={`w-3.5 h-3.5 text-cyan-400 ${mailFeedLoading ? 'animate-spin' : ''}`} />
@@ -3353,7 +3353,7 @@ export default function CustomerPortal() {
                 <button
                   type="button"
                   onClick={() => setShowMailFeed(false)}
-                  className="p-2 text-[#64748B] hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer"
+                  className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer"
                 >
                   <IconX className="w-4 h-4" />
                 </button>
@@ -3362,9 +3362,9 @@ export default function CustomerPortal() {
 
             <div className="overflow-y-auto space-y-3 flex-1 pr-1 custom-scrollbar">
               {recentEmails.length === 0 ? (
-                <div className="py-12 text-center text-[#64748B] space-y-2">
+                <div className="py-12 text-center text-slate-400 space-y-2">
                   <IconMail className="w-8 h-8 mx-auto text-slate-600" />
-                  <div className="text-sm font-semibold text-[#522959]">No emails dispatched yet in this runtime</div>
+                  <div className="text-sm font-semibold text-slate-300">No emails dispatched yet in this runtime</div>
                   <div className="text-xs text-slate-500">
                     Book a service or register to trigger instant notifications.
                   </div>
@@ -3373,20 +3373,20 @@ export default function CustomerPortal() {
                 recentEmails.map((email: any) => (
                   <div
                     key={email.id}
-                    className="p-4 rounded-2xl bg-white border border-[#EADFD7] hover:border-cyan-500/50 transition-all space-y-2.5"
+                    className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 transition-all space-y-2.5"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-emerald-400" />
                         <span className="text-xs font-bold text-white font-mono">{email.subject}</span>
                       </div>
-                      <span className="text-[10px] text-[#64748B] font-mono">
+                      <span className="text-[10px] text-slate-400 font-mono">
                         {new Date(email.sentAt).toLocaleTimeString()}
                       </span>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="text-[#64748B]">To:</span>
+                      <span className="text-slate-400">To:</span>
                       <span className="font-mono text-cyan-300 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/60">
                         {email.to}
                       </span>
@@ -3409,7 +3409,7 @@ export default function CustomerPortal() {
                         </span>
                       )}
                       {email.distanceKm && (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-[#522959] bg-slate-900 border border-slate-700 px-2 py-0.5 rounded-lg">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-300 bg-slate-900 border border-slate-700 px-2 py-0.5 rounded-lg">
                           <IconMapPin className="w-3 h-3 text-cyan-400" />
                           {email.distanceKm} km
                         </span>
@@ -3420,7 +3420,7 @@ export default function CustomerPortal() {
                     </div>
 
                     {email.preview && (
-                      <div className="text-[11px] text-[#64748B] bg-[#FAF2EC] p-2.5 rounded-xl border border-[#EADFD7]/80 line-clamp-2 font-mono">
+                      <div className="text-[11px] text-slate-400 bg-slate-900/70 p-2.5 rounded-xl border border-slate-800/80 line-clamp-2 font-mono">
                         {email.preview}
                       </div>
                     )}
@@ -3429,11 +3429,11 @@ export default function CustomerPortal() {
               )}
             </div>
 
-            <div className="pt-2 border-t border-[#EADFD7] flex justify-end">
+            <div className="pt-2 border-t border-slate-800 flex justify-end">
               <button
                 type="button"
                 onClick={() => setShowMailFeed(false)}
-                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-[#522959] hover:text-white rounded-xl text-xs font-bold cursor-pointer"
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold cursor-pointer"
               >
                 Close Feed
               </button>
@@ -3442,51 +3442,51 @@ export default function CustomerPortal() {
         </div>
       )}
     
-      {/* 🎊 Task Completion Celebration Modal with Confetti & Home Redirection */}
+      {/* 🎊 Task Completion Celebration Modal with Confetti & Home Redirection in Mindazzle Luxury Obsidian-Plum Theme */}
       {showCompletionModal && (
-        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/50 backdrop-blur-md animate-scaleIn">
+        <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-scaleIn">
           <ConfettiCanvas />
-          <div className="relative z-[101] bg-white border border-[#DFB682] rounded-3xl p-6 sm:p-8 max-w-lg w-full text-center shadow-2xl space-y-5 animate-scaleIn">
+          <div className="relative z-[101] bg-[#2A114B] border-2 border-[#824D69] rounded-3xl p-6 sm:p-8 max-w-lg w-full text-center shadow-2xl space-y-5 animate-scaleIn text-[#FAE5D8]">
             {/* Celebration Icon Header */}
-            <div className="w-20 h-20 rounded-3xl bg-[#FAF2EC] border border-[#DFB682] text-[#522959] flex items-center justify-center mx-auto shadow-md">
+            <div className="w-20 h-20 rounded-3xl bg-[#180018] border border-[#824D69] text-[#FAE5D8] flex items-center justify-center mx-auto shadow-md">
               <span className="text-4xl">🎉</span>
             </div>
 
             <div>
-              <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 uppercase font-mono tracking-wider">
+              <span className="text-[10px] font-bold px-3 py-1 rounded-full bg-[#180018] text-[#DFB6B2] border border-[#824D69]/60 uppercase font-mono tracking-wider">
                 100% Service Completed
               </span>
-              <h2 className="text-2xl font-black text-[#180018] mt-2">
+              <h2 className="text-2xl font-black text-[#FAE5D8] mt-2 tracking-tight">
                 Thank You for Choosing DispatchGrid!
               </h2>
-              <p className="text-xs sm:text-sm text-[#522959] mt-1.5 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#DFB6B2] mt-1.5 leading-relaxed">
                 Your emergency trade service has concluded with five-star verified workmanship. Your official 30-day warranty certificate is now active.
               </p>
             </div>
 
             {/* Service Recap Card */}
-            <div className="p-4 rounded-2xl bg-[#FAF2EC] border border-[#EADFD7] text-left space-y-2 text-xs">
-              <div className="flex justify-between items-center pb-2 border-b border-[#EADFD7]">
-                <span className="text-[#64748B]">Service Completed:</span>
-                <span className="font-bold text-[#180018]">{activeOrder?.job?.title || 'Emergency Repair'}</span>
+            <div className="p-4 rounded-2xl bg-[#180018]/90 border border-[#824D69]/50 text-left space-y-2 text-xs">
+              <div className="flex justify-between items-center pb-2 border-b border-[#824D69]/30">
+                <span className="text-[#DFB6B2]/70">Service Completed:</span>
+                <span className="font-bold text-[#FAE5D8]">{activeOrder?.job?.title || 'Emergency Repair'}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-[#EADFD7]">
-                <span className="text-[#64748B]">Assigned Specialist:</span>
-                <span className="font-bold text-[#180018]">Captain {assignedTech?.name || 'Trade Partner'}</span>
+              <div className="flex justify-between items-center pb-2 border-b border-[#824D69]/30">
+                <span className="text-[#DFB6B2]/70">Assigned Specialist:</span>
+                <span className="font-bold text-[#FAE5D8]">Captain {assignedTech?.name || 'Trade Partner'}</span>
               </div>
-              <div className="flex justify-between items-center pb-2 border-b border-[#EADFD7]">
-                <span className="text-[#64748B]">Worksite Address:</span>
-                <span className="font-medium text-[#180018] truncate max-w-[220px]">{streetAddress || 'Worksite'}</span>
+              <div className="flex justify-between items-center pb-2 border-b border-[#824D69]/30">
+                <span className="text-[#DFB6B2]/70">Worksite Address:</span>
+                <span className="font-medium text-[#FAE5D8] truncate max-w-[220px]">{streetAddress || 'Worksite'}</span>
               </div>
               <div className="flex justify-between items-center pt-1 font-bold">
-                <span className="text-[#522959]">Total Bill:</span>
-                <span className="text-emerald-700 text-sm font-mono">₹{activeOrder?.totalAmount || totalEstimatedFare}</span>
+                <span className="text-[#DFB6B2]">Total Bill Paid:</span>
+                <span className="text-emerald-400 text-sm font-mono">₹{activeOrder?.totalAmount || totalEstimatedFare}</span>
               </div>
             </div>
 
             {/* Star Rating Section */}
             <div className="space-y-1.5">
-              <div className="text-xs font-bold text-[#180018]">How was your experience today?</div>
+              <div className="text-xs font-bold text-[#FAE5D8]">How was your experience today?</div>
               <div className="flex justify-center gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -3500,7 +3500,7 @@ export default function CustomerPortal() {
                   >
                     <IconStar
                       className={`w-7 h-7 ${
-                        (rating || 5) >= star ? 'text-amber-500 fill-amber-500' : 'text-[#522959]'
+                        (rating || 5) >= star ? 'text-amber-400 fill-amber-400' : 'text-slate-600'
                       }`}
                     />
                   </button>
@@ -3517,7 +3517,7 @@ export default function CustomerPortal() {
                 }}
                 className="btn-solid-secondary w-full py-3 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm cursor-pointer"
               >
-                <IconDollarSign className="w-4 h-4 text-emerald-600" />
+                <IconDollarSign className="w-4 h-4 text-emerald-400" />
                 <span>Download Official Tax Invoice (PDF)</span>
               </button>
 

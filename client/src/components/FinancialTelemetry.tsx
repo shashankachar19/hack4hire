@@ -114,7 +114,7 @@ export const FinancialTelemetry: React.FC<FinancialTelemetryProps> = ({ summary 
         </div>
 
         {/* Metric 4: Net Margin */}
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-950 p-3.5 rounded-xl border border-emerald-500/40 shadow-sm">
+        <div className="bg-gradient-to-br from-emerald-950/40 via-slate-900/80 to-emerald-950/20 p-3.5 rounded-xl border border-emerald-500/40 shadow-sm">
           <div className="text-[11px] text-emerald-300 uppercase font-semibold flex items-center justify-between">
             <span>Net Operating Margin</span>
             <div className="p-1 rounded-md bg-emerald-500/20 text-emerald-300">
