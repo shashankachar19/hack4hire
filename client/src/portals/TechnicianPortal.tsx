@@ -21,6 +21,7 @@ import {
   IconDoorOpen,
   IconZap,
   IconCompass,
+  IconKey,
 } from '../components/Icons'
 
 function playDispatchChime() {
@@ -159,6 +160,23 @@ export default function TechnicianPortal() {
   const [delayMinutes, setDelayMinutes] = useState(45)
 
   const lastActiveJobIdRef = useRef<string | null>(null)
+  const hasAutoDeclinedOfferRef = useRef<string | null>(null)
+  const [showMailFeed, setShowMailFeed] = useState<boolean>(false)
+  const [recentEmails, setRecentEmails] = useState<any[]>([])
+  const [mailFeedLoading, setMailFeedLoading] = useState<boolean>(false)
+
+  const handleOpenMailFeed = async () => {
+    setMailFeedLoading(true)
+    setShowMailFeed(true)
+    try {
+      const list = await api.getRecentEmails()
+      setRecentEmails(list)
+    } catch {
+      // ignore
+    } finally {
+      setMailFeedLoading(false)
+    }
+  }
 
   const showToast = (msg: string) => {
     setToastMsg(msg)
@@ -506,7 +524,7 @@ export default function TechnicianPortal() {
     }
   }
 
-  // Offer countdown timer (60s response window)
+  // Offer countdown timer (60s response window) anchored to server offerExpiresAt
   useEffect(() => {
     const assignments: any[] = techData?.assignments || []
     const pendingOffer = assignments.find((a) => a.job?.status === 'ASSIGNED')
@@ -521,18 +539,24 @@ export default function TechnicianPortal() {
       return
     }
 
-    const timer = setInterval(() => {
-      setOfferCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer)
-          handleDeclineJob(pendingOffer.job.id)
-          return 0
-        }
-        return prev - 1
-      })
-    }, 1000)
+    const expiresAtMs = desc.offerExpiresAt
+      ? new Date(desc.offerExpiresAt).getTime()
+      : (pendingOffer.job.createdAt ? new Date(pendingOffer.job.createdAt).getTime() + 60000 : Date.now() + 60000)
+
+    const updateTimer = () => {
+      const remaining = Math.max(0, Math.ceil((expiresAtMs - Date.now()) / 1000))
+      setOfferCountdown(remaining)
+
+      if (remaining === 0 && !desc.isAccepted && hasAutoDeclinedOfferRef.current !== pendingOffer.job.id) {
+        hasAutoDeclinedOfferRef.current = pendingOffer.job.id
+        handleDeclineJob(pendingOffer.job.id)
+      }
+    }
+
+    updateTimer()
+    const timer = setInterval(updateTimer, 1000)
     return () => clearInterval(timer)
-  }, [techData, hasAcceptedJob])
+  }, [techData?.assignments, hasAcceptedJob])
 
   if (loading) {
     return (
@@ -579,6 +603,20 @@ export default function TechnicianPortal() {
             </div>
           </div>
           <div className="flex items-center gap-2 w-full sm:w-auto">
+            <button
+              type="button"
+              onClick={handleOpenMailFeed}
+              className="w-full sm:w-auto px-3.5 py-2 rounded-xl bg-cyan-950/80 hover:bg-cyan-900 text-cyan-200 hover:text-white border border-cyan-600/70 font-bold text-xs flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+              title="Inspect dispatched real transactional emails & verification PINs"
+            >
+              <IconMail className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Mails Feed</span>
+              {recentEmails.length > 0 && (
+                <span className="bg-cyan-500 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-mono font-black">
+                  {recentEmails.length}
+                </span>
+              )}
+            </button>
             <button
               type="button"
               onClick={() => {
@@ -943,7 +981,7 @@ export default function TechnicianPortal() {
             <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center gap-2.5">
               {activeAssignment.job.status === 'ASSIGNED' ? (
                 <>
-                  {!hasAcceptedJob ? (
+                  {(!hasAcceptedJob && !customer?.isAccepted) ? (
                     <div className="w-full space-y-3 bg-gradient-to-r from-indigo-950 via-slate-900 to-indigo-950 p-4 rounded-xl border border-indigo-500/60 shadow-lg animate-pulse">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -987,11 +1025,32 @@ export default function TechnicianPortal() {
                     </div>
                   ) : (
                     <>
-                      <div className="w-full p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-600/70 text-emerald-300 text-xs flex items-center justify-between font-mono">
-                        <span className="flex items-center gap-1.5">
-                          <IconCheck className="w-3.5 h-3.5" /> Order Accepted by Captain! Review directions & commence route:
-                        </span>
-                        <span className="text-[10px] bg-emerald-900 px-2 py-0.5 rounded text-white">READY</span>
+                      {/* Confirmed Arrival Target Badge (Replaces the allocation countdown window after acceptance) */}
+                      <div className="w-full p-3.5 rounded-2xl bg-gradient-to-r from-emerald-950/90 via-slate-900 to-emerald-950/90 border border-emerald-500/70 shadow-lg space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                            <span className="text-xs font-black text-emerald-300 font-mono tracking-wide uppercase">
+                              Order Accepted • Mission Locked
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold text-slate-300 font-mono">Target Arrival:</span>
+                            <span className="text-xs font-black font-mono text-emerald-300 bg-emerald-950 border border-emerald-600 px-2.5 py-1 rounded-xl shadow-sm glow-pill-emerald">
+                              Today by {customer?.scheduledArrivalTime || '06:30 PM'}
+                            </span>
+                            <span className="text-[10px] text-slate-400 font-mono">
+                              (~{Math.max(12, Math.round((customer?.distanceKm || 2.4) * 3))} mins transit)
+                            </span>
+                          </div>
+                        </div>
+                        <div className="text-xs text-slate-300 flex flex-wrap items-center justify-between gap-2">
+                          <span>Worksite: <strong className="text-white">{custAddress}</strong></span>
+                          <span className="text-[11px] text-cyan-300 font-mono flex items-center gap-1 font-bold">
+                            <IconMapPin className="w-3.5 h-3.5 text-cyan-400" />
+                            {customer?.distanceKm || 2.4} km from base
+                          </span>
+                        </div>
                       </div>
 
                       <div className="w-full flex flex-wrap gap-2">
@@ -1717,7 +1776,7 @@ export default function TechnicianPortal() {
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
                       Technician / Partner Name *
@@ -1890,6 +1949,135 @@ export default function TechnicianPortal() {
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* DISPATCHED MAILS & ALERTS LIVE FEED DRAWER / MODAL */}
+      {showMailFeed && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl space-y-4">
+            <div className="flex items-start justify-between pb-3 border-b border-slate-800">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <IconMail className="w-5 h-5 text-cyan-400" />
+                  <h3 className="font-bold text-white text-base">Dispatched Mails & Fleet Alerts Feed</h3>
+                  <span className="text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-700/80 px-2 py-0.5 rounded-full font-mono">
+                    Gmail SMTP Active
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Real transactional emails sent by the platform. All emails are copied via BCC to <strong className="text-white">4mh23is094@gmail.com</strong>.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setMailFeedLoading(true)
+                    try {
+                      const list = await api.getRecentEmails()
+                      setRecentEmails(list)
+                    } catch {}
+                    finally {
+                      setMailFeedLoading(false)
+                    }
+                  }}
+                  disabled={mailFeedLoading}
+                  className="p-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer text-xs flex items-center gap-1"
+                  title="Refresh mail feed"
+                >
+                  <IconSparkles className={`w-3.5 h-3.5 text-cyan-400 ${mailFeedLoading ? 'animate-spin' : ''}`} />
+                  <span>Refresh</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowMailFeed(false)}
+                  className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer"
+                >
+                  <IconX className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-y-auto space-y-3 flex-1 pr-1 custom-scrollbar">
+              {recentEmails.length === 0 ? (
+                <div className="py-12 text-center text-slate-400 space-y-2">
+                  <IconMail className="w-8 h-8 mx-auto text-slate-600" />
+                  <div className="text-sm font-semibold text-slate-300">No emails dispatched yet in this runtime</div>
+                  <div className="text-xs text-slate-500">
+                    Offers accepted or dispatches will appear here immediately.
+                  </div>
+                </div>
+              ) : (
+                recentEmails.map((email: any) => (
+                  <div
+                    key={email.id}
+                    className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 transition-all space-y-2.5"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                        <span className="text-xs font-bold text-white font-mono">{email.subject}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {new Date(email.sentAt).toLocaleTimeString()}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="text-slate-400">To:</span>
+                      <span className="font-mono text-cyan-300 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/60">
+                        {email.to}
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        (BCC: 4mh23is094@gmail.com)
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      {email.pin && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold bg-amber-950 text-amber-300 border border-amber-700 px-2 py-0.5 rounded-lg">
+                          <IconKey className="w-3 h-3 text-amber-400" />
+                          PIN: {email.pin}
+                        </span>
+                      )}
+                      {email.scheduledArrival && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-700 px-2 py-0.5 rounded-lg">
+                          <IconClock className="w-3 h-3 text-emerald-400" />
+                          Arrival Target: {email.scheduledArrival}
+                        </span>
+                      )}
+                      {email.distanceKm && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-300 bg-slate-900 border border-slate-700 px-2 py-0.5 rounded-lg">
+                          <IconMapPin className="w-3 h-3 text-cyan-400" />
+                          {email.distanceKm} km
+                        </span>
+                      )}
+                      <span className="ml-auto text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+                        <IconCheck className="w-3 h-3" /> Sent via SMTP
+                      </span>
+                    </div>
+
+                    {email.preview && (
+                      <div className="text-[11px] text-slate-400 bg-slate-900/70 p-2.5 rounded-xl border border-slate-800/80 line-clamp-2 font-mono">
+                        {email.preview}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-slate-800 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowMailFeed(false)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                Close Feed
+              </button>
+            </div>
           </div>
         </div>
       )}

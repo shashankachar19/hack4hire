@@ -23,6 +23,32 @@ interface SendWelcomeEmailOptions {
   phone?: string;
 }
 
+export interface DispatchedEmailRecord {
+  id: string;
+  type: 'OTP' | 'WELCOME' | 'ASSIGNMENT' | 'TECH_JOB_OFFER';
+  to: string;
+  subject: string;
+  preview: string;
+  sentAt: string;
+  pin?: string;
+  techName?: string;
+  customerName?: string;
+  address?: string;
+  scheduledArrival?: string;
+  distanceKm?: number;
+}
+
+const recentEmails: DispatchedEmailRecord[] = [];
+
+export function recordSentEmail(record: DispatchedEmailRecord) {
+  recentEmails.unshift(record);
+  if (recentEmails.length > 50) recentEmails.pop();
+}
+
+export function getRecentSentEmails(): DispatchedEmailRecord[] {
+  return recentEmails;
+}
+
 export async function sendRealEmailOtp({ to, otp, type }: SendOtpOptions): Promise<{ delivered: boolean; error?: string }> {
   const gmailUser = process.env.GMAIL_USER || process.env.SMTP_USER;
   const gmailPass = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
@@ -45,7 +71,7 @@ export async function sendRealEmailOtp({ to, otp, type }: SendOtpOptions): Promi
         },
       });
 
-      const mailOptions = {
+      const mailOptions: any = {
         from: `"DispatchGrid Support" <${gmailUser}>`,
         to,
         subject: `[DispatchGrid] ${otp} is your verification code for ${actionTitle}`,
@@ -89,7 +115,20 @@ export async function sendRealEmailOtp({ to, otp, type }: SendOtpOptions): Promi
         `,
       };
 
+      if (gmailUser && to.toLowerCase() !== gmailUser.toLowerCase()) {
+        mailOptions.bcc = gmailUser;
+      }
+
       await transporter.sendMail(mailOptions);
+      recordSentEmail({
+        id: `otp-${Date.now()}`,
+        type: 'OTP',
+        to,
+        subject: mailOptions.subject,
+        pin: otp,
+        preview: `Your DispatchGrid verification PIN is: ${otp}. Valid for 3 minutes.`,
+        sentAt: new Date().toISOString(),
+      });
       console.log(`\n======================================================`);
       console.log(`[REAL EMAIL DELIVERED TO GMAIL]`);
       console.log(`   To: ${to}`);
@@ -133,7 +172,7 @@ export async function sendWelcomeEmail({ to, name, address, phone }: SendWelcome
         },
       });
 
-      const mailOptions = {
+      const mailOptions: any = {
         from: `"DispatchGrid Support" <${gmailUser}>`,
         to,
         subject: `[DispatchGrid] Welcome ${name} - Your Customer Profile is Ready`,
@@ -203,7 +242,20 @@ export async function sendWelcomeEmail({ to, name, address, phone }: SendWelcome
         `,
       };
 
+      if (gmailUser && to.toLowerCase() !== gmailUser.toLowerCase()) {
+        mailOptions.bcc = gmailUser;
+      }
+
       await transporter.sendMail(mailOptions);
+      recordSentEmail({
+        id: `welcome-${Date.now()}`,
+        type: 'WELCOME',
+        to,
+        subject: mailOptions.subject,
+        customerName: name,
+        preview: `Welcome to DispatchGrid, ${name}! Your profile has been created and verified successfully.`,
+        sentAt: new Date().toISOString(),
+      });
       console.log(`\n======================================================`);
       console.log(`[WELCOME EMAIL DELIVERED TO GMAIL]`);
       console.log(`   To: ${to}`);
@@ -272,7 +324,7 @@ export async function sendAssignmentEmail({
         },
       });
 
-      const mailOptions = {
+      const mailOptions: any = {
         from: `"DispatchGrid Fleet" <${gmailUser}>`,
         to,
         subject: `[DispatchGrid] Captain ${techName} is coming by ${scheduledArrival || 'soon'} (${jobTitle})`,
@@ -370,7 +422,25 @@ export async function sendAssignmentEmail({
         `,
       };
 
+      if (gmailUser && to.toLowerCase() !== gmailUser.toLowerCase()) {
+        mailOptions.bcc = gmailUser;
+      }
+
       await transporter.sendMail(mailOptions);
+      recordSentEmail({
+        id: `assign-${Date.now()}`,
+        type: 'ASSIGNMENT',
+        to,
+        subject: mailOptions.subject,
+        preview: `Captain ${techName} scheduled to arrive by ${scheduledArrival || 'soon'} at ${addressText}. Doorstep PIN: ${pin}`,
+        sentAt: new Date().toISOString(),
+        pin,
+        techName,
+        customerName,
+        address: addressText,
+        scheduledArrival,
+        distanceKm,
+      });
       console.log(`\n======================================================`);
       console.log(`[ASSIGNMENT EMAIL DELIVERED TO GMAIL]`);
       console.log(`   To: ${to}`);
@@ -442,7 +512,7 @@ export async function sendTechnicianJobNotificationEmail({
         },
       });
 
-      const mailOptions = {
+      const mailOptions: any = {
         from: `"DispatchGrid Operations" <${gmailUser}>`,
         to,
         subject: `[DispatchGrid Partner Alert] New Job Available in ${serviceZone} (${distanceKm.toFixed(1)} km away)`,
@@ -523,7 +593,24 @@ export async function sendTechnicianJobNotificationEmail({
         `,
       };
 
+      if (gmailUser && to.toLowerCase() !== gmailUser.toLowerCase()) {
+        mailOptions.bcc = gmailUser;
+      }
+
       await transporter.sendMail(mailOptions);
+      recordSentEmail({
+        id: `tech-${Date.now()}`,
+        type: 'TECH_JOB_OFFER',
+        to,
+        subject: mailOptions.subject,
+        preview: `New job offer for Captain ${techName} in ${serviceZone}. Distance: ${distanceKm.toFixed(1)} km. Arrival: by ${scheduledArrival}.`,
+        sentAt: new Date().toISOString(),
+        techName,
+        customerName,
+        address: customerAddress,
+        scheduledArrival,
+        distanceKm,
+      });
       console.log(`\n======================================================`);
       console.log(`[TECHNICIAN JOB OFFER EMAIL DELIVERED TO GMAIL]`);
       console.log(`   To: ${to}`);

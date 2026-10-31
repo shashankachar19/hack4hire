@@ -347,6 +347,8 @@ router.post('/instant-match', async (req: Request, res: Response, next: NextFunc
         dispatchReason: `Captain ${chosenTech.name} (${chosenDist} km away) was selected as #1 Ranked Specialist because they are closest to ${customerDossier?.address || 'worksite'} with verified ${data.requiredSkills.join(', ')} trade qualification.`,
         transitStage: 'ASSIGNED',
         isAccepted: false,
+        offerAssignedAt: new Date().toISOString(),
+        offerExpiresAt: new Date(Date.now() + 60 * 1000).toISOString(),
       };
 
       freshJob = await prisma.job.update({
@@ -553,6 +555,8 @@ router.post('/:id/decline', async (req: Request, res: Response, next: NextFuncti
         dispatchReason: `Reassigned to Captain ${backupTech.name} (${backupDist} km away), who is the closest qualified specialist after previous partner declined.`,
         transitStage: 'ASSIGNED',
         isAccepted: false,
+        offerAssignedAt: new Date().toISOString(),
+        offerExpiresAt: new Date(Date.now() + 60 * 1000).toISOString(),
       };
 
       await prisma.job.update({
@@ -865,6 +869,29 @@ router.patch('/:id/transit', async (req: Request, res: Response, next: NextFunct
         description: JSON.stringify(updatedDesc),
       },
     });
+
+    // When partner accepts, immediately dispatch confirmed arrival email to customer!
+    if (req.body.isAccepted === true && !parsedDesc.isAccepted) {
+      const currentAssign = await prisma.assignment.findFirst({
+        where: { jobId: id },
+        include: { technician: true },
+      });
+      const customerEmail = updatedDesc.email;
+      if (customerEmail && currentAssign?.technician) {
+        sendAssignmentEmail({
+          to: customerEmail,
+          customerName: updatedDesc.name || 'Valued Customer',
+          techName: currentAssign.technician.name,
+          techPhone: updatedDesc.phone || '+91 98450 12345',
+          jobTitle: existingJob.title,
+          serviceZone: existingJob.serviceZone,
+          pin: updatedDesc.servicePin || '4829',
+          scheduledArrival: updatedDesc.scheduledArrivalTime,
+          customerAddress: updatedDesc.address || 'Prestige Falcon City, Bengaluru',
+          distanceKm: updatedDesc.distanceKm || 2.4,
+        }).catch(() => {});
+      }
+    }
 
     const response: ApiResponse = { success: true, data: deserializeJob(updatedJob) };
     res.json(response);

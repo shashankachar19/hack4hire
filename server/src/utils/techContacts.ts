@@ -53,3 +53,4 @@ export function getTechContact(id: string): TechContact {
     phone: '+91 9066272484',
   };
 }
+

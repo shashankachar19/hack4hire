@@ -30,6 +30,9 @@ export const api = {
   resetPassword: (payload: { email: string; otp: string; newPassword: string }) =>
     request<any>('/auth/reset-password', { method: 'POST', body: JSON.stringify(payload) }),
 
+  // Notifications & Emails
+  getRecentEmails: () => request<any[]>('/notifications/recent-emails'),
+
   // Customers (Database persistence)
   createOrUpdateCustomer: (profile: any) =>
     request<any>('/customers', { method: 'POST', body: JSON.stringify(profile) }),

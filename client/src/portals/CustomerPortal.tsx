@@ -272,8 +272,25 @@ export default function CustomerPortal() {
   const [cancelNotes, setCancelNotes] = useState<string>('')
   const [isCancelling, setIsCancelling] = useState<boolean>(false)
 
-  // Dynamic Partner ETA Countdown (Feature 4 - 1m quick test window)
-  const [partnerEtaSeconds, setPartnerEtaSeconds] = useState<number>(60) // 1 minute (60s)
+  // Dynamic Partner ETA & Reallocation State
+  const [reallocationSecondsLeft, setReallocationSecondsLeft] = useState<number>(60)
+  const hasAutoDeclinedRef = useRef<string | null>(null)
+  const [showMailFeed, setShowMailFeed] = useState<boolean>(false)
+  const [recentEmails, setRecentEmails] = useState<any[]>([])
+  const [mailFeedLoading, setMailFeedLoading] = useState<boolean>(false)
+
+  const handleOpenMailFeed = async () => {
+    setMailFeedLoading(true)
+    setShowMailFeed(true)
+    try {
+      const list = await api.getRecentEmails()
+      setRecentEmails(list)
+    } catch {
+      // ignore
+    } finally {
+      setMailFeedLoading(false)
+    }
+  }
   const [profile, setProfile] = useState<CustomerProfile | null>(null)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [pendingBookingAfterAuth, setPendingBookingAfterAuth] = useState(false)
@@ -436,7 +453,7 @@ export default function CustomerPortal() {
           } else if (freshDesc.reassignedTo && freshDesc.reassignedTo !== prevDesc.reassignedTo) {
             playDispatchChime()
             showToast(`Reassigned to Captain ${freshDesc.reassignedTo}! Previous partner declined.`)
-            setPartnerEtaSeconds(60)
+            setReallocationSecondsLeft(60)
           } else if (fresh.status === 'PENDING' && activeOrder.job.status === 'ASSIGNED') {
             playAlertChime()
             showToast('Partner declined. Waiting for next qualified partner to come online...')
@@ -465,18 +482,7 @@ export default function CustomerPortal() {
     return () => clearInterval(interval)
   }, [activeOrder?.job?.id, activeOrder?.job?.status, activeOrder?.job?.description, activeOrder?.job?.durationMinutes])
 
-  // Dynamic Partner ETA Countdown (Feature 4 - 60s test window)
-  useEffect(() => {
-    if (!activeOrder?.job?.id) return
-    const status = activeOrder.job.status
-    if (status === 'COMPLETED' || status === 'CANCELLED') return
-    const timer = setInterval(() => {
-      setPartnerEtaSeconds((prev) => (prev > 0 ? prev - 1 : 0))
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [activeOrder?.job?.id, activeOrder?.job?.status])
-
-  // Auto-reassignment on 1-minute acceptance window timeout
+  // 1-minute Acceptance & Reallocation countdown (Active strictly while !desc.isAccepted)
   useEffect(() => {
     if (!activeOrder?.job?.id || activeOrder.job.status !== 'ASSIGNED') return
     let desc: any = {}
@@ -484,20 +490,37 @@ export default function CustomerPortal() {
       if (activeOrder.job.description) desc = JSON.parse(activeOrder.job.description)
     } catch {}
 
-    if (partnerEtaSeconds === 0 && !desc.isAccepted) {
-      api.declineJob(activeOrder.job.id, 'Acceptance window timeout (1m)')
-        .then((res: any) => {
-          if (res?.reassigned) {
-            playDispatchChime()
-            showToast(`1m Timeout! Reassigned to Captain ${res.backupTechName || 'next partner'}!`)
-            setPartnerEtaSeconds(60)
-          } else {
-            showToast('1m Acceptance window expired. Re-queued in pending pool for next available partner.')
-          }
-        })
-        .catch(() => {})
+    // Once accepted, reallocation window stops completely!
+    if (desc.isAccepted) return
+
+    const expiresAtMs = desc.offerExpiresAt
+      ? new Date(desc.offerExpiresAt).getTime()
+      : (activeOrder.job.createdAt ? new Date(activeOrder.job.createdAt).getTime() + 60000 : Date.now() + 60000)
+
+    const updateTimer = () => {
+      const remaining = Math.max(0, Math.ceil((expiresAtMs - Date.now()) / 1000))
+      setReallocationSecondsLeft(remaining)
+
+      if (remaining === 0 && !desc.isAccepted && hasAutoDeclinedRef.current !== activeOrder.job.id) {
+        hasAutoDeclinedRef.current = activeOrder.job.id
+        api.declineJob(activeOrder.job.id, 'Acceptance window timeout (60s)')
+          .then((res: any) => {
+            if (res?.reassigned) {
+              playDispatchChime()
+              showToast(`60s Window expired! Auto-reallocated to Captain ${res.backupTechName || 'next partner'}!`)
+              setReallocationSecondsLeft(60)
+            } else {
+              showToast('Partner did not accept within 60s. Job placed in high-priority standby queue.')
+            }
+          })
+          .catch(() => {})
+      }
     }
-  }, [partnerEtaSeconds, activeOrder?.job?.id, activeOrder?.job?.status])
+
+    updateTimer()
+    const timer = setInterval(updateTimer, 1000)
+    return () => clearInterval(timer)
+  }, [activeOrder?.job?.id, activeOrder?.job?.status, activeOrder?.job?.description])
 
   // Distance Calculation between assigned / preferred tech and customer zone
   function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -891,7 +914,7 @@ export default function CustomerPortal() {
         customer: customerDossier,
       }
       setActiveOrder(orderData)
-      setPartnerEtaSeconds(60) // Reset to 1m window
+      setReallocationSecondsLeft(60) // Reset 1m reallocation countdown
       playDispatchChime()
       showToast('Technician matched & dispatched instantly!')
       setShowAssignedPopup(true)
@@ -1051,6 +1074,22 @@ export default function CustomerPortal() {
           </div>
 
           <div className="flex items-center gap-2.5 w-full sm:w-auto justify-between sm:justify-end">
+            {/* Dispatched Mails Feed Button */}
+            <button
+              type="button"
+              onClick={handleOpenMailFeed}
+              className="bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-600/70 text-cyan-200 text-xs font-bold px-3 py-2.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer active:scale-95 shadow-sm"
+              title="Inspect dispatched real transactional emails & verification PINs"
+            >
+              <IconMail className="w-4 h-4 text-cyan-400" />
+              <span>Mails Feed</span>
+              {recentEmails.length > 0 && (
+                <span className="bg-cyan-500 text-slate-950 text-[10px] px-1.5 py-0.2 rounded-full font-mono font-black">
+                  {recentEmails.length}
+                </span>
+              )}
+            </button>
+
             {/* My Bookings History Button */}
             <button
               type="button"
@@ -1413,79 +1452,135 @@ export default function CustomerPortal() {
             </div>
           )}
 
-          {/* Worksite Distance & Confirmed Schedule (Arrival time countdown replaced by confirmed email schedule) */}
+          {/* Phase 1 vs Phase 2: Awaiting Acceptance (Reallocation Window Running) vs Accepted (Arrival Time Confirmed & Locked) */}
           {jobStatus !== 'COMPLETED' && jobStatus !== 'CANCELLED' && (
-            <div className="bg-gradient-to-r from-slate-900 via-indigo-950/70 to-slate-900 p-4 sm:p-5 rounded-2xl border border-indigo-500/40 shadow-xl space-y-3.5">
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                <div>
-                  <div className="text-[10px] text-cyan-300 uppercase font-bold tracking-wider flex items-center gap-1.5 font-mono">
-                    <IconMapPin className="w-3.5 h-3.5 text-cyan-400" />
-                    <span>Worksite GPS Distance & Confirmed Arrival</span>
+            !activeOrderDesc.isAccepted ? (
+              /* Phase 1: Waiting for partner acceptance -> Reallocation countdown runs; arrival time NOT shown yet */
+              <div className="bg-gradient-to-r from-slate-900 via-amber-950/60 to-slate-900 p-4 sm:p-5 rounded-2xl border border-amber-500/50 shadow-xl space-y-3.5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] text-amber-300 uppercase font-bold tracking-wider flex items-center gap-1.5 font-mono">
+                      <IconClock className="w-3.5 h-3.5 text-amber-400 animate-spin" />
+                      <span>Reallocation Window Running • Partner Acceptance</span>
+                    </div>
+                    <div className="text-xl font-black text-white mt-1 flex flex-wrap items-center gap-2">
+                      <span>Waiting for Partner Response:</span>
+                      <span className="font-mono px-3 py-1 rounded-xl border text-base font-bold shadow-md bg-amber-950/80 text-amber-300 border-amber-600 animate-pulse">
+                        {reallocationSecondsLeft}s remaining
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-300 mt-1 flex items-center gap-1.5">
+                      <IconMapPin className="w-3.5 h-3.5 text-amber-400" />
+                      <span>
+                        Offer dispatched to Captain <strong className="text-white">{assignedTech?.name}</strong> ({activeOrderDesc.distanceKm || 2.4} km away). Auto-reallocates to next backup if no response in {reallocationSecondsLeft}s.
+                      </span>
+                    </div>
                   </div>
-                  <div className="text-xl font-black text-white mt-1 flex flex-wrap items-center gap-2">
-                    <span>Specialist Proximity:</span>
-                    <span className="font-mono px-3 py-1 rounded-xl border text-base font-bold shadow-md bg-cyan-950/80 text-cyan-300 border-cyan-700/80 glow-pill-cyan">
-                      {activeOrderDesc.distanceKm || activeOrderDesc.techDistance || 2.4} km from worksite
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-300 mt-1 flex items-center gap-1.5">
-                    <IconMail className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>
-                      Scheduled to arrive: <strong className="text-white">Today by {activeOrderDesc.scheduledArrivalTime || '06:30 PM'}</strong> (Confirmation email sent to {activeOrderDesc.email || 'your inbox'})
-                    </span>
+
+                  <div className="px-3 py-1.5 rounded-full bg-amber-950 border border-amber-700/80 text-amber-300 text-xs font-mono font-bold flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                    <span>Reallocation Window Active</span>
                   </div>
                 </div>
 
-                {/* Transit Status Badge */}
-                <div>
-                  <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border shadow-sm ${
-                    jobStatus === 'IN_PROGRESS'
-                      ? 'bg-emerald-950/90 text-emerald-300 border-emerald-600'
-                      : activeOrderDesc.transitStage === 'ARRIVED'
-                      ? 'bg-amber-950/90 text-amber-300 border-amber-600 animate-pulse'
-                      : activeOrderDesc.transitStage === 'EN_ROUTE'
-                      ? 'bg-cyan-950/90 text-cyan-300 border-cyan-600'
-                      : 'bg-indigo-950/90 text-indigo-300 border-indigo-600'
-                  }`}>
-                    <span className="w-2 h-2 rounded-full bg-current"></span>
-                    <span>
-                      {jobStatus === 'IN_PROGRESS'
-                        ? 'Partner Working On-Site'
-                        : activeOrderDesc.transitStage === 'ARRIVED'
-                        ? 'Partner At Security Gate (Waiting PIN)'
-                        : activeOrderDesc.transitStage === 'EN_ROUTE'
-                        ? 'En Route via Main Arterial Corridor'
-                        : 'Dispatched & En Route'}
-                    </span>
+                {/* Reallocation Progress Bar (ticks down from 60 to 0) */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
+                    <div
+                      className="bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 h-full rounded-full transition-all duration-1000 shadow-sm"
+                      style={{ width: `${Math.min(100, Math.max(5, (reallocationSecondsLeft / 60) * 100))}%` }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                    <span>Dispatched (0s)</span>
+                    <span>Auto-Reallocation Cutoff (60s)</span>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-amber-200/80 bg-amber-950/40 p-2.5 rounded-xl border border-amber-800/50 flex items-center gap-2">
+                  <IconShieldCheck className="w-4 h-4 text-amber-400 shrink-0" />
+                  <span>
+                    Arrival time will confirm and lock immediately once Captain {assignedTech?.name} accepts your service request.
                   </span>
                 </div>
               </div>
+            ) : (
+              /* Phase 2: Partner Accepted! Reallocation window completely removed. Arrival Time is now activated and confirmed! */
+              <div className="bg-gradient-to-r from-slate-900 via-emerald-950/70 to-slate-900 p-4 sm:p-5 rounded-2xl border border-emerald-500/50 shadow-xl space-y-3.5">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                  <div>
+                    <div className="text-[10px] text-emerald-300 uppercase font-bold tracking-wider flex items-center gap-1.5 font-mono">
+                      <IconCheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Captain Accepted • Arrival Schedule Confirmed</span>
+                    </div>
+                    <div className="text-xl font-black text-white mt-1 flex flex-wrap items-center gap-2">
+                      <span>Confirmed Arrival:</span>
+                      <span className="font-mono px-3 py-1 rounded-xl border text-base font-bold shadow-md bg-emerald-950/80 text-emerald-300 border-emerald-600 glow-pill-emerald">
+                        Today by {activeOrderDesc.scheduledArrivalTime || '06:30 PM'}
+                      </span>
+                      <span className="text-xs text-slate-400 font-mono">
+                        (~{Math.max(12, Math.round((activeOrderDesc.distanceKm || 2.4) * 3))} mins transit)
+                      </span>
+                    </div>
+                    <div className="text-xs text-slate-300 mt-1 flex items-center gap-1.5">
+                      <IconMail className="w-3.5 h-3.5 text-cyan-400" />
+                      <span>
+                        Official arrival schedule & PIN confirmation dispatched to <strong className="text-white">{activeOrderDesc.email || 'your email'}</strong>
+                      </span>
+                    </div>
+                  </div>
 
-              {/* Transit Progress Bar */}
-              <div className="space-y-1.5 pt-1">
-                <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
-                  <div
-                    className="bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 h-full rounded-full transition-all duration-1000 shadow-sm"
-                    style={{
-                      width: `${
-                        jobStatus === 'IN_PROGRESS'
-                          ? 100
+                  {/* Transit Status Badge */}
+                  <div>
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border shadow-sm ${
+                      jobStatus === 'IN_PROGRESS'
+                        ? 'bg-emerald-950/90 text-emerald-300 border-emerald-600'
+                        : activeOrderDesc.transitStage === 'ARRIVED'
+                        ? 'bg-amber-950/90 text-amber-300 border-amber-600 animate-pulse'
+                        : activeOrderDesc.transitStage === 'EN_ROUTE'
+                        ? 'bg-cyan-950/90 text-cyan-300 border-cyan-600'
+                        : 'bg-emerald-950/90 text-emerald-300 border-emerald-600'
+                    }`}>
+                      <span className="w-2 h-2 rounded-full bg-current"></span>
+                      <span>
+                        {jobStatus === 'IN_PROGRESS'
+                          ? 'Partner Working On-Site'
                           : activeOrderDesc.transitStage === 'ARRIVED'
-                          ? 90
+                          ? 'Partner At Gate (Share PIN)'
                           : activeOrderDesc.transitStage === 'EN_ROUTE'
-                          ? 60
-                          : 35
-                      }%`,
-                    }}
-                  ></div>
+                          ? 'En Route via Main Arterial Corridor'
+                          : 'Order Accepted & En Route'}
+                      </span>
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-[10px] text-slate-400 font-mono">
-                  <span>Hub Dispatched</span>
-                  <span>Transit Corridor</span>
-                  <span>Delivery Address</span>
+
+                {/* Transit Progress Bar */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="w-full bg-slate-950 h-2.5 rounded-full overflow-hidden border border-slate-800">
+                    <div
+                      className="bg-gradient-to-r from-indigo-500 via-cyan-400 to-emerald-400 h-full rounded-full transition-all duration-1000 shadow-sm"
+                      style={{
+                        width: `${
+                          jobStatus === 'IN_PROGRESS'
+                            ? 100
+                            : activeOrderDesc.transitStage === 'ARRIVED'
+                            ? 90
+                            : activeOrderDesc.transitStage === 'EN_ROUTE'
+                            ? 60
+                            : 35
+                        }%`,
+                      }}
+                    ></div>
+                  </div>
+                  <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                    <span>Hub Dispatched</span>
+                    <span>Transit Corridor</span>
+                    <span>{activeOrderDesc.address || 'Delivery Address'}</span>
+                  </div>
                 </div>
               </div>
-            </div>
+            )
           )}
 
           {/* Assigned Technician Profile Card (Partner Card with Verified Badges & Vehicle) */}
@@ -3156,6 +3251,135 @@ export default function CustomerPortal() {
             >
               Track Live on Radar
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* DISPATCHED MAILS & ALERTS LIVE FEED DRAWER / MODAL */}
+      {showMailFeed && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-slate-900 border border-cyan-500/50 rounded-3xl p-6 max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl space-y-4">
+            <div className="flex items-start justify-between pb-3 border-b border-slate-800">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <IconMail className="w-5 h-5 text-cyan-400" />
+                  <h3 className="font-bold text-white text-base">Dispatched Mails & Live Alerts Feed</h3>
+                  <span className="text-[10px] bg-cyan-950 text-cyan-300 border border-cyan-700/80 px-2 py-0.5 rounded-full font-mono">
+                    Gmail SMTP Active
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400">
+                  Real transactional emails sent by the platform. All emails are copied via BCC to <strong className="text-white">4mh23is094@gmail.com</strong>.
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={async () => {
+                    setMailFeedLoading(true)
+                    try {
+                      const list = await api.getRecentEmails()
+                      setRecentEmails(list)
+                    } catch {}
+                    finally {
+                      setMailFeedLoading(false)
+                    }
+                  }}
+                  disabled={mailFeedLoading}
+                  className="p-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer text-xs flex items-center gap-1"
+                  title="Refresh mail feed"
+                >
+                  <IconSparkles className={`w-3.5 h-3.5 text-cyan-400 ${mailFeedLoading ? 'animate-spin' : ''}`} />
+                  <span>Refresh</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowMailFeed(false)}
+                  className="p-2 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-xl cursor-pointer"
+                >
+                  <IconX className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="overflow-y-auto space-y-3 flex-1 pr-1 custom-scrollbar">
+              {recentEmails.length === 0 ? (
+                <div className="py-12 text-center text-slate-400 space-y-2">
+                  <IconMail className="w-8 h-8 mx-auto text-slate-600" />
+                  <div className="text-sm font-semibold text-slate-300">No emails dispatched yet in this runtime</div>
+                  <div className="text-xs text-slate-500">
+                    Book a service or register to trigger instant notifications.
+                  </div>
+                </div>
+              ) : (
+                recentEmails.map((email: any) => (
+                  <div
+                    key={email.id}
+                    className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 hover:border-cyan-500/50 transition-all space-y-2.5"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
+                        <span className="text-xs font-bold text-white font-mono">{email.subject}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {new Date(email.sentAt).toLocaleTimeString()}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="text-slate-400">To:</span>
+                      <span className="font-mono text-cyan-300 font-bold bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-800/60">
+                        {email.to}
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-mono">
+                        (BCC: 4mh23is094@gmail.com)
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2 pt-1">
+                      {email.pin && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold bg-amber-950 text-amber-300 border border-amber-700 px-2 py-0.5 rounded-lg">
+                          <IconKey className="w-3 h-3 text-amber-400" />
+                          PIN: {email.pin}
+                        </span>
+                      )}
+                      {email.scheduledArrival && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono font-bold bg-emerald-950 text-emerald-300 border border-emerald-700 px-2 py-0.5 rounded-lg">
+                          <IconClock className="w-3 h-3 text-emerald-400" />
+                          Arrival Target: {email.scheduledArrival}
+                        </span>
+                      )}
+                      {email.distanceKm && (
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-300 bg-slate-900 border border-slate-700 px-2 py-0.5 rounded-lg">
+                          <IconMapPin className="w-3 h-3 text-cyan-400" />
+                          {email.distanceKm} km
+                        </span>
+                      )}
+                      <span className="ml-auto text-[10px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+                        <IconCheck className="w-3 h-3" /> Sent via SMTP
+                      </span>
+                    </div>
+
+                    {email.preview && (
+                      <div className="text-[11px] text-slate-400 bg-slate-900/70 p-2.5 rounded-xl border border-slate-800/80 line-clamp-2 font-mono">
+                        {email.preview}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="pt-2 border-t border-slate-800 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setShowMailFeed(false)}
+                className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-bold cursor-pointer"
+              >
+                Close Feed
+              </button>
+            </div>
           </div>
         </div>
       )}

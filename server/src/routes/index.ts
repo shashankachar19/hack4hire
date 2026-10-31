@@ -18,8 +18,17 @@ import customerController from '../controllers/customerController';
 import authController from '../controllers/authController';
 import { idempotencyMiddleware } from '../middleware/idempotency';
 import { seed } from '../seed';
+import { getRecentSentEmails } from '../services/emailService';
 
 const router = Router();
+
+// ---- Dispatched Emails & Live Audit Feed ----
+router.get('/notifications/recent-emails', (_req, res) => {
+  res.json({
+    success: true,
+    data: getRecentSentEmails(),
+  });
+});
 
 // ---- Seed & Reset routes ----
 router.post('/seed/reset', async (_req, res, next) => {
