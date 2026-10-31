@@ -128,6 +128,9 @@ export default function TechnicianPortal() {
   const [customTaskName, setCustomTaskName] = useState('')
   const [customTaskPrice, setCustomTaskPrice] = useState('')
 
+  // 7. Offer Response Countdown (1-minute window)
+  const [offerCountdown, setOfferCountdown] = useState<number>(60)
+
   const handleAddExtraTask = (description: string, price: number) => {
     if (!description.trim() || isNaN(price) || price <= 0) {
       showToast('Please enter a valid task description and price')
@@ -160,11 +163,20 @@ export default function TechnicianPortal() {
     setTimeout(() => setToastMsg(null), 4500)
   }
 
+  const loadTechnicians = async () => {
+    try {
+      const techs = await api.getTechnicians()
+      setTechnicians(techs)
+      return techs
+    } catch {
+      return []
+    }
+  }
+
   // Load all technicians on mount
   useEffect(() => {
-    api.getTechnicians()
+    loadTechnicians()
       .then((techs) => {
-        setTechnicians(techs)
         if (techs.length > 0) {
           const savedId = localStorage.getItem('dg_active_tech_id')
           const found = techs.find((t) => t.id === savedId)
@@ -172,7 +184,6 @@ export default function TechnicianPortal() {
           setSelectedTechId(defaultTech.id)
         }
       })
-      .catch(() => { })
       .finally(() => setLoading(false))
   }, [])
 
@@ -476,15 +487,48 @@ export default function TechnicianPortal() {
   const handleDeclineJob = async (jobId: string) => {
     setActionLoading(`decline-${jobId}`)
     try {
-      await api.declineJob(jobId, 'Partner unavailable for this route')
-      showToast('Assignment declined. Engine immediately re-routed to backup specialist!')
+      const res: any = await api.declineJob(jobId, 'Partner unavailable for this route')
+      if (res?.reassigned) {
+        showToast(`Offer declined! Reassigned to backup Captain ${res.backupTechName || 'partner'}!`)
+      } else {
+        showToast('Offer declined. Returned to pending queue. You will not be reassigned this job.')
+      }
       await loadTechDetails(selectedTechId)
+      await loadTechnicians()
     } catch (err: any) {
       showToast(err.message)
     } finally {
       setActionLoading(null)
     }
   }
+
+  // Offer countdown timer (60s response window)
+  useEffect(() => {
+    const assignments: any[] = techData?.assignments || []
+    const pendingOffer = assignments.find((a) => a.job?.status === 'ASSIGNED')
+
+    let desc: any = {}
+    try {
+      if (pendingOffer?.job?.description) desc = JSON.parse(pendingOffer.job.description)
+    } catch {}
+
+    if (!pendingOffer || desc.isAccepted) {
+      setOfferCountdown(60)
+      return
+    }
+
+    const timer = setInterval(() => {
+      setOfferCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer)
+          handleDeclineJob(pendingOffer.job.id)
+          return 0
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [techData, hasAcceptedJob])
 
   if (loading) {
     return (
@@ -582,11 +626,15 @@ export default function TechnicianPortal() {
                     onChange={(e) => handleSelectTechnician(e.target.value)}
                     className="bg-slate-900 border border-slate-700 text-white font-bold text-xs sm:text-sm rounded-xl px-2.5 py-1 focus:outline-none focus:border-indigo-500 cursor-pointer max-w-full sm:max-w-xs truncate"
                   >
-                    {technicians.map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.name} ({Array.isArray(t.skills) ? t.skills.join(', ') : t.skills})
-                      </option>
-                    ))}
+                    {technicians.length === 0 ? (
+                      <option value="">No partners registered yet (Click + Register)</option>
+                    ) : (
+                      technicians.map((t) => (
+                        <option key={t.id} value={t.id}>
+                          {t.name} ({Array.isArray(t.skills) ? t.skills.join(', ') : t.skills})
+                        </option>
+                      ))
+                    )}
                   </select>
                 </div>
 
@@ -840,9 +888,14 @@ export default function TechnicianPortal() {
                             Incoming Dispatch Offer
                           </span>
                         </div>
-                        <span className="text-[11px] font-mono text-emerald-400 font-bold">
-                          Payout: ₹650 + ₹400 SLA Bonus
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] font-mono text-amber-300 font-bold bg-amber-950/80 border border-amber-700/80 px-2 py-0.5 rounded-lg animate-pulse">
+                            {offerCountdown}s window
+                          </span>
+                          <span className="text-[11px] font-mono text-emerald-400 font-bold">
+                            Payout: ₹650 + ₹400 SLA Bonus
+                          </span>
+                        </div>
                       </div>
                       <div className="text-xs text-slate-300">
                         Service request from <strong className="text-white">{custName}</strong> for <strong className="text-cyan-300">{activeAssignment.job.title}</strong> at {custAddress}. Accept to lock dispatch.

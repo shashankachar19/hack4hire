@@ -369,32 +369,139 @@ router.post('/:id/decline', async (req: Request, res: Response, next: NextFuncti
       throw new AppError(404, 'NOT_FOUND', `Job '${id}' not found`);
     }
 
-    // Reset job to PENDING and delete assignment
-    await prisma.$transaction(async (tx) => {
-      await tx.assignment.deleteMany({
-        where: { jobId: id },
-      });
-      await tx.job.update({
-        where: { id },
-        data: { status: 'PENDING' },
-      });
-    });
+    // Identify which technician is declining this job
+    const currentAssignment = await prisma.assignment.findFirst({ where: { jobId: id } });
+    const decliningTechId = (req.body as any).technicianId || currentAssignment?.technicianId;
 
-    // Re-optimize pool so next best qualified technician is assigned
-    const reoptResult = await reOptimizeSchedule(`Technician declined assignment for: ${job.title}`);
-    const updatedAssignment = await prisma.assignment.findFirst({
+    let jobDesc: any = {};
+    try {
+      if (job.description) jobDesc = JSON.parse(job.description);
+    } catch {
+      jobDesc = {};
+    }
+
+    const declinedTechIds: string[] = Array.isArray(jobDesc.declinedTechIds) ? [...jobDesc.declinedTechIds] : [];
+    if (decliningTechId && !declinedTechIds.includes(decliningTechId)) {
+      declinedTechIds.push(decliningTechId);
+    }
+
+    // Delete the declined assignment
+    await prisma.assignment.deleteMany({
       where: { jobId: id },
-      include: { technician: true },
     });
 
-    res.json({
-      success: true,
-      data: {
-        reassigned: !!updatedAssignment,
-        assignment: updatedAssignment ? deserializeTechInJob(updatedAssignment) : null,
-        metrics: reoptResult.metrics,
-      },
+    // Find next eligible technician (strictly EXCLUDING all technicians who have declined this job)
+    const allTechs = await prisma.technician.findMany({
+      where: { isAvailable: true },
+      orderBy: { createdAt: 'desc' },
     });
+
+    const eligibleTechs = allTechs.filter((t) => !declinedTechIds.includes(t.id));
+
+    const reqSkills: string[] =
+      typeof job.requiredSkills === 'string' ? JSON.parse(job.requiredSkills) : job.requiredSkills;
+
+    const qualified = eligibleTechs.filter((t: any) => {
+      const skills: string[] = typeof t.skills === 'string' ? JSON.parse(t.skills) : t.skills;
+      const zones: string[] = typeof t.serviceZones === 'string' ? JSON.parse(t.serviceZones) : t.serviceZones;
+      const hasSkill = reqSkills.every((s: string) => skills.includes(s));
+      const hasZone = zones.includes(job.serviceZone);
+      return hasSkill && hasZone;
+    });
+
+    const backupTech =
+      qualified[0] ||
+      eligibleTechs.find((t: any) => {
+        const skills: string[] = typeof t.skills === 'string' ? JSON.parse(t.skills) : t.skills;
+        return reqSkills.some((s: string) => skills.includes(s));
+      }) ||
+      eligibleTechs[0];
+
+    if (backupTech) {
+      // Reassign directly to next qualified backup specialist
+      const schedStart = new Date();
+      const schedEnd = new Date(schedStart.getTime() + job.durationMinutes * 60 * 1000);
+
+      const newAssignment = await prisma.assignment.create({
+        data: {
+          jobId: id,
+          technicianId: backupTech.id,
+          scheduledStart: schedStart,
+          scheduledEnd: schedEnd,
+          travelTimeMin: 6.5,
+          isLocked: true,
+          runId: `reassign-${Date.now()}`,
+        },
+        include: { technician: true },
+      });
+
+      const updatedDesc = {
+        ...jobDesc,
+        declinedTechIds,
+        lastDeclinedBy: decliningTechId,
+        reassignedTo: backupTech.name,
+        reassignedAt: new Date().toISOString(),
+        transitStage: 'ASSIGNED',
+        isAccepted: false,
+      };
+
+      await prisma.job.update({
+        where: { id },
+        data: {
+          status: 'ASSIGNED',
+          description: JSON.stringify(updatedDesc),
+        },
+      });
+
+      // Dispatch assignment email for the new backup technician
+      if (jobDesc.email) {
+        sendAssignmentEmail({
+          to: jobDesc.email,
+          customerName: jobDesc.name || 'Valued Customer',
+          techName: backupTech.name,
+          techPhone: (backupTech as any).phone || '+91 98450 12345',
+          jobTitle: job.title,
+          serviceZone: job.serviceZone,
+          pin: jobDesc.servicePin || '4829',
+        }).catch(() => {});
+      }
+
+      res.json({
+        success: true,
+        data: {
+          reassigned: true,
+          backupTechName: backupTech.name,
+          assignment: deserializeTechInJob(newAssignment),
+        },
+      });
+    } else {
+      // No other technician available; mark job PENDING so declining tech is NOT reassigned
+      const updatedDesc = {
+        ...jobDesc,
+        declinedTechIds,
+        lastDeclinedBy: decliningTechId,
+        reassignedTo: null,
+        transitStage: 'UNASSIGNED',
+        isAccepted: false,
+      };
+
+      await prisma.job.update({
+        where: { id },
+        data: {
+          status: 'PENDING',
+          description: JSON.stringify(updatedDesc),
+        },
+      });
+
+      res.json({
+        success: true,
+        data: {
+          reassigned: false,
+          message: 'All available technicians have declined this order. Waiting for next partner to come online.',
+          assignment: null,
+        },
+      });
+    }
   } catch (err) {
     next(err);
   }

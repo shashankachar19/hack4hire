@@ -272,8 +272,8 @@ export default function CustomerPortal() {
   const [cancelNotes, setCancelNotes] = useState<string>('')
   const [isCancelling, setIsCancelling] = useState<boolean>(false)
 
-  // Dynamic Partner ETA Countdown (Feature 4)
-  const [partnerEtaSeconds, setPartnerEtaSeconds] = useState<number>(390) // 6 mins 30 secs
+  // Dynamic Partner ETA Countdown (Feature 4 - 1m quick test window)
+  const [partnerEtaSeconds, setPartnerEtaSeconds] = useState<number>(60) // 1 minute (60s)
   const [profile, setProfile] = useState<CustomerProfile | null>(null)
   const [showAuthModal, setShowAuthModal] = useState(false)
   const [pendingBookingAfterAuth, setPendingBookingAfterAuth] = useState(false)
@@ -433,6 +433,13 @@ export default function CustomerPortal() {
           } else if (fresh.status === 'COMPLETED' && activeOrder.job.status !== 'COMPLETED') {
             playSuccessChime()
             showToast(`Service completed! Official tax invoice and 30-day warranty certificate ready.`)
+          } else if (freshDesc.reassignedTo && freshDesc.reassignedTo !== prevDesc.reassignedTo) {
+            playDispatchChime()
+            showToast(`Reassigned to Captain ${freshDesc.reassignedTo}! Previous partner declined.`)
+            setPartnerEtaSeconds(60)
+          } else if (fresh.status === 'PENDING' && activeOrder.job.status === 'ASSIGNED') {
+            playAlertChime()
+            showToast('Partner declined. Waiting for next qualified partner to come online...')
           } else if (freshDesc.complication && (!prevDesc.complication || freshDesc.complication.reportedAt !== prevDesc.complication.reportedAt)) {
             playAlertChime()
             showToast(`Live Field Update: "${freshDesc.complication.reason}" (+${freshDesc.complication.delayMinutes}m). SLA Deadline automatically extended!`)
@@ -441,7 +448,7 @@ export default function CustomerPortal() {
           setActiveOrder((prev: any) => ({
             ...prev,
             job: fresh,
-            assignment: rawAssign || prev?.assignment,
+            assignment: rawAssign || (fresh.status === 'PENDING' ? null : prev?.assignment),
           }))
 
           // Sync into localStorage bookings history
@@ -458,7 +465,7 @@ export default function CustomerPortal() {
     return () => clearInterval(interval)
   }, [activeOrder?.job?.id, activeOrder?.job?.status, activeOrder?.job?.description, activeOrder?.job?.durationMinutes])
 
-  // Dynamic Partner ETA Countdown (Feature 4)
+  // Dynamic Partner ETA Countdown (Feature 4 - 60s test window)
   useEffect(() => {
     if (!activeOrder?.job?.id) return
     const status = activeOrder.job.status
@@ -468,6 +475,29 @@ export default function CustomerPortal() {
     }, 1000)
     return () => clearInterval(timer)
   }, [activeOrder?.job?.id, activeOrder?.job?.status])
+
+  // Auto-reassignment on 1-minute acceptance window timeout
+  useEffect(() => {
+    if (!activeOrder?.job?.id || activeOrder.job.status !== 'ASSIGNED') return
+    let desc: any = {}
+    try {
+      if (activeOrder.job.description) desc = JSON.parse(activeOrder.job.description)
+    } catch {}
+
+    if (partnerEtaSeconds === 0 && !desc.isAccepted) {
+      api.declineJob(activeOrder.job.id, 'Acceptance window timeout (1m)')
+        .then((res: any) => {
+          if (res?.reassigned) {
+            playDispatchChime()
+            showToast(`1m Timeout! Reassigned to Captain ${res.backupTechName || 'next partner'}!`)
+            setPartnerEtaSeconds(60)
+          } else {
+            showToast('1m Acceptance window expired. Re-queued in pending pool for next available partner.')
+          }
+        })
+        .catch(() => {})
+    }
+  }, [partnerEtaSeconds, activeOrder?.job?.id, activeOrder?.job?.status])
 
   // Distance Calculation between assigned / preferred tech and customer zone
   function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -861,7 +891,7 @@ export default function CustomerPortal() {
         customer: customerDossier,
       }
       setActiveOrder(orderData)
-      setPartnerEtaSeconds(390) // Reset to 6m 30s
+      setPartnerEtaSeconds(60) // Reset to 1m window
       playDispatchChime()
       showToast('Technician matched & dispatched instantly!')
       setShowAssignedPopup(true)
@@ -1415,7 +1445,7 @@ export default function CustomerPortal() {
                       ? 'bg-amber-950/90 text-amber-300 border-amber-600 animate-pulse'
                       : activeOrderDesc.transitStage === 'EN_ROUTE'
                       ? 'bg-cyan-950/90 text-cyan-300 border-cyan-600'
-                      : partnerEtaSeconds <= 180
+                      : partnerEtaSeconds <= 20
                       ? 'bg-amber-950/90 text-amber-300 border-amber-600 animate-pulse'
                       : 'bg-indigo-950/90 text-indigo-300 border-indigo-600'
                   }`}>
@@ -1427,7 +1457,7 @@ export default function CustomerPortal() {
                         ? 'Partner At Security Gate (Waiting PIN)'
                         : activeOrderDesc.transitStage === 'EN_ROUTE'
                         ? 'En Route via Main Arterial Corridor'
-                        : partnerEtaSeconds <= 180
+                        : partnerEtaSeconds <= 20
                         ? 'Approaching Society Gate (<500m)'
                         : 'En Route via Main Arterial Corridor'}
                     </span>
@@ -1444,7 +1474,7 @@ export default function CustomerPortal() {
                       width: `${
                         jobStatus === 'IN_PROGRESS'
                           ? 100
-                          : Math.min(95, Math.max(15, Math.round(((390 - partnerEtaSeconds) / 390) * 100)))
+                          : Math.min(95, Math.max(15, Math.round(((60 - partnerEtaSeconds) / 60) * 100)))
                       }%`,
                     }}
                   ></div>
@@ -1496,7 +1526,7 @@ export default function CustomerPortal() {
                 <div className="text-right mr-2 hidden sm:block">
                   <div className="text-[10px] text-slate-400 uppercase font-semibold">Dynamic SLA Window</div>
                   <div className="text-base font-bold text-cyan-400 font-mono">
-                    {partnerEtaSeconds > 0 ? `${Math.ceil(partnerEtaSeconds / 60)} mins remaining` : 'On Location'}
+                    {partnerEtaSeconds > 0 ? `${partnerEtaSeconds}s window remaining` : 'Arrived / Active'}
                   </div>
                 </div>
 
