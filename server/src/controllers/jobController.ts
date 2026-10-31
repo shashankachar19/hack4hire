@@ -32,7 +32,7 @@ import {
 import { ApiResponse, VALID_JOB_TRANSITIONS, JobStatusType } from '../types';
 import { AppError } from '../middleware/errorHandler';
 import { reOptimizeSchedule } from '../services/schedulingService';
-import { sendAssignmentEmail, sendTechnicianJobNotificationEmail, sendNearbyJobOpeningAlertEmail } from '../services/emailService';
+import { sendAssignmentEmail, sendTechnicianJobNotificationEmail, sendNearbyJobOpeningAlertEmail, sendServiceCompletedEmail } from '../services/emailService';
 import { haversineDistance } from '../utils/geo';
 import { getTechContact } from '../utils/techContacts';
 
@@ -853,6 +853,39 @@ router.patch('/:id/state', async (req: Request, res: Response, next: NextFunctio
       return updatedJob;
     });
 
+    // When transitioning to COMPLETED, dispatch service completion email to customer
+    if (newStatus === 'COMPLETED') {
+      try {
+        const currentAssign = await prisma.assignment.findFirst({
+          where: { jobId: id },
+          include: { technician: true },
+        });
+        let parsedDesc: any = {};
+        try {
+          if (result.description) parsedDesc = JSON.parse(result.description);
+        } catch {}
+        const customerEmail = parsedDesc.email || (result.customerId ? (await prisma.customer.findUnique({ where: { id: result.customerId } }))?.email : null) || 'customer@dispatchgrid.in';
+        if (customerEmail && currentAssign?.technician) {
+          sendServiceCompletedEmail({
+            to: customerEmail,
+            customerName: parsedDesc.name || 'Valued Customer',
+            techName: currentAssign.technician.name,
+            jobTitle: result.title,
+            customerAddress: parsedDesc.address || 'Bengaluru, Karnataka',
+            serviceZone: result.serviceZone,
+            completedAt: new Date().toLocaleString('en-IN'),
+            totalAmount: parsedDesc.totalAmount || 549,
+            paymentMethod: parsedDesc.paymentMethod || 'UPI',
+            paymentTxnId: parsedDesc.paymentTxnId || 'DG-PAY-88412',
+            resolutionNote: parsedDesc.resolutionNote,
+            jobId: id,
+          }).catch((e) => console.error('[EMAIL ERROR] Service completed email in state patch failed:', e.message));
+        }
+      } catch (err: any) {
+        console.error('[EMAIL ERROR] Failed preparing completion email:', err.message);
+      }
+    }
+
     const response: ApiResponse = { success: true, data: deserializeJob(result) };
     res.json(response);
   } catch (err) {
@@ -894,6 +927,35 @@ router.patch('/:id/transit', async (req: Request, res: Response, next: NextFunct
       },
     });
 
+    // When service is marked COMPLETED, immediately dispatch completion email & tax invoice to customer!
+    if (req.body.transitStage === 'COMPLETED' || req.body.completedAt) {
+      try {
+        const currentAssign = await prisma.assignment.findFirst({
+          where: { jobId: id },
+          include: { technician: true },
+        });
+        const customerEmail = updatedDesc.email || (existingJob.customerId ? (await prisma.customer.findUnique({ where: { id: existingJob.customerId } }))?.email : null) || 'customer@dispatchgrid.in';
+        if (customerEmail && currentAssign?.technician) {
+          sendServiceCompletedEmail({
+            to: customerEmail,
+            customerName: updatedDesc.name || 'Valued Customer',
+            techName: currentAssign.technician.name,
+            jobTitle: existingJob.title,
+            customerAddress: updatedDesc.address || 'Bengaluru, Karnataka',
+            serviceZone: existingJob.serviceZone,
+            completedAt: req.body.completedAt || new Date().toLocaleString('en-IN'),
+            totalAmount: updatedDesc.totalAmount || (existingJob.durationMinutes ? Math.round(existingJob.durationMinutes * 12 + 250) : 549) + (req.body.extraTasksTotal || 0) + (req.body.partsCost || 0),
+            paymentMethod: updatedDesc.paymentMethod || 'UPI',
+            paymentTxnId: updatedDesc.paymentTxnId || 'DG-PAY-88412',
+            resolutionNote: req.body.resolutionNote,
+            jobId: id,
+          }).catch((e) => console.error('[EMAIL ERROR] Service completed email in transit patch failed:', e.message));
+        }
+      } catch (err: any) {
+        console.error('[EMAIL ERROR] Failed preparing transit completion email:', err.message);
+      }
+    }
+
     // When partner accepts, immediately dispatch confirmed arrival email to customer!
     if (req.body.isAccepted === true && !parsedDesc.isAccepted) {
       const currentAssign = await prisma.assignment.findFirst({
@@ -919,6 +981,56 @@ router.patch('/:id/transit', async (req: Request, res: Response, next: NextFunct
 
     const response: ApiResponse = { success: true, data: deserializeJob(updatedJob) };
     res.json(response);
+  } catch (err) {
+    next(err);
+  }
+});
+
+// ============================================================================
+// POST /:id/send-completion-email — Manually trigger or resend completion email
+// ============================================================================
+router.post('/:id/send-completion-email', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const existingJob = await prisma.job.findUnique({
+      where: { id },
+      include: {
+        assignments: {
+          include: { technician: true },
+        },
+      },
+    });
+
+    if (!existingJob) {
+      throw new AppError(404, 'NOT_FOUND', `Job with ID '${id}' not found`);
+    }
+
+    let parsedDesc: any = {};
+    try {
+      if (existingJob.description) parsedDesc = JSON.parse(existingJob.description);
+    } catch {
+      parsedDesc = {};
+    }
+
+    const customerEmail = req.body.email || parsedDesc.email || (existingJob.customerId ? (await prisma.customer.findUnique({ where: { id: existingJob.customerId } }))?.email : null) || 'customer@dispatchgrid.in';
+    const techName = existingJob.assignments[0]?.technician?.name || req.body.techName || 'Alex Martinez';
+
+    const result = await sendServiceCompletedEmail({
+      to: customerEmail,
+      customerName: parsedDesc.name || req.body.customerName || 'Valued Customer',
+      techName,
+      jobTitle: existingJob.title,
+      customerAddress: parsedDesc.address || 'Bengaluru, Karnataka',
+      serviceZone: existingJob.serviceZone,
+      completedAt: parsedDesc.completedAt || new Date().toLocaleString('en-IN'),
+      totalAmount: parsedDesc.totalAmount || 549,
+      paymentMethod: parsedDesc.paymentMethod || 'UPI',
+      paymentTxnId: parsedDesc.paymentTxnId || 'DG-PAY-88412',
+      resolutionNote: parsedDesc.resolutionNote,
+      jobId: id,
+    });
+
+    res.json({ success: true, data: { message: 'Service completion email sent', result } });
   } catch (err) {
     next(err);
   }

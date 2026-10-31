@@ -71,6 +71,8 @@ export const api = {
     request<any>(`/jobs/${id}/state`, { method: 'PATCH', body: JSON.stringify({ status }) }),
   updateJobTransit: (id: string, transitData: any) =>
     request<any>(`/jobs/${id}/transit`, { method: 'PATCH', body: JSON.stringify(transitData) }),
+  sendCompletionEmail: (id: string, data?: any) =>
+    request<any>(`/jobs/${id}/send-completion-email`, { method: 'POST', body: JSON.stringify(data || {}) }),
 
   // Schedule
   generateSchedule: (weights?: Record<string, number>) =>

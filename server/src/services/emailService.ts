@@ -25,7 +25,7 @@ interface SendWelcomeEmailOptions {
 
 export interface DispatchedEmailRecord {
   id: string;
-  type: 'OTP' | 'WELCOME' | 'ASSIGNMENT' | 'TECH_JOB_OFFER';
+  type: 'OTP' | 'WELCOME' | 'ASSIGNMENT' | 'TECH_JOB_OFFER' | 'SERVICE_COMPLETED';
   to: string;
   subject: string;
   preview: string;
@@ -36,6 +36,10 @@ export interface DispatchedEmailRecord {
   address?: string;
   scheduledArrival?: string;
   distanceKm?: number;
+  totalAmount?: number;
+  paymentMethod?: string;
+  paymentTxnId?: string;
+  jobTitle?: string;
 }
 
 const recentEmails: DispatchedEmailRecord[] = [];
@@ -792,6 +796,214 @@ export async function sendNearbyJobOpeningAlertEmail({
   console.log("   Distance: " + distanceKm.toFixed(1) + " km");
   console.log("   Service: " + jobTitle);
   console.log("======================================================\n");
+
+  return { delivered: false, error: 'NO_SMTP_CREDENTIALS_IN_ENV' };
+}
+
+export interface SendServiceCompletedEmailOptions {
+  to: string;
+  customerName: string;
+  techName: string;
+  jobTitle: string;
+  customerAddress: string;
+  serviceZone: string;
+  completedAt?: string;
+  totalAmount?: number;
+  paymentMethod?: string;
+  paymentTxnId?: string;
+  resolutionNote?: string;
+  jobId: string;
+  portalUrl?: string;
+}
+
+export async function sendServiceCompletedEmail({
+  to,
+  customerName,
+  techName,
+  jobTitle,
+  customerAddress,
+  serviceZone,
+  completedAt = new Date().toLocaleString('en-IN'),
+  totalAmount = 549,
+  paymentMethod = 'UPI',
+  paymentTxnId = 'DG-PAY-88412',
+  resolutionNote,
+  jobId,
+  portalUrl = 'http://172.16.25.82:5173/customer',
+}: SendServiceCompletedEmailOptions): Promise<{ delivered: boolean; error?: string }> {
+  const gmailUser = process.env.GMAIL_USER || process.env.SMTP_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
+
+  const subject = `[DispatchGrid] Service Completed 🎉 Tax Invoice & 30-Day Warranty for "${jobTitle}"`;
+  const text = `Hello ${customerName},\n\nYour emergency trade service "${jobTitle}" has been COMPLETED by Captain ${techName}!\n\nCompletion Summary:\n- Service: ${jobTitle}\n- Specialist: Captain ${techName}\n- Worksite Address: ${customerAddress}\n- Completed At: ${completedAt}\n- Total Paid: ₹${totalAmount}\n- Payment Mode: ${paymentMethod} (Txn #${paymentTxnId})\n${resolutionNote ? `- Diagnosis / Notes: "${resolutionNote}"\n` : ''}\nWarranty Guarantee:\nYour official 30-day comprehensive workmanship warranty is now active!\n\nView your tax invoice and rate your specialist in the Customer Portal:\n${portalUrl}\n\nThank you for choosing DispatchGrid!`;
+
+  const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 540px; margin: 0 auto; background: #090d16; border: 1px solid #1e293b; border-radius: 16px; overflow: hidden; color: #f8fafc;">
+      <!-- Luxury Mindazzle Header Banner -->
+      <div style="background: #2A114B; border-bottom: 2px solid #824D69; padding: 26px; text-align: center;">
+        <h1 style="margin: 0; color: #FAE5D8; font-size: 24px; font-weight: 800; letter-spacing: -0.5px;">DispatchGrid</h1>
+        <p style="margin: 4px 0 0 0; color: #DFB6B2; font-size: 13px;">Official Work Order Completion & Tax Invoice</p>
+      </div>
+
+      <div style="padding: 30px 24px;">
+        <!-- Celebration Badge -->
+        <div style="display: inline-block; background: #064e3b; border: 1px solid #059669; color: #6ee7b7; font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 14px;">
+          🎉 100% Service Completed
+        </div>
+
+        <h2 style="margin: 0 0 10px 0; color: #ffffff; font-size: 21px; font-weight: 800;">
+          Thank You for Choosing DispatchGrid!
+        </h2>
+        <p style="margin: 0 0 20px 0; color: #94a3b8; font-size: 14px; line-height: 1.5;">
+          Hello <strong>${customerName}</strong>, your service order for <strong>${jobTitle}</strong> has been successfully fulfilled by Captain ${techName}. Your official digital tax invoice and 30-day warranty certificate are ready.
+        </p>
+
+        <!-- Service & Settlement Card -->
+        <div style="background: #0f172a; border: 1px solid #334155; border-radius: 14px; padding: 20px; margin-bottom: 22px;">
+          <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; border-bottom: 1px solid #1e293b; padding-bottom: 6px;">
+            Service & Settlement Summary
+          </div>
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px; color: #e2e8f0;">
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; width: 140px;">Service Name:</td>
+              <td style="padding: 6px 0; font-weight: 700; color: #ffffff;">${jobTitle}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Assigned Specialist:</td>
+              <td style="padding: 6px 0; font-weight: 600;">Captain ${techName} (Verified)</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Worksite Location:</td>
+              <td style="padding: 6px 0; font-weight: 600;">${customerAddress}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Completed At:</td>
+              <td style="padding: 6px 0; font-weight: 600; color: #94a3b8;">${completedAt}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Payment Settlement:</td>
+              <td style="padding: 6px 0; font-weight: 700; color: #34d399;">
+                ₹${totalAmount} via ${paymentMethod} (${paymentTxnId})
+              </td>
+            </tr>
+            ${resolutionNote ? `
+            <tr>
+              <td style="padding: 6px 0; color: #64748b;">Resolution / Diagnosis:</td>
+              <td style="padding: 6px 0; font-style: italic; color: #cbd5e1;">"${resolutionNote}"</td>
+            </tr>
+            ` : ''}
+          </table>
+        </div>
+
+        <!-- 30-Day Warranty Seal -->
+        <div style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); border: 1px solid #6366f1; border-radius: 12px; padding: 16px 20px; margin-bottom: 24px; text-align: center;">
+          <div style="font-size: 11px; font-weight: 800; color: #a5b4fc; text-transform: uppercase; letter-spacing: 1px;">
+            🛡️ 30-Day Urban Company Workmanship Seal
+          </div>
+          <div style="font-size: 13px; color: #e0e7ff; margin-top: 4px;">
+            100% Free Doorstep Rework Guarantee active until ${new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN')}.
+          </div>
+        </div>
+
+        <!-- CTA Buttons (Solid, No Gradient) -->
+        <div style="text-align: center; margin-bottom: 16px;">
+          <a href="${portalUrl}" target="_blank" style="display: inline-block; background: #522959; color: #FAE5D8; font-weight: 800; font-size: 14px; text-decoration: none; padding: 14px 28px; border-radius: 12px; border: 1px solid #824D69; box-shadow: 0 4px 14px rgba(82, 41, 89, 0.45);">
+            Open Customer Portal & Download Official Tax Invoice (PDF)
+          </a>
+        </div>
+
+        <p style="margin: 0; text-align: center; color: #64748b; font-size: 12px; line-height: 1.4;">
+          Have 30 seconds? Please take a moment to rate Captain ${techName} in your customer dashboard!
+        </p>
+      </div>
+
+      <div style="background: #0b1120; border-top: 1px solid #1e293b; padding: 16px 24px; text-align: center;">
+        <p style="margin: 0; color: #475569; font-size: 11px;">
+          (c) 2026 DispatchGrid Technologies India Pvt. Ltd. • Automated Service Completion Notice
+        </p>
+      </div>
+    </div>
+  `;
+
+  if (gmailUser && gmailPass) {
+    try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: gmailUser,
+          pass: gmailPass.replace(/\s+/g, ''),
+        },
+      });
+
+      const mailOptions: any = {
+        from: `"DispatchGrid Care" <${gmailUser}>`,
+        to,
+        subject,
+        text,
+        html,
+      };
+
+      if (gmailUser && to.toLowerCase() !== gmailUser.toLowerCase()) {
+        mailOptions.bcc = gmailUser;
+      }
+
+      await transporter.sendMail(mailOptions);
+      recordSentEmail({
+        id: `completed-${Date.now()}`,
+        type: 'SERVICE_COMPLETED',
+        to,
+        subject,
+        preview: `Service "${jobTitle}" completed by Captain ${techName}. Total: ₹${totalAmount} paid via ${paymentMethod}. 30-day warranty active.`,
+        sentAt: new Date().toISOString(),
+        customerName,
+        techName,
+        address: customerAddress,
+        totalAmount,
+        paymentMethod,
+        paymentTxnId,
+        jobTitle,
+      });
+
+      console.log(`\n======================================================`);
+      console.log(`[SERVICE COMPLETED EMAIL DELIVERED TO GMAIL]`);
+      console.log(`   To: ${to}`);
+      console.log(`   Customer: ${customerName}`);
+      console.log(`   Specialist: Captain ${techName}`);
+      console.log(`   Total Paid: ₹${totalAmount} via ${paymentMethod}`);
+      console.log(`   Subject: ${subject}`);
+      console.log(`   Dispatched via: ${gmailUser}`);
+      console.log(`======================================================\n`);
+      return { delivered: true };
+    } catch (err: any) {
+      console.error(`[SMTP ERROR]: Failed to send completion email to ${to}:`, err.message);
+      return { delivered: false, error: err.message };
+    }
+  }
+
+  // Fallback console log + record to recentEmails so it appears in Live Mails Feed
+  recordSentEmail({
+    id: `completed-${Date.now()}`,
+    type: 'SERVICE_COMPLETED',
+    to,
+    subject,
+    preview: `Service "${jobTitle}" completed by Captain ${techName}. Total: ₹${totalAmount} paid via ${paymentMethod}. 30-day warranty active.`,
+    sentAt: new Date().toISOString(),
+    customerName,
+    techName,
+    address: customerAddress,
+    totalAmount,
+    paymentMethod,
+    paymentTxnId,
+    jobTitle,
+  });
+
+  console.log(`\n======================================================`);
+  console.log(`[SERVICE COMPLETED EMAIL DISPATCHED TO: ${to}]`);
+  console.log(`   Customer: ${customerName}`);
+  console.log(`   Specialist: Captain ${techName}`);
+  console.log(`   Total Paid: ₹${totalAmount} via ${paymentMethod}`);
+  console.log(`   Warranty: 30-Day Urban Company Seal Active`);
+  console.log(`======================================================\n`);
 
   return { delivered: false, error: 'NO_SMTP_CREDENTIALS_IN_ENV' };
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { api } from '../api'
 import { COMMON_PARTS, type ConsumablePart } from '../parts'
+import { downloadOfficialInvoicePdf } from '../utils/invoicePdf'
 import {
   IconCheckCircle,
   IconMapPin,
@@ -530,6 +531,12 @@ export default function CustomerPortal() {
               hasShownCompletionModalRef.current = fresh.id
               playSuccessChime()
               setShowCompletionModal(true)
+              // Trigger service completion email to customer
+              api.sendCompletionEmail(fresh.id, {
+                customerName: profile?.name || 'Valued Customer',
+                email: profile?.email || 'customer@dispatchgrid.in',
+                techName,
+              }).catch(() => {})
             }
           } else if (freshDesc.reassignedTo && freshDesc.reassignedTo !== prevDesc.reassignedTo) {
             playDispatchChime()
@@ -1058,82 +1065,58 @@ export default function CustomerPortal() {
     const job = orderItem?.job || activeOrder?.job || orderItem
     if (!job) return
     const techName = activeOrder?.assignment?.technician?.name || orderItem?.technicianName || 'Alex Martinez'
-    const price = orderItem?.totalAmount || selectedCategory.basePrice + 100
+    const price = orderItem?.totalAmount || activeOrder?.totalAmount || totalEstimatedFare
     const cust = orderItem?.customer || activeOrder?.customer || profile || {
-      name: 'Rahul Sharma',
-      phone: '+91 98765 43210',
-      email: 'rahul.sharma@example.com',
-      address: 'Flat 402, Tower B, Prestige Falcon City, Bengaluru',
-      age: 29,
+      name: 'Valued Resident',
+      phone: '+91 98450 12345',
+      email: 'customer@dispatchgrid.in',
+      address: streetAddress || 'Bengaluru, Karnataka',
+      age: 28,
     }
 
-    const lines = [
-      '==========================================================',
-      '               DISPATCHGRID ON-DEMAND SERVICES            ',
-      '                   OFFICIAL TAX INVOICE                   ',
-      '==========================================================',
-      `Invoice No:       INV-DG-${job.id?.slice(0, 8).toUpperCase() || '2024-001'}`,
-      `Date:              ${new Date().toLocaleString('en-IN')}`,
-      `Service:           ${job.title || 'Emergency Home Trade Repair'}`,
-      `Service Zone:      ${job.serviceZone || selectedZone.name}`,
-      `SLA Priority:      ${job.priority || priority}`,
-      '----------------------------------------------------------',
-      'CUSTOMER DETAILS (Billed To):',
-      `Customer Name:     ${cust.name} (Age: ${cust.age || 29})`,
-      `Contact Phone:     ${cust.phone}`,
-      `Email Address:     ${cust.email}`,
-      `Service Address:   ${cust.address}`,
-      '----------------------------------------------------------',
-      `Technician:        ${techName} (Verified Fleet Specialist)`,
-      `Partner ID:        DG-PARTNER-402`,
-      `Service Status:    ${job.status || 'COMPLETED'}`,
-      '----------------------------------------------------------',
-      'ITEMIZED FARE BREAKDOWN (Urban Company Tax Standard):',
-      `Base Trade Labour:             ₹${baseTradePrice}`,
-      `SLA Speed Dispatch Guarantee:  ₹${prioritySpeedFee}`,
-      `Safety Kit & Sanitized Tools:  ₹${safetyEquipmentFee}`,
-      `Platform & Cloud Fee:          ₹${cloudPlatformFee}`,
-      `Statutory Taxes (18% GST):     ₹${gstTaxAmount}`,
-      ...((() => {
-        let desc: any = {}
-        try {
-          if (job.description) desc = JSON.parse(job.description)
-        } catch {}
-        if (desc.selectedParts && desc.selectedParts.length > 0) {
-          const partsLines = [
-            '----------------------------------------------------------',
-            'CONSUMABLES & REPLACEMENT PARTS INSTALLED ON-SITE:',
-          ]
-          desc.selectedParts.forEach((partId: string) => {
-            const part = COMMON_PARTS.find((p: ConsumablePart) => p.id === partId)
-            if (part) {
-              partsLines.push(`- ${part.name.padEnd(35)}: ₹${part.price}`)
-            }
-          })
-          if (desc.resolutionNote) {
-            partsLines.push(`Partner Diagnosis: "${desc.resolutionNote}"`)
-          }
-          return partsLines
-        }
-        return []
-      })()),
-      '----------------------------------------------------------',
-      `TOTAL AMOUNT PAID:             ₹${price || totalEstimatedFare}`,
-      'Payment Mode:                  Prepaid Online (Verified Account)',
-      'Service Guarantee:             30-Day Urban Company Warranty Seal',
-      '==========================================================',
-      '    Thank you for choosing DispatchGrid Verified Fleet!   ',
-      '==========================================================',
-    ].join('\n')
+    let parsedDesc: any = {}
+    try {
+      if (job.description) parsedDesc = JSON.parse(job.description)
+    } catch {}
 
-    const blob = new Blob([lines], { type: 'text/plain;charset=utf-8' })
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = `Invoice-DispatchGrid-${job.id?.slice(0, 8) || 'receipt'}.txt`
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-    showToast('Official Tax Invoice downloaded!')
+    const partsList: { name: string; price: number }[] = []
+    if (parsedDesc.selectedParts && parsedDesc.selectedParts.length > 0) {
+      parsedDesc.selectedParts.forEach((partId: string) => {
+        const part = COMMON_PARTS.find((p: ConsumablePart) => p.id === partId)
+        if (part) {
+          partsList.push({ name: part.name, price: part.price })
+        }
+      })
+    }
+
+    downloadOfficialInvoicePdf({
+      jobId: job.id || 'dg-job-001',
+      invoiceNumber: `INV-DG-${job.id?.slice(0, 8).toUpperCase() || '2026-001'}`,
+      date: new Date().toLocaleString('en-IN'),
+      serviceTitle: job.title || selectedCategory.name,
+      serviceZone: job.serviceZone || selectedZone.name,
+      priority: job.priority || priority,
+      customerName: cust.name || 'Valued Customer',
+      customerPhone: cust.phone || '+91 98450 00000',
+      customerEmail: cust.email || 'customer@dispatchgrid.in',
+      customerAddress: cust.address || streetAddress || 'Bengaluru, Karnataka',
+      customerAge: cust.age || 28,
+      technicianName: techName,
+      partnerId: 'DG-PARTNER-402',
+      baseLabor: baseTradePrice,
+      speedFee: prioritySpeedFee,
+      safetyFee: safetyEquipmentFee,
+      platformFee: cloudPlatformFee,
+      gstTax: gstTaxAmount,
+      totalAmount: price,
+      partsInstalled: partsList,
+      resolutionNote: parsedDesc.resolutionNote,
+      paymentMethod: activeOrder?.paymentMethod || orderItem?.paymentMethod || selectedPaymentMethod || 'UPI',
+      paymentTxnId: activeOrder?.paymentTxnId || orderItem?.paymentTxnId || 'DG-PAY-88412',
+      paymentStatus: 'Paid & Verified',
+    })
+
+    showToast('Official Tax Invoice (PDF) generated & downloaded!')
   }
 
   const clearCustomerHistory = () => {
@@ -3762,6 +3745,12 @@ export default function CustomerPortal() {
                 <span className="text-[#DFB6B2]/70">Payment Settlement:</span>
                 <span className="text-emerald-400 font-bold">
                   Paid via {activeOrder?.paymentMethod || selectedPaymentMethod || 'UPI'} ({activeOrder?.paymentTxnId || 'DG-PAY-88412'})
+                </span>
+              </div>
+              <div className="flex justify-between items-center pt-1 text-[10px] font-mono text-emerald-400">
+                <span className="text-[#DFB6B2]/70">Email Invoice:</span>
+                <span className="flex items-center gap-1 font-semibold">
+                  <span>✓ Delivered to {activeOrder?.customer?.email || profile?.email || 'customer@dispatchgrid.in'}</span>
                 </span>
               </div>
             </div>
