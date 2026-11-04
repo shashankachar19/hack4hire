@@ -338,6 +338,6 @@ Use this step-by-step walkthrough during the live evaluation to cover all rubric
 - On **Technician Portal** (`/technician`): Switch to the matching technician persona. Show the **"🚨 INCOMING DISPATCH OFFER"** card. Click **[ACCEPT JOB OFFER]**.
 - Instantly observe the customer screen update with a live chime: *"🎉 Captain has ACCEPTED your service order!"*. Show the technician entering customer gate note, starting stopwatch, and verifying the customer OTP on-site!
 
-Built under pressure. Designed for scale ❤️.
+**Built under pressure. Designed for scale ❤️.**
 
 
